@@ -24,7 +24,21 @@ class MovieCard extends StatelessWidget {
             if (progress == null) return child;
             return ShimmerLoading.rectangular(height: height);
           },
-          errorBuilder: (context, error, stackTrace) => const Center(child: Icon(Icons.error)),
+          errorBuilder: (context, error, stackTrace) {
+            return Container(
+              color: Colors.grey[200],
+              child: Semantics(
+                label: 'Failed to load image for ${movie.title}',
+                child: const Center(
+                  child: Icon(
+                    Icons.broken_image,
+                    color: Colors.grey,
+                    size: 48.0,
+                  ),
+                ),
+              ),
+            );
+          },
         ),
       ),
     );
