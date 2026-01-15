@@ -35,6 +35,7 @@ class MovieDetailsScreen extends StatelessWidget {
         background: Image.network(
           'https://image.tmdb.org/t/p/w500/r9oTE25So8FLMOL6v3v4c2rqzQO.jpg',
           fit: BoxFit.cover,
+          semanticLabel: 'My Fault movie poster',
           errorBuilder: (context, error, stackTrace) =>
               const Center(child: Icon(Icons.movie, color: Colors.grey)),
         ),
