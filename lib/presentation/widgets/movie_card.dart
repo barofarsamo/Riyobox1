@@ -20,6 +20,7 @@ class MovieCard extends StatelessWidget {
         child: Image.network(
           'https://image.tmdb.org/t/p/w500${movie.posterPath}',
           fit: BoxFit.cover,
+          semanticLabel: movie.title,
           loadingBuilder: (context, child, progress) {
             if (progress == null) return child;
             return ShimmerLoading.rectangular(height: height);
