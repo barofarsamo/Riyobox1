@@ -53,6 +53,7 @@ class _MovieDetailsScreenState extends State<MovieDetailsScreen> {
                       Image.network(
                         'https://image.tmdb.org/t/p/w500${movie.posterPath}',
                         fit: BoxFit.cover,
+                        semanticLabel: movie.title,
                         errorBuilder: (context, error, stackTrace) =>
                             const Center(child: Icon(Icons.error)),
                       ),
