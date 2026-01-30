@@ -52,6 +52,7 @@ class _MovieDetailsScreenState extends State<MovieDetailsScreen> {
                     children: [
                       Image.network(
                         'https://image.tmdb.org/t/p/w500${movie.posterPath}',
+                        semanticLabel: 'Movie poster: ${movie.title}',
                         fit: BoxFit.cover,
                         errorBuilder: (context, error, stackTrace) =>
                             const Center(child: Icon(Icons.error)),
@@ -74,6 +75,7 @@ class _MovieDetailsScreenState extends State<MovieDetailsScreen> {
                 ),
                 leading: IconButton(
                   icon: const Icon(Icons.arrow_back, color: Colors.white),
+                  tooltip: 'Back',
                   onPressed: () => context.pop(),
                 ),
               ),
