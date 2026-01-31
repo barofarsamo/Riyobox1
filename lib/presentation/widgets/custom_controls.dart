@@ -60,6 +60,7 @@ class _CustomControlsState extends State<CustomControls> {
                       color: Colors.white,
                       size: 30.0,
                     ),
+                    tooltip: widget.controller.value.isPlaying ? 'Pause' : 'Play',
                     onPressed: () {
                       setState(() {
                         widget.controller.value.isPlaying

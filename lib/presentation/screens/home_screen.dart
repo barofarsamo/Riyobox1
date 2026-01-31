@@ -36,8 +36,16 @@ class _HomeScreenState extends State<HomeScreen> {
             SliverAppBar(
               title: const Text('RIYOBOX', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 24)),
               actions: [
-                IconButton(icon: const Icon(Icons.cast), onPressed: () {}),
-                IconButton(icon: const Icon(Icons.settings), onPressed: () {}),
+                IconButton(
+                  icon: const Icon(Icons.cast),
+                  onPressed: () {},
+                  tooltip: 'Google Cast',
+                ),
+                IconButton(
+                  icon: const Icon(Icons.settings),
+                  onPressed: () {},
+                  tooltip: 'Settings',
+                ),
                 const Padding(
                   padding: EdgeInsets.all(8.0),
                   child: CircleAvatar(
