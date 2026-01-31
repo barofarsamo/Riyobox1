@@ -75,6 +75,7 @@ class _MovieDetailsScreenState extends State<MovieDetailsScreen> {
                 leading: IconButton(
                   icon: const Icon(Icons.arrow_back, color: Colors.white),
                   onPressed: () => context.pop(),
+                  tooltip: 'Back',
                 ),
               ),
               SliverToBoxAdapter(
