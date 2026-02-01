@@ -125,6 +125,7 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
             leading: IconButton(
               icon: const Icon(Icons.arrow_back, color: Colors.white),
               onPressed: () => Navigator.of(context).pop(),
+              tooltip: 'Back',
             ),
           ),
           const Spacer(),
@@ -142,6 +143,7 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
       children: [
         IconButton(
           icon: const Icon(Icons.replay_10, color: Colors.white, size: 40),
+          tooltip: 'Replay 10 seconds',
           onPressed: () {
             _controller.seekTo(
               _controller.value.position - const Duration(seconds: 10),
@@ -154,6 +156,7 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
             color: Colors.white,
             size: 60,
           ),
+          tooltip: _controller.value.isPlaying ? 'Pause' : 'Play',
           onPressed: () {
             setState(() {
               _controller.value.isPlaying ? _controller.pause() : _controller.play();
@@ -163,6 +166,7 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
         ),
         IconButton(
           icon: const Icon(Icons.forward_10, color: Colors.white, size: 40),
+          tooltip: 'Forward 10 seconds',
           onPressed: () {
             _controller.seekTo(
               _controller.value.position + const Duration(seconds: 10),
