@@ -35,10 +35,12 @@ class MyRiyoboxScreen extends StatelessWidget {
           IconButton(
             icon: const Icon(Icons.cast, color: Colors.white),
             onPressed: () {},
+            tooltip: 'Cast',
           ),
           IconButton(
             icon: const Icon(Icons.settings, color: Colors.white),
             onPressed: () {},
+            tooltip: 'Settings',
           ),
           const Padding(
             padding: EdgeInsets.only(right: 16.0),
