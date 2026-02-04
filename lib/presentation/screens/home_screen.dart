@@ -36,8 +36,16 @@ class _HomeScreenState extends State<HomeScreen> {
             SliverAppBar(
               title: const Text('RIYOBOX', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 24)),
               actions: [
-                IconButton(icon: const Icon(Icons.cast), onPressed: () {}),
-                IconButton(icon: const Icon(Icons.settings), onPressed: () {}),
+                IconButton(
+                  icon: const Icon(Icons.cast),
+                  onPressed: () {},
+                  tooltip: 'Cast',
+                ),
+                IconButton(
+                  icon: const Icon(Icons.settings),
+                  onPressed: () {},
+                  tooltip: 'Settings',
+                ),
                 const Padding(
                   padding: EdgeInsets.all(8.0),
                   child: CircleAvatar(
@@ -132,6 +140,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       children: [
                         Image.network(
                           'https://image.tmdb.org/t/p/w500${movie.posterPath}',
+                          semanticLabel: movie.title,
                           fit: BoxFit.cover,
                           height: 250.0,
                           width: double.infinity,
