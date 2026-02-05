@@ -1,0 +1,3 @@
+## 2026-02-05 - Improving Flutter Accessibility with Tooltips and Semantic Labels
+**Learning:** `IconButton` widgets in Flutter are often used without tooltips, making them inaccessible to screen readers. Adding a `tooltip` provides the necessary semantic information. Similarly, `Image.network` widgets require a `semanticLabel` to describe the content. In Flutter Web, the semantic layer is hidden behind a `flt-semantics-placeholder` and must be explicitly enabled for accessibility tools to interact with it.
+**Action:** Always verify that icon-only buttons have tooltips and images have semantic labels. When testing Flutter Web, ensure the semantics placeholder is triggered.
