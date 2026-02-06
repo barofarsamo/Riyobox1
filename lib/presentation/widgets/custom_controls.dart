@@ -56,10 +56,13 @@ class _CustomControlsState extends State<CustomControls> {
                 children: <Widget>[
                   IconButton(
                     icon: Icon(
-                      widget.controller.value.isPlaying ? Icons.pause : Icons.play_arrow,
+                      widget.controller.value.isPlaying
+                          ? Icons.pause
+                          : Icons.play_arrow,
                       color: Colors.white,
                       size: 30.0,
                     ),
+                    tooltip: widget.controller.value.isPlaying ? 'Pause' : 'Play',
                     onPressed: () {
                       setState(() {
                         widget.controller.value.isPlaying
