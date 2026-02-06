@@ -34,10 +34,12 @@ class MyRiyoboxScreen extends StatelessWidget {
         actions: [
           IconButton(
             icon: const Icon(Icons.cast, color: Colors.white),
+            tooltip: 'Cast',
             onPressed: () {},
           ),
           IconButton(
             icon: const Icon(Icons.settings, color: Colors.white),
+            tooltip: 'Settings',
             onPressed: () {},
           ),
           const Padding(
@@ -168,7 +170,8 @@ class MyRiyoboxScreen extends StatelessWidget {
                       item['image']!,
                       fit: BoxFit.cover,
                       width: double.infinity,
-                       loadingBuilder: (context, child, progress) {
+                      semanticLabel: item['title'],
+                      loadingBuilder: (context, child, progress) {
                         if (progress == null) return child;
                         return const ShimmerLoading.rectangular(height: 180);
                       },
