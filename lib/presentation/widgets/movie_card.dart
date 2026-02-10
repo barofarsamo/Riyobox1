@@ -19,6 +19,7 @@ class MovieCard extends StatelessWidget {
         width: double.infinity,
         child: Image.network(
           'https://image.tmdb.org/t/p/w500${movie.posterPath}',
+          semanticLabel: movie.title,
           fit: BoxFit.cover,
           loadingBuilder: (context, child, progress) {
             if (progress == null) return child;
