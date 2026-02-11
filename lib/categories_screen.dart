@@ -50,10 +50,12 @@ class CategoriesScreen extends StatelessWidget {
               IconButton(
                 icon: const Icon(Icons.cast, color: Colors.white),
                 onPressed: () {},
+                tooltip: 'Cast',
               ),
               IconButton(
                 icon: const Icon(Icons.settings, color: Colors.white),
                 onPressed: () {},
+                tooltip: 'Settings',
               ),
               const Padding(
                 padding: EdgeInsets.only(right: 16.0),
@@ -143,6 +145,7 @@ class CategoriesScreen extends StatelessWidget {
             height: 200,
             width: double.infinity,
             fit: BoxFit.cover,
+            semanticLabel: 'Featured Category: Anime Hub',
           ),
           Container(
             height: 200,
@@ -197,6 +200,7 @@ class CategoriesScreen extends StatelessWidget {
             width: double.infinity,
             height: double.infinity,
             fit: BoxFit.cover,
+            semanticLabel: 'Genre: $name',
           ),
           Container(
             decoration: BoxDecoration(
@@ -227,6 +231,7 @@ class CategoriesScreen extends StatelessWidget {
           width: 120,
           height: 180,
           fit: BoxFit.cover,
+          semanticLabel: 'Trending Movie',
         ),
       ),
     );
