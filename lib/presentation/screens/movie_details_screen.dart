@@ -101,11 +101,11 @@ class _MovieDetailsScreenState extends State<MovieDetailsScreen> {
                           const SizedBox(width: 16),
                           const Icon(Icons.star, color: Colors.amber, size: 18),
                           const SizedBox(width: 4),
-                          // Text(
-                          //   movie.voteAverage.toStringAsFixed(1),
-                          //   style:
-                          //       const TextStyle(color: Colors.grey, fontSize: 16),
-                          // ),
+                          Text(
+                            movie.voteAverage.toStringAsFixed(1),
+                            style:
+                                const TextStyle(color: Colors.grey, fontSize: 16),
+                          ),
                         ],
                       ),
                       const SizedBox(height: 16),
@@ -119,7 +119,7 @@ class _MovieDetailsScreenState extends State<MovieDetailsScreen> {
                         child: ElevatedButton.icon(
                           onPressed: () {
                             // Navigate to the video player
-                            context.go('/movie/${movie.id}/play');
+                            context.push('/movie/${movie.id}/play');
                           },
                           icon: const Icon(Icons.play_arrow),
                           label: const Text('Play Trailer'),

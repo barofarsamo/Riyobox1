@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 class CategoriesScreen extends StatelessWidget {
   const CategoriesScreen({super.key});
@@ -49,17 +50,21 @@ class CategoriesScreen extends StatelessWidget {
             actions: [
               IconButton(
                 icon: const Icon(Icons.cast, color: Colors.white),
-                onPressed: () {},
+                onPressed: () => context.push('/cast'),
               ),
               IconButton(
                 icon: const Icon(Icons.settings, color: Colors.white),
-                onPressed: () {},
+                onPressed: () => context.push('/settings'),
               ),
-              const Padding(
-                padding: EdgeInsets.only(right: 16.0),
-                child: CircleAvatar(
-                  radius: 16,
-                  backgroundImage: NetworkImage('https://picsum.photos/seed/profile/100/100'),
+              Padding(
+                padding: const EdgeInsets.only(right: 16.0),
+                child: GestureDetector(
+                  onTap: () => context.push('/profile'),
+                  child: const CircleAvatar(
+                    radius: 16,
+                    backgroundImage: NetworkImage(
+                        'https://picsum.photos/seed/profile/100/100'),
+                  ),
                 ),
               ),
             ],
@@ -121,7 +126,7 @@ class CategoriesScreen extends StatelessWidget {
                 padding: const EdgeInsets.only(left: 16.0, top: 16.0),
                 itemCount: trendingMovies.length,
                 itemBuilder: (context, index) {
-                  return _buildTrendingMovieCard(trendingMovies[index]);
+                  return _buildTrendingMovieCard(context, trendingMovies[index]);
                 },
               ),
             ),
@@ -216,17 +221,21 @@ class CategoriesScreen extends StatelessWidget {
     );
   }
 
-    Widget _buildTrendingMovieCard(String imageUrl) {
-    return Padding(
-      padding: const EdgeInsets.only(right: 12.0),
-      child: Card(
-         clipBehavior: Clip.antiAlias,
-         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-        child: Image.network(
-          imageUrl,
-          width: 120,
-          height: 180,
-          fit: BoxFit.cover,
+  Widget _buildTrendingMovieCard(BuildContext context, String imageUrl) {
+    return GestureDetector(
+      onTap: () => context.push('/movie/1'), // Mocking navigation to movie 1
+      child: Padding(
+        padding: const EdgeInsets.only(right: 12.0),
+        child: Card(
+          clipBehavior: Clip.antiAlias,
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          child: Image.network(
+            imageUrl,
+            width: 120,
+            height: 180,
+            fit: BoxFit.cover,
+          ),
         ),
       ),
     );

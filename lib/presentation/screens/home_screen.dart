@@ -1,6 +1,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:carousel_slider/carousel_slider.dart';
+import 'package:go_router/go_router.dart';
 import 'package:riyobox/models/movie.dart';
 import 'package:riyobox/services/api_service.dart';
 import 'package:riyobox/presentation/widgets/movie_card.dart';
@@ -34,14 +35,23 @@ class _HomeScreenState extends State<HomeScreen> {
         headerSliverBuilder: (BuildContext context, bool innerBoxIsScrolled) {
           return <Widget>[
             SliverAppBar(
-              title: const Text('RIYOBOX', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 24)),
+              title: const Text('RIYOBOX',
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 24)),
               actions: [
-                IconButton(icon: const Icon(Icons.cast), onPressed: () {}),
-                IconButton(icon: const Icon(Icons.settings), onPressed: () {}),
-                const Padding(
-                  padding: EdgeInsets.all(8.0),
-                  child: CircleAvatar(
-                    backgroundImage: NetworkImage('https://picsum.photos/seed/avatar/100/100'),
+                IconButton(
+                    icon: const Icon(Icons.cast),
+                    onPressed: () => context.push('/cast')),
+                IconButton(
+                    icon: const Icon(Icons.settings),
+                    onPressed: () => context.push('/settings')),
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: GestureDetector(
+                    onTap: () => context.push('/profile'),
+                    child: const CircleAvatar(
+                      backgroundImage: NetworkImage(
+                          'https://picsum.photos/seed/avatar/100/100'),
+                    ),
                   ),
                 ),
               ],
@@ -128,18 +138,23 @@ class _HomeScreenState extends State<HomeScreen> {
               items: movies.map((movie) {
                 return Builder(
                   builder: (BuildContext context) {
-                    return Stack(
-                      children: [
-                        Image.network(
-                          'https://image.tmdb.org/t/p/w500${movie.posterPath}',
-                          fit: BoxFit.cover,
-                          height: 250.0,
-                          width: double.infinity,
-                          loadingBuilder: (context, child, progress) {
-                            return progress == null ? child : const ShimmerLoading.rectangular(height: 250);
-                          },
-                          errorBuilder: (context, error, stackTrace) => const Center(child: Icon(Icons.error)),
-                        ),
+                    return GestureDetector(
+                      onTap: () => context.push('/movie/${movie.id}'),
+                      child: Stack(
+                        children: [
+                          Image.network(
+                            'https://image.tmdb.org/t/p/w500${movie.posterPath}',
+                            fit: BoxFit.cover,
+                            height: 250.0,
+                            width: double.infinity,
+                            loadingBuilder: (context, child, progress) {
+                              return progress == null
+                                  ? child
+                                  : const ShimmerLoading.rectangular(height: 250);
+                            },
+                            errorBuilder: (context, error, stackTrace) =>
+                                const Center(child: Icon(Icons.error)),
+                          ),
                         Container(
                           height: 250.0,
                           decoration: BoxDecoration(
@@ -168,7 +183,8 @@ class _HomeScreenState extends State<HomeScreen> {
                           ),
                         ),
                       ],
-                    );
+                    ),
+                  );
                   },
                 );
               }).toList(),

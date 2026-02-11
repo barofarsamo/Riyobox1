@@ -1,5 +1,6 @@
 
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:riyobox/models/movie.dart';
 import 'package:riyobox/presentation/widgets/shimmer_loading.dart';
 
@@ -11,20 +12,26 @@ class MovieCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      clipBehavior: Clip.antiAlias,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      child: SizedBox(
-        height: height,
-        width: double.infinity,
-        child: Image.network(
-          'https://image.tmdb.org/t/p/w500${movie.posterPath}',
-          fit: BoxFit.cover,
-          loadingBuilder: (context, child, progress) {
-            if (progress == null) return child;
-            return ShimmerLoading.rectangular(height: height);
-          },
-          errorBuilder: (context, error, stackTrace) => const Center(child: Icon(Icons.error)),
+    return GestureDetector(
+      onTap: () {
+        context.push('/movie/${movie.id}');
+      },
+      child: Card(
+        clipBehavior: Clip.antiAlias,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        child: SizedBox(
+          height: height,
+          width: double.infinity,
+          child: Image.network(
+            'https://image.tmdb.org/t/p/w500${movie.posterPath}',
+            fit: BoxFit.cover,
+            loadingBuilder: (context, child, progress) {
+              if (progress == null) return child;
+              return ShimmerLoading.rectangular(height: height);
+            },
+            errorBuilder: (context, error, stackTrace) =>
+                const Center(child: Icon(Icons.error)),
+          ),
         ),
       ),
     );

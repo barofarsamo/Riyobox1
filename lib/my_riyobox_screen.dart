@@ -1,5 +1,6 @@
 
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:riyobox/presentation/widgets/shimmer_loading.dart';
 
 class MyRiyoboxScreen extends StatelessWidget {
@@ -34,17 +35,21 @@ class MyRiyoboxScreen extends StatelessWidget {
         actions: [
           IconButton(
             icon: const Icon(Icons.cast, color: Colors.white),
-            onPressed: () {},
+            onPressed: () => context.push('/cast'),
           ),
           IconButton(
             icon: const Icon(Icons.settings, color: Colors.white),
-            onPressed: () {},
+            onPressed: () => context.push('/settings'),
           ),
-          const Padding(
-            padding: EdgeInsets.only(right: 16.0),
-            child: CircleAvatar(
-              radius: 16,
-              backgroundImage: NetworkImage('https://picsum.photos/seed/profile/100/100'),
+          Padding(
+            padding: const EdgeInsets.only(right: 16.0),
+            child: GestureDetector(
+              onTap: () => context.push('/profile'),
+              child: const CircleAvatar(
+                radius: 16,
+                backgroundImage: NetworkImage(
+                    'https://picsum.photos/seed/profile/100/100'),
+              ),
             ),
           ),
         ],
@@ -194,7 +199,7 @@ class MyRiyoboxScreen extends StatelessWidget {
           context,
           icon: Icons.settings_outlined,
           text: 'Edit Profile & Account',
-          onTap: () {},
+          onTap: () => context.push('/settings'),
         ),
         const SizedBox(height: 16),
         _buildSettingsButton(
@@ -203,7 +208,9 @@ class MyRiyoboxScreen extends StatelessWidget {
           text: 'Logout',
           iconColor: Colors.red,
           textColor: Colors.red,
-          onTap: () {},
+          onTap: () {
+            // Handle Logout
+          },
         ),
       ],
     );

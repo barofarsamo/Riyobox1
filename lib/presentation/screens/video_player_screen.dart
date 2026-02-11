@@ -7,7 +7,10 @@ import 'dart:async';
 import 'dart:developer' as developer;
 
 class VideoPlayerScreen extends StatefulWidget {
-  const VideoPlayerScreen({super.key});
+  final String? movieId;
+  final String? videoUrl;
+
+  const VideoPlayerScreen({super.key, this.movieId, this.videoUrl});
 
   @override
   State<VideoPlayerScreen> createState() => _VideoPlayerScreenState();
@@ -24,8 +27,10 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
   void initState() {
     super.initState();
     WakelockPlus.enable();
+    final url = widget.videoUrl ??
+        'http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4';
     _controller = VideoPlayerController.networkUrl(
-      Uri.parse('http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4'),
+      Uri.parse(url),
     )..initialize().then((_) {
         if (mounted) {
           setState(() {});
