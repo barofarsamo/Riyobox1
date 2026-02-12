@@ -12,16 +12,9 @@ val newBuildDir: Directory =
 rootProject.layout.buildDirectory.value(newBuildDir)
 
 subprojects {
-    val newSubprojectBuildDir: Directory = newBuildDir.dir(project.name)
-    project.layout.buildDirectory.value(newSubprojectBuildDir)
-}
-subprojects {
-    project.evaluationDependsOn(":app")
-}
+    val project = this
 
-subprojects {
-    afterEvaluate {
-        val project = this
+    val configureNamespace = {
         if (project.hasProperty("android")) {
             val android = project.extensions.getByName("android")
             try {
@@ -36,6 +29,24 @@ subprojects {
             } catch (e: Exception) {
                 // Ignore if methods don't exist
             }
+        }
+    }
+
+    if (project.state.executed) {
+        configureNamespace()
+    } else {
+        project.afterEvaluate {
+            configureNamespace()
+        }
+    }
+
+    val newSubprojectBuildDir: Directory = newBuildDir.dir(project.name)
+    project.layout.buildDirectory.value(newSubprojectBuildDir)
+
+    if (project.name != "app") {
+        try {
+            project.evaluationDependsOn(":app")
+        } catch (e: Exception) {
         }
     }
 }
