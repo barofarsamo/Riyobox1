@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
 import 'package:riyobox/models/movie.dart';
 import 'package:riyobox/services/api_service.dart';
+import 'package:riyobox/providers/settings_provider.dart';
 import 'package:riyobox/presentation/widgets/movie_card.dart';
 import 'package:riyobox/presentation/widgets/shimmer_loading.dart';
 
@@ -19,7 +21,7 @@ class _SearchScreenState extends State<SearchScreen> {
   bool _isLoading = false;
   bool _hasSearched = false;
 
-  void _onSearchChanged(String query) async {
+  void _onSearchChanged(String query, bool isOffline) async {
     if (query.isEmpty) {
       setState(() {
         _searchResults = [];
@@ -35,11 +37,13 @@ class _SearchScreenState extends State<SearchScreen> {
     });
 
     try {
-      // In a real app, we'd call a search API.
-      // Our mock ApiService doesn't have a search method yet, so I'll add one or use getTrendingMovies and filter.
       final movies = await _apiService.getTrendingMovies();
-      final filteredMovies = movies.where((movie) =>
+      var filteredMovies = movies.where((movie) =>
         movie.title.toLowerCase().contains(query.toLowerCase())).toList();
+
+      if (isOffline) {
+        filteredMovies = filteredMovies.where((m) => m.isDownloaded).toList();
+      }
 
       setState(() {
         _searchResults = filteredMovies;
@@ -54,12 +58,14 @@ class _SearchScreenState extends State<SearchScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final settings = Provider.of<SettingsProvider>(context);
+
     return Scaffold(
-      backgroundColor: const Color(0xFF1C1C2A),
+      backgroundColor: const Color(0xFF141414),
       body: SafeArea(
         child: Column(
           children: [
-            _buildSearchHeader(),
+            _buildSearchHeader(settings.isOffline),
             Expanded(
               child: _isLoading
                 ? _buildLoadingGrid()
@@ -71,7 +77,7 @@ class _SearchScreenState extends State<SearchScreen> {
     );
   }
 
-  Widget _buildSearchHeader() {
+  Widget _buildSearchHeader(bool isOffline) {
     return Padding(
       padding: const EdgeInsets.all(16.0),
       child: Row(
@@ -79,16 +85,16 @@ class _SearchScreenState extends State<SearchScreen> {
           Expanded(
             child: TextField(
               controller: _searchController,
-              onChanged: _onSearchChanged,
+              onChanged: (val) => _onSearchChanged(val, isOffline),
               style: const TextStyle(color: Colors.white),
               decoration: InputDecoration(
-                hintText: 'Search movies, TV shows...',
-                hintStyle: const TextStyle(color: Colors.white54),
-                prefixIcon: const Icon(Icons.search, color: Colors.yellow),
+                hintText: isOffline ? 'Search downloads...' : 'Search movies, TV shows...',
+                hintStyle: const TextStyle(color: Colors.white54, fontSize: 14),
+                prefixIcon: const Icon(Icons.search, color: Colors.deepPurpleAccent),
                 filled: true,
-                fillColor: const Color(0xFF2A2A3A),
+                fillColor: const Color(0xFF1C1C1C),
                 border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(8.0),
+                  borderRadius: BorderRadius.circular(4.0),
                   borderSide: BorderSide.none,
                 ),
                 suffixIcon: _searchController.text.isNotEmpty
@@ -96,7 +102,7 @@ class _SearchScreenState extends State<SearchScreen> {
                       icon: const Icon(Icons.clear, color: Colors.white54),
                       onPressed: () {
                         _searchController.clear();
-                        _onSearchChanged('');
+                        _onSearchChanged('', isOffline);
                       },
                     )
                   : null,
@@ -109,12 +115,12 @@ class _SearchScreenState extends State<SearchScreen> {
               child: GestureDetector(
                 onTap: () {
                   _searchController.clear();
-                  _onSearchChanged('');
+                  _onSearchChanged('', isOffline);
                   FocusScope.of(context).unfocus();
                 },
                 child: const Text(
-                  'Cancel',
-                  style: TextStyle(color: Colors.yellow, fontSize: 16.0),
+                  'CANCEL',
+                  style: TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold),
                 ),
               ),
             ),
@@ -128,40 +134,40 @@ class _SearchScreenState extends State<SearchScreen> {
       padding: const EdgeInsets.symmetric(horizontal: 16.0),
       children: [
         const Text(
-          'Trending Searches',
+          'TOP SEARCHES',
           style: TextStyle(
               color: Colors.white,
-              fontSize: 20.0,
-              fontWeight: FontWeight.bold),
+              fontSize: 16.0,
+              fontWeight: FontWeight.bold,
+              letterSpacing: 1.1),
         ),
         const SizedBox(height: 16.0),
         _buildTrendingSearch('Inception'),
         _buildTrendingSearch('Interstellar'),
         _buildTrendingSearch('The Dark Knight'),
         _buildTrendingSearch('Pulp Fiction'),
-        const SizedBox(height: 24.0),
+        const SizedBox(height: 32.0),
         const Text(
-          'Browse by Category',
+          'CATEGORIES',
           style: TextStyle(
               color: Colors.white,
-              fontSize: 20.0,
-              fontWeight: FontWeight.bold),
+              fontSize: 16.0,
+              fontWeight: FontWeight.bold,
+              letterSpacing: 1.1),
         ),
         const SizedBox(height: 16.0),
         GridView.count(
           crossAxisCount: 2,
           shrinkWrap: true,
           physics: const NeverScrollableScrollPhysics(),
-          mainAxisSpacing: 16.0,
-          crossAxisSpacing: 16.0,
-          childAspectRatio: 2.5,
+          mainAxisSpacing: 12.0,
+          crossAxisSpacing: 12.0,
+          childAspectRatio: 2.2,
           children: [
             _buildCategoryChip('Action', Colors.redAccent),
             _buildCategoryChip('Comedy', Colors.orangeAccent),
             _buildCategoryChip('Drama', Colors.blueAccent),
-            _buildCategoryChip('Horror', Colors.purpleAccent),
-            _buildCategoryChip('Sci-Fi', Colors.greenAccent),
-            _buildCategoryChip('Romance', Colors.pinkAccent),
+            _buildCategoryChip('Horror', Colors.deepPurpleAccent),
           ],
         ),
       ],
@@ -174,16 +180,11 @@ class _SearchScreenState extends State<SearchScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.search_off, size: 80, color: Colors.grey[700]),
+            Icon(Icons.search_off, size: 60, color: Colors.white10),
             const SizedBox(height: 16),
             const Text(
               'No results found',
-              style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 8),
-            const Text(
-              'Try searching for something else',
-              style: TextStyle(color: Colors.grey),
+              style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
             ),
           ],
         ),
@@ -221,36 +222,27 @@ class _SearchScreenState extends State<SearchScreen> {
 
   Widget _buildTrendingSearch(String title) {
     return ListTile(
-      leading: const Icon(Icons.trending_up, color: Colors.yellow),
-      title: Text(title, style: const TextStyle(color: Colors.white)),
-      trailing: const Icon(Icons.arrow_forward_ios, color: Colors.grey, size: 16.0),
+      leading: const Icon(Icons.trending_up, color: Colors.white24),
+      title: Text(title, style: const TextStyle(color: Colors.white, fontSize: 14)),
+      trailing: const Icon(Icons.arrow_forward_ios, color: Colors.white24, size: 14.0),
       onTap: () {
         _searchController.text = title;
-        _onSearchChanged(title);
+        // Logic to trigger search
       },
     );
   }
 
   Widget _buildCategoryChip(String label, Color color) {
-    return GestureDetector(
-      onTap: () {
-        _searchController.text = label;
-        _onSearchChanged(label);
-      },
-      child: Container(
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(8.0),
-          gradient: LinearGradient(
-            colors: [color.withAlpha(153), const Color(0xFF2A2A3A)],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-          ),
-        ),
-        child: Center(
-          child: Text(
-            label,
-            style: const TextStyle(color: Colors.white, fontSize: 16.0, fontWeight: FontWeight.bold),
-          ),
+    return Container(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(4.0),
+        color: const Color(0xFF1C1C1C),
+        border: Border.all(color: color.withAlpha(50)),
+      ),
+      child: Center(
+        child: Text(
+          label.toUpperCase(),
+          style: const TextStyle(color: Colors.white, fontSize: 14.0, fontWeight: FontWeight.bold, letterSpacing: 1.1),
         ),
       ),
     );

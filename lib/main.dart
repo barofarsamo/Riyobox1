@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:riyobox/providers/settings_provider.dart';
 import 'package:riyobox/providers/playback_provider.dart';
+import 'package:riyobox/providers/download_provider.dart';
 import 'package:riyobox/presentation/screens/home_screen.dart';
 import 'package:riyobox/presentation/screens/movie_details_screen.dart';
 import 'package:riyobox/presentation/screens/video_player_screen.dart';
@@ -97,6 +98,7 @@ class MyApp extends StatelessWidget {
       providers: [
         ChangeNotifierProvider(create: (_) => SettingsProvider()),
         ChangeNotifierProvider(create: (_) => PlaybackProvider()),
+        ChangeNotifierProvider(create: (_) => DownloadProvider()),
       ],
       child: Consumer<SettingsProvider>(
         builder: (context, settings, child) {

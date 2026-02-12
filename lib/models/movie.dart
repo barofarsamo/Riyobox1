@@ -14,6 +14,13 @@ class Movie {
   final bool isTvShow;
   final List<Season>? seasons;
 
+  // Download related fields
+  final bool isDownloaded;
+  final bool isDownloading;
+  final double downloadProgress;
+  final String fileSize;
+  final int downloadedEpisodesCount;
+
   Movie({
     required this.id,
     required this.title,
@@ -29,6 +36,11 @@ class Movie {
     this.contentRating,
     this.isTvShow = false,
     this.seasons,
+    this.isDownloaded = false,
+    this.isDownloading = false,
+    this.downloadProgress = 0.0,
+    this.fileSize = '0 MB',
+    this.downloadedEpisodesCount = 0,
   });
 
   factory Movie.fromJson(Map<String, dynamic> json) {
@@ -42,6 +54,40 @@ class Movie {
       voteAverage: (json['vote_average'] as num?)?.toDouble() ?? 0.0,
       runtime: json['runtime'],
       isTvShow: json['is_tv_show'] ?? false,
+      isDownloaded: json['is_downloaded'] ?? false,
+      isDownloading: json['is_downloading'] ?? false,
+      downloadProgress: (json['download_progress'] as num?)?.toDouble() ?? 0.0,
+      fileSize: json['file_size'] ?? '0 MB',
+      downloadedEpisodesCount: json['downloaded_episodes_count'] ?? 0,
+    );
+  }
+
+  Movie copyWith({
+    bool? isDownloaded,
+    bool? isDownloading,
+    double? downloadProgress,
+    int? downloadedEpisodesCount,
+  }) {
+    return Movie(
+      id: id,
+      title: title,
+      overview: overview,
+      posterPath: posterPath,
+      backdropPath: backdropPath,
+      releaseDate: releaseDate,
+      voteAverage: voteAverage,
+      runtime: runtime,
+      genres: genres,
+      cast: cast,
+      director: director,
+      contentRating: contentRating,
+      isTvShow: isTvShow,
+      seasons: seasons,
+      isDownloaded: isDownloaded ?? this.isDownloaded,
+      isDownloading: isDownloading ?? this.isDownloading,
+      downloadProgress: downloadProgress ?? this.downloadProgress,
+      fileSize: fileSize,
+      downloadedEpisodesCount: downloadedEpisodesCount ?? this.downloadedEpisodesCount,
     );
   }
 }

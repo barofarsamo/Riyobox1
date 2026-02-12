@@ -4,6 +4,7 @@ import 'package:carousel_slider/carousel_slider.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:riyobox/providers/playback_provider.dart';
+import 'package:riyobox/providers/settings_provider.dart';
 import 'package:riyobox/models/movie.dart';
 import 'package:riyobox/services/api_service.dart';
 import 'package:riyobox/presentation/widgets/movie_card.dart';
@@ -32,19 +33,31 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final settings = Provider.of<SettingsProvider>(context);
+
     return Scaffold(
+      backgroundColor: const Color(0xFF141414),
       body: NestedScrollView(
         headerSliverBuilder: (BuildContext context, bool innerBoxIsScrolled) {
           return <Widget>[
             SliverAppBar(
+              backgroundColor: const Color(0xFF141414),
               title: const Text('RIYOBOX',
-                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 24)),
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 24, color: Colors.white)),
               actions: [
+                if (settings.isOffline)
+                  const Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 8.0),
+                    child: Chip(
+                      label: Text('OFFLINE MODE', style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Colors.white)),
+                      backgroundColor: Colors.redAccent,
+                    ),
+                  ),
                 IconButton(
-                    icon: const Icon(Icons.cast),
+                    icon: const Icon(Icons.cast, color: Colors.white),
                     onPressed: () => context.push('/cast')),
                 IconButton(
-                    icon: const Icon(Icons.settings),
+                    icon: const Icon(Icons.settings, color: Colors.white),
                     onPressed: () => context.push('/settings')),
                 Padding(
                   padding: const EdgeInsets.all(8.0),
@@ -78,10 +91,11 @@ class _HomeScreenState extends State<HomeScreen> {
                               _selectedFilter = _filters[index];
                             });
                           },
-                          backgroundColor: const Color(0xFF2C2B30),
-                          selectedColor: Colors.deepPurple,
+                          backgroundColor: const Color(0xFF262626),
+                          selectedColor: Colors.deepPurpleAccent,
                           labelStyle: TextStyle(
                             color: _selectedFilter == _filters[index] ? Colors.white : Colors.grey[400],
+                            fontSize: 12,
                           ),
                         ),
                       );
@@ -95,14 +109,23 @@ class _HomeScreenState extends State<HomeScreen> {
         body: SingleChildScrollView(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              _buildCarouselSlider(),
-              _buildContinueWatchingSection(),
-              const SizedBox(height: 20),
-              _buildMovieCategory("Filimada Riyobox", _apiService.getTrendingMovies()),
-              _buildMovieCategory("Asalka Riyobox", _apiService.getTopRatedMovies()),
-              _buildMovieCategory("Daawashada Sii Wad", _apiService.getNowPlayingMovies()),
-            ],
+            children: settings.isOffline
+              ? [
+                  const Padding(
+                    padding: EdgeInsets.all(16.0),
+                    child: Text('MY DOWNLOADS', style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
+                  ),
+                  _buildMovieCategory("Downloaded Movies", _apiService.getTrendingMovies().then((movies) => movies.where((m) => m.isDownloaded).toList())),
+                   const SizedBox(height: 200), // Filler
+                ]
+              : [
+                  _buildCarouselSlider(),
+                  _buildContinueWatchingSection(),
+                  const SizedBox(height: 20),
+                  _buildMovieCategory("Filimada Riyobox", _apiService.getTrendingMovies()),
+                  _buildMovieCategory("Asalka Riyobox", _apiService.getTopRatedMovies()),
+                  _buildMovieCategory("Daawashada Sii Wad", _apiService.getNowPlayingMovies()),
+                ],
           ),
         ),
       ),
@@ -119,7 +142,7 @@ class _HomeScreenState extends State<HomeScreen> {
         if (snapshot.hasError || !snapshot.hasData || snapshot.data!.isEmpty) {
           return const SizedBox(
             height: 250,
-            child: Center(child: Text('Lama soo rari karin filimada la soo bandhigay.')),
+            child: Center(child: Text('Lama soo rari karin filimada la soo bandhigay.', style: TextStyle(color: Colors.white))),
           );
         }
 
@@ -198,14 +221,12 @@ class _HomeScreenState extends State<HomeScreen> {
                 return GestureDetector(
                   onTap: () => setState(() => _currentCarouselIndex = entry.key),
                   child: Container(
-                    width: 8.0,
-                    height: 8.0,
+                    width: 6.0,
+                    height: 6.0,
                     margin: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 2.0),
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
-                      color: (Theme.of(context).brightness == Brightness.dark
-                              ? Colors.white
-                              : Colors.black)
+                      color: Colors.white
                           .withAlpha(_currentCarouselIndex == entry.key ? 230 : 102),
                     ),
                   ),
@@ -221,8 +242,6 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget _buildContinueWatchingSection() {
     return Consumer<PlaybackProvider>(
       builder: (context, playback, child) {
-        // Just for demo, let's assume if there's any progress we show a mock item
-        // In a real app we'd fetch the actual movie data for these IDs
         return FutureBuilder<List<Movie>>(
           future: _apiService.getTrendingMovies(),
           builder: (context, snapshot) {
@@ -235,7 +254,7 @@ class _HomeScreenState extends State<HomeScreen> {
               children: [
                 const Padding(
                   padding: EdgeInsets.fromLTRB(16, 24, 16, 8),
-                  child: Text('⏸️ CONTINUE WATCHING', style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
+                  child: Text('CONTINUE WATCHING', style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
                 ),
                 SizedBox(
                   height: 160,
@@ -272,7 +291,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                 child: Container(
                                   width: 120, // Mock progress
                                   height: 4,
-                                  color: Colors.yellow,
+                                  color: Colors.deepPurpleAccent,
                                 ),
                               ),
                               Positioned(
@@ -313,9 +332,9 @@ class _HomeScreenState extends State<HomeScreen> {
             children: [
               Text(
                 title,
-                style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.white),
+                style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white),
               ),
-              const Icon(Icons.arrow_forward_ios, color: Colors.white, size: 16),
+              const Icon(Icons.arrow_forward_ios, color: Colors.white, size: 14),
             ],
           ),
         ),
@@ -328,7 +347,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 return _buildMovieShimmerList();
               }
               if (snapshot.hasError || !snapshot.hasData || snapshot.data!.isEmpty) {
-                return const Center(child: Text('Cilad ayaa ka dhacday soo rarida filimada.'));
+                return const Center(child: Text('Cilad ayaa ka dhacday soo rarida filimada.', style: TextStyle(color: Colors.white)));
               }
               final movies = snapshot.data!;
               return ListView.builder(
@@ -347,14 +366,14 @@ class _HomeScreenState extends State<HomeScreen> {
                           const SizedBox(height: 8),
                           Text(
                             movie.title,
-                            style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                            style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 13),
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                           ),
                           const SizedBox(height: 4),
                           Text(
                             movie.releaseDate.split('-')[0],
-                            style: const TextStyle(color: Colors.grey, fontSize: 12),
+                            style: const TextStyle(color: Colors.grey, fontSize: 11),
                           ),
                         ],
                       ),

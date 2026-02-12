@@ -1,11 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
+import 'package:riyobox/providers/settings_provider.dart';
 
 class CategoriesScreen extends StatelessWidget {
   const CategoriesScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final settings = Provider.of<SettingsProvider>(context);
+
     final List<Map<String, String>> genres = [
       {'name': 'Action', 'image': 'https://picsum.photos/seed/action/400/200'},
       {'name': 'Comedy', 'image': 'https://picsum.photos/seed/comedy/400/200'},
@@ -17,34 +21,29 @@ class CategoriesScreen extends StatelessWidget {
       {'name': 'Documentary', 'image': 'https://picsum.photos/seed/documentary/400/200'},
     ];
 
-    final List<String> trendingMovies = [
-      'https://picsum.photos/seed/movie1/200/300',
-      'https://picsum.photos/seed/movie2/200/300',
-      'https://picsum.photos/seed/movie3/200/300',
-      'https://picsum.photos/seed/movie4/200/300',
-      'https://picsum.photos/seed/movie5/200/300',
-    ];
-
     return Scaffold(
-      backgroundColor: const Color(0xFF1C1C2A),
+      backgroundColor: const Color(0xFF141414),
       body: CustomScrollView(
         slivers: [
           SliverAppBar(
-            backgroundColor: const Color(0xFF1C1C2A),
+            backgroundColor: const Color(0xFF141414),
             title: Row(
               children: [
                 const Text('RIYOBOX', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white)),
-                const SizedBox(width: 8),
-                Container(
-                  width: 8,
-                  height: 8,
-                  decoration: const BoxDecoration(
-                    color: Colors.green,
-                    shape: BoxShape.circle,
+                const SizedBox(width: 12),
+                if (!settings.isOffline) ...[
+                  Container(
+                    width: 8,
+                    height: 8,
+                    decoration: const BoxDecoration(
+                      color: Colors.green,
+                      shape: BoxShape.circle,
+                    ),
                   ),
-                ),
-                const SizedBox(width: 4),
-                const Text('Online', style: TextStyle(color: Colors.green, fontSize: 12)),
+                  const SizedBox(width: 4),
+                  const Text('Online', style: TextStyle(color: Colors.green, fontSize: 12)),
+                ] else
+                   const Text('Offline', style: TextStyle(color: Colors.redAccent, fontSize: 12)),
               ],
             ),
             actions: [
@@ -62,8 +61,7 @@ class CategoriesScreen extends StatelessWidget {
                   onTap: () => context.push('/profile'),
                   child: const CircleAvatar(
                     radius: 16,
-                    backgroundImage: NetworkImage(
-                        'https://picsum.photos/seed/profile/100/100'),
+                    backgroundImage: NetworkImage('https://picsum.photos/seed/profile/100/100'),
                   ),
                 ),
               ),
@@ -79,14 +77,8 @@ class CategoriesScreen extends StatelessWidget {
           ),
           const SliverToBoxAdapter(
             child: Padding(
-              padding: EdgeInsets.symmetric(horizontal: 16.0),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text('Browse Genres', style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
-                  Icon(Icons.arrow_forward_ios, color: Colors.white, size: 16),
-                ],
-              ),
+              padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 8),
+              child: Text('BROWSE GENRES', style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold, letterSpacing: 1.1)),
             ),
           ),
           SliverPadding(
@@ -94,40 +86,15 @@ class CategoriesScreen extends StatelessWidget {
             sliver: SliverGrid(
               gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                 crossAxisCount: 2,
-                mainAxisSpacing: 16,
-                crossAxisSpacing: 16,
-                childAspectRatio: 1.8,
+                mainAxisSpacing: 12,
+                crossAxisSpacing: 12,
+                childAspectRatio: 1.6,
               ),
               delegate: SliverChildBuilderDelegate(
                 (context, index) {
                   return _buildGenreCard(genres[index]['name']!, genres[index]['image']!);
                 },
                 childCount: genres.length,
-              ),
-            ),
-          ),
-           SliverToBoxAdapter(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16.0),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  const Text('Trending in Movies', style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
-                  Text('See All', style: TextStyle(color: Colors.grey[400], fontSize: 14)),
-                ],
-              ),
-            ),
-          ),
-          SliverToBoxAdapter(
-            child: SizedBox(
-              height: 180,
-              child: ListView.builder(
-                scrollDirection: Axis.horizontal,
-                padding: const EdgeInsets.only(left: 16.0, top: 16.0),
-                itemCount: trendingMovies.length,
-                itemBuilder: (context, index) {
-                  return _buildTrendingMovieCard(context, trendingMovies[index]);
-                },
               ),
             ),
           ),
@@ -139,24 +106,23 @@ class CategoriesScreen extends StatelessWidget {
   Widget _buildFeaturedCategoryCard(BuildContext context) {
     return Card(
       clipBehavior: Clip.antiAlias,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
       child: Stack(
         alignment: Alignment.bottomLeft,
         children: [
           Image.network(
             'https://picsum.photos/seed/van/800/400',
-            height: 200,
+            height: 180,
             width: double.infinity,
             fit: BoxFit.cover,
           ),
           Container(
-            height: 200,
-            decoration: BoxDecoration(
+            height: 180,
+            decoration: const BoxDecoration(
               gradient: LinearGradient(
-                colors: [Colors.black.withAlpha(204), Colors.transparent],
+                colors: [Colors.black87, Colors.transparent],
                 begin: Alignment.bottomCenter,
                 end: Alignment.topCenter,
-                stops: const [0.0, 0.7],
               ),
             ),
           ),
@@ -166,21 +132,17 @@ class CategoriesScreen extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisSize: MainAxisSize.min,
               children: [
-                const Text('FEATURED CATEGORY', style: TextStyle(color: Colors.yellowAccent, fontSize: 12, fontWeight: FontWeight.bold)),
-                const SizedBox(height: 8),
-                const Text('ANIME HUB', style: TextStyle(color: Colors.white, fontSize: 32, fontWeight: FontWeight.bold)),
-                const SizedBox(height: 16),
-                ElevatedButton.icon(
+                const Text('FEATURED CATEGORY', style: TextStyle(color: Colors.deepPurpleAccent, fontSize: 11, fontWeight: FontWeight.bold)),
+                const SizedBox(height: 4),
+                const Text('ANIME HUB', style: TextStyle(color: Colors.white, fontSize: 24, fontWeight: FontWeight.bold)),
+                const SizedBox(height: 12),
+                ElevatedButton(
                   onPressed: () {},
-                  icon: const Icon(Icons.play_arrow, color: Colors.black),
-                  label: const Text('Explore Anime', style: TextStyle(color: Colors.black)),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.white,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
                   ),
+                  child: const Text('EXPLORE', style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold)),
                 ),
               ],
             ),
@@ -191,51 +153,19 @@ class CategoriesScreen extends StatelessWidget {
   }
 
   Widget _buildGenreCard(String name, String imageUrl) {
-    return Card(
-      clipBehavior: Clip.antiAlias,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      child: Stack(
-        alignment: Alignment.center,
-        children: [
-          Image.network(
-            imageUrl,
-            width: double.infinity,
-            height: double.infinity,
-            fit: BoxFit.cover,
-          ),
-          Container(
-            decoration: BoxDecoration(
-              color: Colors.black.withAlpha(102),
-            ),
-          ),
-          Text(
-            name,
-            style: const TextStyle(
-              color: Colors.white,
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-        ],
+    return Container(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(4),
+        image: DecorationImage(
+          image: NetworkImage(imageUrl),
+          fit: BoxFit.cover,
+          colorFilter: ColorFilter.mode(Colors.black.withAlpha(100), BlendMode.darken),
+        ),
       ),
-    );
-  }
-
-  Widget _buildTrendingMovieCard(BuildContext context, String imageUrl) {
-    return GestureDetector(
-      onTap: () => context.push('/movie/1'), // Mocking navigation to movie 1
-      child: Padding(
-        padding: const EdgeInsets.only(right: 12.0),
-        child: Card(
-          clipBehavior: Clip.antiAlias,
-          shape:
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-          child: Image.network(
-            imageUrl,
-            width: 120,
-            height: 180,
-            fit: BoxFit.cover,
-          ),
+      child: Center(
+        child: Text(
+          name.toUpperCase(),
+          style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold, letterSpacing: 1.2),
         ),
       ),
     );

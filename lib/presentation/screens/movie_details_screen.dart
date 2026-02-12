@@ -21,12 +21,12 @@ class _MovieDetailsScreenState extends State<MovieDetailsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF1C1C2A),
+      backgroundColor: const Color(0xFF141414),
       body: FutureBuilder<Movie>(
         future: _apiService.getMovieDetails(widget.movieId),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator(color: Colors.yellow));
+            return const Center(child: CircularProgressIndicator(color: Colors.deepPurple));
           }
           if (snapshot.hasError) {
             return Center(child: Text('Error: ${snapshot.error}', style: const TextStyle(color: Colors.white)));
@@ -41,26 +41,27 @@ class _MovieDetailsScreenState extends State<MovieDetailsScreen> {
               _buildHeroSection(movie),
               SliverToBoxAdapter(
                 child: Padding(
-                  padding: const EdgeInsets.all(16.0),
+                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
+                      const SizedBox(height: 20),
+                      _buildMainInfo(movie),
+                      const SizedBox(height: 24),
+                      _buildActionsBar(context),
+                      const SizedBox(height: 24),
                       _buildBadges(),
                       const SizedBox(height: 24),
                       _buildSynopsis(movie),
                       const SizedBox(height: 24),
-                      _buildCastAndCrew(movie),
-                      const SizedBox(height: 24),
-                      _buildMoreInfo(movie),
+                      _buildCastSection(movie),
                       const SizedBox(height: 32),
                       if (movie.isTvShow) _buildSeasonSelector(movie),
                       if (movie.isTvShow) _buildEpisodeList(),
                       const SizedBox(height: 32),
-                      _buildActionsBar(context),
-                      const SizedBox(height: 32),
+                      _buildMoreInfo(movie),
+                      const SizedBox(height: 40),
                       _buildRecommendationsSection("MORE LIKE THIS"),
-                      const SizedBox(height: 32),
-                      _buildRecommendationsSection("FROM THE SAME DIRECTOR"),
                       const SizedBox(height: 40),
                     ],
                   ),
@@ -75,9 +76,13 @@ class _MovieDetailsScreenState extends State<MovieDetailsScreen> {
 
   Widget _buildHeroSection(Movie movie) {
     return SliverAppBar(
-      expandedHeight: 400,
+      expandedHeight: 250,
       pinned: true,
-      backgroundColor: const Color(0xFF1C1C2A),
+      backgroundColor: const Color(0xFF141414),
+      leading: IconButton(
+        icon: const Icon(Icons.arrow_back, color: Colors.white),
+        onPressed: () => Navigator.pop(context),
+      ),
       flexibleSpace: FlexibleSpaceBar(
         background: Stack(
           fit: StackFit.expand,
@@ -87,55 +92,22 @@ class _MovieDetailsScreenState extends State<MovieDetailsScreen> {
               fit: BoxFit.cover,
             ),
             Container(
-              decoration: BoxDecoration(
+              decoration: const BoxDecoration(
                 gradient: LinearGradient(
                   begin: Alignment.topCenter,
                   end: Alignment.bottomCenter,
                   colors: [
+                    Colors.black45,
                     Colors.transparent,
-                    const Color(0xFF1C1C2A).withAlpha(204),
-                    const Color(0xFF1C1C2A),
+                    Color(0xFF141414),
                   ],
                 ),
               ),
             ),
-            Positioned(
-              bottom: 20,
-              left: 16,
-              right: 16,
-              child: Column(
-                children: [
-                  Text(
-                    movie.title,
-                    textAlign: TextAlign.center,
-                    style: const TextStyle(color: Colors.white, fontSize: 32, fontWeight: FontWeight.bold),
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    '⭐ ${movie.voteAverage.toStringAsFixed(1)}/10 • ${movie.releaseDate.split('-')[0]} • ${movie.isTvShow ? 'TV Series' : '${movie.runtime} min'} • ${movie.contentRating ?? 'PG-13'}',
-                    style: const TextStyle(color: Colors.grey, fontSize: 14),
-                  ),
-                  const SizedBox(height: 24),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      _buildHeroButton(Icons.play_arrow, 'PLAY', Colors.white, Colors.black, () {
-                        context.push('/movie/${movie.id}/play');
-                      }),
-                      const SizedBox(width: 12),
-                      _buildHeroButton(Icons.download, 'DOWNLOAD', const Color(0xFF2A2A3A), Colors.white, () {}),
-                    ],
-                  ),
-                  const SizedBox(height: 12),
-                   Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      _buildHeroButton(Icons.add, 'MY LIST', const Color(0xFF2A2A3A), Colors.white, () {}),
-                      const SizedBox(width: 12),
-                      _buildHeroButton(Icons.share, 'SHARE', const Color(0xFF2A2A3A), Colors.white, () => _showShareOptions(context)),
-                    ],
-                  ),
-                ],
+            Center(
+              child: IconButton(
+                icon: const Icon(Icons.play_circle_outline, size: 80, color: Colors.white70),
+                onPressed: () => context.push('/movie/${movie.id}/play'),
               ),
             ),
           ],
@@ -144,18 +116,93 @@ class _MovieDetailsScreenState extends State<MovieDetailsScreen> {
     );
   }
 
-  Widget _buildHeroButton(IconData icon, String label, Color bgColor, Color textColor, VoidCallback onTap) {
-    return Expanded(
-      child: ElevatedButton.icon(
-        onPressed: onTap,
-        icon: Icon(icon, color: textColor, size: 18),
-        label: Text(label, style: TextStyle(color: textColor, fontWeight: FontWeight.bold, fontSize: 12)),
-        style: ElevatedButton.styleFrom(
-          backgroundColor: bgColor,
-          padding: const EdgeInsets.symmetric(vertical: 12),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+  Widget _buildMainInfo(Movie movie) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          movie.title.toUpperCase(),
+          style: const TextStyle(color: Colors.white, fontSize: 28, fontWeight: FontWeight.bold, letterSpacing: 1.2),
         ),
-      ),
+        const SizedBox(height: 12),
+        Row(
+          children: [
+            Text(
+              movie.releaseDate.split('-')[0],
+              style: const TextStyle(color: Colors.grey, fontWeight: FontWeight.w500),
+            ),
+            const SizedBox(width: 12),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+              decoration: BoxDecoration(
+                border: Border.all(color: Colors.grey),
+                borderRadius: BorderRadius.circular(4),
+              ),
+              child: Text(
+                movie.contentRating ?? '13+',
+                style: const TextStyle(color: Colors.grey, fontSize: 12, fontWeight: FontWeight.bold),
+              ),
+            ),
+            const SizedBox(width: 12),
+            Text(
+              movie.isTvShow ? 'TV Series' : '${movie.runtime} min',
+              style: const TextStyle(color: Colors.grey, fontWeight: FontWeight.w500),
+            ),
+            const SizedBox(width: 12),
+            const Icon(Icons.hd_outlined, color: Colors.grey, size: 20),
+          ],
+        ),
+        const SizedBox(height: 8),
+        Row(
+          children: [
+            const Icon(Icons.star, color: Colors.yellow, size: 18),
+            const SizedBox(width: 4),
+            Text(
+              movie.voteAverage.toStringAsFixed(1),
+              style: const TextStyle(color: Colors.yellow, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(width: 8),
+            const Text(
+              'TMDB RATING',
+              style: TextStyle(color: Colors.grey, fontSize: 10, fontWeight: FontWeight.bold),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+
+  Widget _buildActionsBar(BuildContext context) {
+    return Column(
+      children: [
+        SizedBox(
+          width: double.infinity,
+          child: ElevatedButton.icon(
+            onPressed: () => context.push('/movie/1/play'),
+            icon: const Icon(Icons.play_arrow, color: Colors.black),
+            label: const Text('RESUME', style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold)),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.white,
+              padding: const EdgeInsets.symmetric(vertical: 12),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
+            ),
+          ),
+        ),
+        const SizedBox(height: 12),
+        SizedBox(
+          width: double.infinity,
+          child: ElevatedButton.icon(
+            onPressed: () {},
+            icon: const Icon(Icons.download, color: Colors.white),
+            label: const Text('DOWNLOAD', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xFF262626),
+              padding: const EdgeInsets.symmetric(vertical: 12),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
+            ),
+          ),
+        ),
+      ],
     );
   }
 
@@ -163,9 +210,8 @@ class _MovieDetailsScreenState extends State<MovieDetailsScreen> {
     return const Wrap(
       spacing: 8,
       children: [
-        _Badge(text: '🏆 RIYOBOX ORIGINAL', color: Colors.yellow),
-        _Badge(text: '🔥 TRENDING', color: Colors.redAccent),
-        _Badge(text: '🎯 NEW', color: Colors.blueAccent),
+        _Badge(text: 'RIYOBOX ORIGINAL', color: Colors.deepPurpleAccent),
+        _Badge(text: 'TRENDING NOW', color: Colors.redAccent),
       ],
     );
   }
@@ -174,37 +220,44 @@ class _MovieDetailsScreenState extends State<MovieDetailsScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text('📖 SYNOPSIS', style: TextStyle(color: Colors.yellow, fontWeight: FontWeight.bold, fontSize: 14)),
-        const SizedBox(height: 8),
         Text(
           movie.overview,
-          style: const TextStyle(color: Colors.white70, fontSize: 15, height: 1.5),
+          style: const TextStyle(color: Colors.white, fontSize: 15, height: 1.4),
+          maxLines: 4,
+          overflow: TextOverflow.ellipsis,
+        ),
+        const SizedBox(height: 8),
+        const Text(
+          'READ MORE',
+          style: TextStyle(color: Colors.grey, fontSize: 12, fontWeight: FontWeight.bold),
         ),
       ],
     );
   }
 
-  Widget _buildCastAndCrew(Movie movie) {
+  Widget _buildCastSection(Movie movie) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text('🎭 CAST & CREW', style: TextStyle(color: Colors.yellow, fontWeight: FontWeight.bold, fontSize: 14)),
+        const Text('CAST', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16)),
         const SizedBox(height: 12),
         SizedBox(
-          height: 50,
+          height: 100,
           child: ListView.builder(
             scrollDirection: Axis.horizontal,
             itemCount: movie.cast?.length ?? 0,
             itemBuilder: (context, index) {
-              return Container(
-                margin: const EdgeInsets.only(right: 8),
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                decoration: BoxDecoration(color: const Color(0xFF2A2A3A), borderRadius: BorderRadius.circular(20)),
-                child: Row(
+              return Padding(
+                padding: const EdgeInsets.only(right: 16),
+                child: Column(
                   children: [
-                    const Icon(Icons.person, color: Colors.grey, size: 16),
-                    const SizedBox(width: 6),
-                    Text(movie.cast![index], style: const TextStyle(color: Colors.white, fontSize: 12)),
+                    const CircleAvatar(
+                      radius: 30,
+                      backgroundColor: Color(0xFF262626),
+                      child: Icon(Icons.person, color: Colors.grey),
+                    ),
+                    const SizedBox(height: 8),
+                    Text(movie.cast![index], style: const TextStyle(color: Colors.grey, fontSize: 12)),
                   ],
                 ),
               );
@@ -215,138 +268,128 @@ class _MovieDetailsScreenState extends State<MovieDetailsScreen> {
     );
   }
 
-  Widget _buildMoreInfo(Movie movie) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const Text('🏷️ MORE INFO', style: TextStyle(color: Colors.yellow, fontWeight: FontWeight.bold, fontSize: 14)),
-        const SizedBox(height: 12),
-        _buildInfoRow('Genre', movie.genres?.join(', ') ?? 'N/A'),
-        _buildInfoRow('Duration', movie.isTvShow ? 'Various' : '${movie.runtime} min'),
-        _buildInfoRow('Release Date', movie.releaseDate),
-        _buildInfoRow('Director', movie.director ?? 'N/A'),
-        _buildInfoRow('Languages', 'English, Somali, Arabic'),
-        _buildInfoRow('Subtitles', '15 languages available'),
-      ],
-    );
-  }
-
-  Widget _buildInfoRow(String label, String value) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 4),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text('• $label: ', style: const TextStyle(color: Colors.grey, fontSize: 14)),
-          Expanded(child: Text(value, style: const TextStyle(color: Colors.white, fontSize: 14))),
-        ],
-      ),
-    );
-  }
-
   Widget _buildSeasonSelector(Movie movie) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      decoration: BoxDecoration(color: const Color(0xFF2A2A3A), borderRadius: BorderRadius.circular(8)),
-      child: DropdownButton<Season>(
-        value: _selectedSeason,
-        dropdownColor: const Color(0xFF2A2A3A),
-        underline: const SizedBox(),
-        isExpanded: true,
-        icon: const Icon(Icons.keyboard_arrow_down, color: Colors.yellow),
-        items: movie.seasons!.map((Season season) {
-          return DropdownMenuItem<Season>(
-            value: season,
-            child: Text(season.title, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
-          );
-        }).toList(),
-        onChanged: (Season? newValue) {
-          setState(() {
-            _selectedSeason = newValue;
-          });
-        },
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 16),
+      child: InkWell(
+        onTap: () => _showSeasonPicker(movie),
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+          decoration: BoxDecoration(
+            color: const Color(0xFF262626),
+            borderRadius: BorderRadius.circular(4),
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(_selectedSeason?.title ?? 'Select Season', style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+              const SizedBox(width: 8),
+              const Icon(Icons.arrow_drop_down, color: Colors.white),
+            ],
+          ),
+        ),
       ),
+    );
+  }
+
+  void _showSeasonPicker(Movie movie) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: const Color(0xFF1C1C1C),
+      builder: (context) {
+        return ListView.builder(
+          shrinkWrap: true,
+          itemCount: movie.seasons?.length ?? 0,
+          itemBuilder: (context, index) {
+            final season = movie.seasons![index];
+            return ListTile(
+              title: Text(season.title, style: const TextStyle(color: Colors.white)),
+              onTap: () {
+                setState(() => _selectedSeason = season);
+                Navigator.pop(context);
+              },
+            );
+          },
+        );
+      },
     );
   }
 
   Widget _buildEpisodeList() {
     if (_selectedSeason == null) return const SizedBox();
     return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const SizedBox(height: 24),
-        const Text('EPISODES', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16)),
-        const SizedBox(height: 12),
-        ..._selectedSeason!.episodes.map((episode) => _buildEpisodeItem(episode)).toList(),
-        const SizedBox(height: 16),
-        Row(
-          children: [
-             _buildSmallActionBtn(Icons.download, 'Download All'),
-             const SizedBox(width: 12),
-             _buildSmallActionBtn(Icons.sync, 'Auto-download'),
-          ],
-        ),
-      ],
+      children: _selectedSeason!.episodes.map((episode) => _buildEpisodeItem(episode)).toList(),
     );
   }
 
   Widget _buildEpisodeItem(Episode episode) {
-    return ListTile(
-      contentPadding: EdgeInsets.zero,
-      leading: Container(
-        width: 100,
-        height: 60,
-        color: Colors.grey[800],
-        child: const Icon(Icons.play_circle_outline, color: Colors.white),
-      ),
-      title: Text('${episode.number}. ${episode.title}', style: const TextStyle(color: Colors.white, fontSize: 14)),
-      subtitle: Text(episode.duration, style: const TextStyle(color: Colors.grey, fontSize: 12)),
-      trailing: Row(
-        mainAxisSize: MainAxisSize.min,
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          IconButton(icon: const Icon(Icons.play_arrow, color: Colors.white), onPressed: () {}),
-          IconButton(icon: const Icon(Icons.download, color: Colors.white), onPressed: () {}),
+          Row(
+            children: [
+              ClipRRect(
+                borderRadius: BorderRadius.circular(4),
+                child: Container(
+                  width: 130,
+                  height: 75,
+                  color: const Color(0xFF262626),
+                  child: const Center(child: Icon(Icons.play_arrow, color: Colors.white, size: 32)),
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text('${episode.number}. ${episode.title}', style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14)),
+                    const SizedBox(height: 4),
+                    Text(episode.duration, style: const TextStyle(color: Colors.grey, fontSize: 12)),
+                  ],
+                ),
+              ),
+              IconButton(icon: const Icon(Icons.download_for_offline_outlined, color: Colors.white), onPressed: () {}),
+            ],
+          ),
+          const SizedBox(height: 8),
+          const Text(
+            'In this episode, the story continues as our heroes face new challenges and unexpected turns.',
+            style: TextStyle(color: Colors.grey, fontSize: 13),
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+          ),
         ],
       ),
     );
   }
 
-  Widget _buildSmallActionBtn(IconData icon, String label) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-      decoration: BoxDecoration(border: Border.all(color: Colors.grey[700]!), borderRadius: BorderRadius.circular(4)),
-      child: Row(
-        children: [
-          Icon(icon, color: Colors.grey, size: 16),
-          const SizedBox(width: 6),
-          Text(label, style: const TextStyle(color: Colors.grey, fontSize: 12)),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildActionsBar(BuildContext context) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceAround,
+  Widget _buildMoreInfo(Movie movie) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _buildActionBtn(Icons.remove_red_eye_outlined, 'Watchlist'),
-        _buildActionBtn(Icons.thumb_up_outlined, 'Rate'),
-        _buildActionBtn(Icons.thumb_down_outlined, 'Not for me'),
-        _buildActionBtn(Icons.share_outlined, 'Share', onTap: () => _showShareOptions(context)),
-        _buildActionBtn(Icons.flag_outlined, 'Report'),
+        const Text('DETAILS', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16)),
+        const SizedBox(height: 12),
+        _buildDetailRow('Director', movie.director ?? 'N/A'),
+        _buildDetailRow('Genres', movie.genres?.join(', ') ?? 'N/A'),
+        _buildDetailRow('Maturity Rating', movie.contentRating ?? '13+'),
+        _buildDetailRow('Audio', 'English, Somali, Arabic'),
+        _buildDetailRow('Subtitles', 'English, Arabic'),
       ],
     );
   }
 
-  Widget _buildActionBtn(IconData icon, String label, {VoidCallback? onTap}) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Column(
-        children: [
-          Icon(icon, color: Colors.white, size: 24),
-          const SizedBox(height: 4),
-          Text(label, style: const TextStyle(color: Colors.grey, fontSize: 10)),
-        ],
+  Widget _buildDetailRow(String label, String value) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 8),
+      child: RichText(
+        text: TextSpan(
+          children: [
+            TextSpan(text: '$label: ', style: const TextStyle(color: Colors.grey, fontWeight: FontWeight.bold, fontSize: 13)),
+            TextSpan(text: value, style: const TextStyle(color: Colors.white70, fontSize: 13)),
+          ],
+        ),
       ),
     );
   }
@@ -368,48 +411,16 @@ class _MovieDetailsScreenState extends State<MovieDetailsScreen> {
                 scrollDirection: Axis.horizontal,
                 itemCount: movies.length,
                 itemBuilder: (context, index) {
-                  return MovieCard(movie: movies[index], height: 180);
+                  return Padding(
+                    padding: const EdgeInsets.only(right: 8),
+                    child: MovieCard(movie: movies[index], height: 180),
+                  );
                 },
               ),
             );
           },
         ),
       ],
-    );
-  }
-
-  void _showShareOptions(BuildContext context) {
-    showModalBottomSheet(
-      context: context,
-      backgroundColor: const Color(0xFF2A2A3A),
-      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
-      builder: (context) {
-        return Container(
-          padding: const EdgeInsets.all(24),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Text('SHARE OPTIONS', style: TextStyle(color: Colors.yellow, fontWeight: FontWeight.bold)),
-              const SizedBox(height: 24),
-              _buildShareItem(Icons.link, 'Copy Link'),
-              _buildShareItem(Icons.message, 'Share to WhatsApp'),
-              _buildShareItem(Icons.camera_alt, 'Share to Instagram'),
-              _buildShareItem(Icons.facebook, 'Share to Facebook'),
-              _buildShareItem(Icons.alternate_email, 'Share to Twitter'),
-              _buildShareItem(Icons.more_horiz, 'More apps…'),
-            ],
-          ),
-        );
-      },
-    );
-  }
-
-  Widget _buildShareItem(IconData icon, String label) {
-    return ListTile(
-      leading: Icon(icon, color: Colors.white),
-      title: Text(label, style: const TextStyle(color: Colors.white)),
-      onTap: () => Navigator.pop(context),
     );
   }
 }
@@ -424,8 +435,14 @@ class _Badge extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-      decoration: BoxDecoration(color: color.withAlpha(51), borderRadius: BorderRadius.circular(4), border: Border.all(color: color, width: 0.5)),
-      child: Text(text, style: TextStyle(color: color, fontSize: 10, fontWeight: FontWeight.bold)),
+      decoration: BoxDecoration(
+        color: color.withAlpha(51),
+        borderRadius: BorderRadius.circular(2),
+      ),
+      child: Text(
+        text,
+        style: TextStyle(color: color, fontSize: 11, fontWeight: FontWeight.bold),
+      ),
     );
   }
 }

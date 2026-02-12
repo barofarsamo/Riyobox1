@@ -104,7 +104,7 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
       barrierDismissible: false,
       builder: (context) => AlertDialog(
         backgroundColor: const Color(0xFF2A2A3A),
-        title: const Text('⏸️ CONTINUE WATCHING', style: TextStyle(color: Colors.yellow, fontSize: 16)),
+        title: const Text('CONTINUE WATCHING', style: TextStyle(color: Colors.yellow, fontSize: 16)),
         content: Text('Resume from ${_formatDuration(progress)}?', style: const TextStyle(color: Colors.white)),
         actions: [
           TextButton(
@@ -113,7 +113,7 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
               _controller.play();
               Navigator.pop(context);
             },
-            child: const Text('🔄 Restart', style: TextStyle(color: Colors.grey)),
+            child: const Text('Restart', style: TextStyle(color: Colors.grey)),
           ),
           ElevatedButton(
             onPressed: () {
@@ -122,7 +122,7 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
               Navigator.pop(context);
             },
             style: ElevatedButton.styleFrom(backgroundColor: Colors.yellow),
-            child: const Text('▶️ Resume', style: TextStyle(color: Colors.black)),
+            child: const Text('Resume', style: TextStyle(color: Colors.black)),
           ),
         ],
       ),
