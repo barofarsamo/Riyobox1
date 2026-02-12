@@ -2,6 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:riyobox/presentation/widgets/shimmer_loading.dart';
+import 'package:riyobox/presentation/widgets/state_widgets.dart';
 
 class MyRiyoboxScreen extends StatelessWidget {
   const MyRiyoboxScreen({super.key});
@@ -165,6 +166,10 @@ class MyRiyoboxScreen extends StatelessWidget {
   }
 
   Widget _buildRecentlyWatchedList(BuildContext context, List<Map<String, dynamic>> items) {
+    if (items.isEmpty) {
+      return NoHistoryState(onStartWatching: () => context.go('/home'));
+    }
+
     return SizedBox(
       height: 180,
       child: ListView.builder(

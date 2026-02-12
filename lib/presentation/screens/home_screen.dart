@@ -9,6 +9,7 @@ import 'package:riyobox/models/movie.dart';
 import 'package:riyobox/services/api_service.dart';
 import 'package:riyobox/presentation/widgets/movie_card.dart';
 import 'package:riyobox/presentation/widgets/shimmer_loading.dart';
+import 'package:riyobox/presentation/widgets/state_widgets.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -22,14 +23,14 @@ class _HomeScreenState extends State<HomeScreen> {
   int _currentCarouselIndex = 0;
 
   final List<String> _filters = [
-    "Dhammaan",
-    "Filimada",
-    "Musalsalada",
+    "All",
+    "Movies",
+    "TV Shows",
     "Anime",
-    "Caruurta",
-    "Subscriptions"
+    "Kids",
+    "My List"
   ];
-  String _selectedFilter = "Dhammaan";
+  String _selectedFilter = "All";
 
   @override
   Widget build(BuildContext context) {
@@ -106,27 +107,42 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
           ];
         },
-        body: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: settings.isOffline
-              ? [
-                  const Padding(
-                    padding: EdgeInsets.all(16.0),
-                    child: Text('MY DOWNLOADS', style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
-                  ),
-                  _buildMovieCategory("Downloaded Movies", _apiService.getTrendingMovies().then((movies) => movies.where((m) => m.isDownloaded).toList())),
-                   const SizedBox(height: 200), // Filler
-                ]
-              : [
-                  _buildCarouselSlider(),
-                  _buildContinueWatchingSection(),
-                  const SizedBox(height: 20),
-                  _buildMovieCategory("Filimada Riyobox", _apiService.getTrendingMovies()),
-                  _buildMovieCategory("Asalka Riyobox", _apiService.getTopRatedMovies()),
-                  _buildMovieCategory("Daawashada Sii Wad", _apiService.getNowPlayingMovies()),
-                ],
-          ),
+        body: FutureBuilder<List<Movie>>(
+          future: settings.isOffline
+            ? _apiService.getTrendingMovies().then((movies) => movies.where((m) => m.isDownloaded).toList())
+            : _apiService.getTrendingMovies(),
+          builder: (context, snapshot) {
+            if (settings.isOffline && snapshot.hasData && snapshot.data!.isEmpty) {
+              return NoInternetState(
+                onRetry: () => settings.setOfflineMode(false),
+                onGoOffline: () => context.push('/downloads'),
+              );
+            }
+
+            return SingleChildScrollView(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: settings.isOffline
+                  ? [
+                      const Padding(
+                        padding: EdgeInsets.fromLTRB(16, 24, 16, 8),
+                        child: Text('MY DOWNLOADS', style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold)),
+                      ),
+                      _buildMovieCategory("Available Offline", Future.value(snapshot.data ?? [])),
+                      const SizedBox(height: 400),
+                    ]
+                  : [
+                      _buildCarouselSlider(),
+                      _buildContinueWatchingSection(),
+                      const SizedBox(height: 20),
+                      _buildMovieCategory("Trending Now", _apiService.getTrendingMovies()),
+                      _buildMovieCategory("Popular on RIYOBOX", _apiService.getTopRatedMovies()),
+                      _buildMovieCategory("New Releases", _apiService.getNowPlayingMovies()),
+                      const SizedBox(height: 40),
+                    ],
+              ),
+            );
+          }
         ),
       ),
     );

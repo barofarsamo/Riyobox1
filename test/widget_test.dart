@@ -13,17 +13,17 @@ void main() {
     // Build our app and trigger a frame.
     await tester.pumpWidget(const MyApp());
 
-    // Wait for the mock data to "load" and any initial animations
-    await tester.pump(const Duration(seconds: 1));
+    // Splash Screen should be visible initially
+    expect(find.text('RIYOBOX'), findsAtLeast(1));
+    expect(find.text('PREMIUM STREAMING EXPERIENCE'), findsOneWidget);
+
+    // Wait for splash animation to finish (2.5s in code)
+    await tester.pump(const Duration(seconds: 3));
     await tester.pumpAndSettle();
 
-    // Verify that the app title or some key element is present.
-    // In CategoriesScreen, the title is "RIYOBOX"
-    expect(find.text('RIYOBOX'), findsOneWidget);
-
-    // Verify that the bottom navigation bar is present
-    expect(find.text('Home'), findsOneWidget);
-    expect(find.text('My RIYOBOX'), findsOneWidget);
+    // After splash, since onboarding is not complete, we should be on Welcome Screen
+    expect(find.text('Unlimited movies, TV shows, and more.'), findsOneWidget);
+    expect(find.text('GET STARTED'), findsOneWidget);
   });
 }
 

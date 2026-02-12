@@ -6,6 +6,7 @@ import 'package:riyobox/services/api_service.dart';
 import 'package:riyobox/providers/settings_provider.dart';
 import 'package:riyobox/presentation/widgets/movie_card.dart';
 import 'package:riyobox/presentation/widgets/shimmer_loading.dart';
+import 'package:riyobox/presentation/widgets/state_widgets.dart';
 
 class SearchScreen extends StatefulWidget {
   const SearchScreen({super.key});
@@ -176,18 +177,12 @@ class _SearchScreenState extends State<SearchScreen> {
 
   Widget _buildSearchResults() {
     if (_searchResults.isEmpty) {
-      return Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(Icons.search_off, size: 60, color: Colors.white10),
-            const SizedBox(height: 16),
-            const Text(
-              'No results found',
-              style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
-            ),
-          ],
-        ),
+      return NoSearchResultsState(
+        query: _searchController.text,
+        onBack: () {
+          _searchController.clear();
+          _onSearchChanged('', false);
+        },
       );
     }
 

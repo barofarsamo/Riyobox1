@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:riyobox/providers/settings_provider.dart';
 import 'package:riyobox/providers/download_provider.dart';
+import 'package:riyobox/providers/auth_provider.dart';
 import 'package:go_router/go_router.dart';
 
 class SettingsScreen extends StatelessWidget {
@@ -223,15 +224,18 @@ class SettingsScreen extends StatelessWidget {
   void _showLogoutDialog(BuildContext context) {
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
+      builder: (dialogContext) => AlertDialog(
         backgroundColor: const Color(0xFF1C1C1C),
         title: const Text('Log Out', style: TextStyle(color: Colors.white)),
         content: const Text('Are you sure you want to log out?', style: TextStyle(color: Colors.grey)),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context), child: const Text('CANCEL', style: TextStyle(color: Colors.white))),
-          TextButton(onPressed: () {
-            Navigator.pop(context);
-            context.go('/home');
+          TextButton(onPressed: () => Navigator.pop(dialogContext), child: const Text('CANCEL', style: TextStyle(color: Colors.white))),
+          TextButton(onPressed: () async {
+            await Provider.of<AuthProvider>(context, listen: false).logout();
+            if (context.mounted) {
+              Navigator.pop(dialogContext);
+              context.go('/login');
+            }
           }, child: const Text('LOG OUT', style: TextStyle(color: Colors.red))),
         ],
       ),

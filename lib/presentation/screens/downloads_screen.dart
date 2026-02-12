@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:riyobox/providers/download_provider.dart';
 import 'package:riyobox/models/movie.dart';
+import 'package:riyobox/presentation/widgets/state_widgets.dart';
 
 class DownloadsScreen extends StatefulWidget {
   const DownloadsScreen({super.key});
@@ -44,7 +45,10 @@ class _DownloadsScreenState extends State<DownloadsScreen> {
                   ...downloadProvider.downloadedMovies.map((movie) => _buildDownloadedCard(movie, downloadProvider)),
                 ],
                 if (downloadProvider.downloadingMovies.isEmpty && downloadProvider.downloadedMovies.isEmpty)
-                  _buildEmptyState(),
+                  NoDownloadsState(
+                    onBrowse: () => context.go('/home'),
+                    onHowTo: () {},
+                  ),
               ],
             ),
           ),
@@ -169,20 +173,6 @@ class _DownloadsScreenState extends State<DownloadsScreen> {
     );
   }
 
-  Widget _buildEmptyState() {
-    return const Center(
-      child: Padding(
-        padding: EdgeInsets.only(top: 100),
-        child: Column(
-          children: [
-            Icon(Icons.download_for_offline_outlined, size: 80, color: Colors.white10),
-            SizedBox(height: 16),
-            Text('No videos here', style: TextStyle(color: Colors.grey, fontSize: 16)),
-          ],
-        ),
-      ),
-    );
-  }
 
   Widget _buildFooter(DownloadProvider provider) {
     return Container(

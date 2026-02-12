@@ -6,7 +6,12 @@ import 'package:provider/provider.dart';
 import 'package:riyobox/providers/settings_provider.dart';
 import 'package:riyobox/providers/playback_provider.dart';
 import 'package:riyobox/providers/download_provider.dart';
+import 'package:riyobox/providers/auth_provider.dart';
 import 'package:riyobox/services/cast_service.dart';
+import 'package:riyobox/presentation/screens/splash_screen.dart';
+import 'package:riyobox/presentation/screens/onboarding_screen.dart';
+import 'package:riyobox/presentation/screens/auth/login_screen.dart';
+import 'package:riyobox/presentation/screens/auth/signup_screen.dart';
 import 'package:riyobox/presentation/screens/home_screen.dart';
 import 'package:riyobox/presentation/screens/movie_details_screen.dart';
 import 'package:riyobox/presentation/screens/video_player_screen.dart';
@@ -20,79 +25,118 @@ import 'package:riyobox/presentation/screens/search_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  // Context initialization is now handled via a provider or later in the lifecycle
-  // because it needs more options.
   runApp(const MyApp());
 }
 
 final GlobalKey<NavigatorState> _rootNavigatorKey = GlobalKey<NavigatorState>(debugLabel: 'root');
 final GlobalKey<NavigatorState> _shellNavigatorKey = GlobalKey<NavigatorState>(debugLabel: 'shell');
 
-final GoRouter _router = GoRouter(
-  navigatorKey: _rootNavigatorKey,
-  initialLocation: '/category', // Initial index was 1 (Category)
-  routes: [
-    ShellRoute(
-      navigatorKey: _shellNavigatorKey,
-      builder: (context, state, child) {
-        return MainScreen(child: child);
-      },
-      routes: [
-        GoRoute(
-          path: '/home',
-          builder: (context, state) => const HomeScreen(),
-        ),
-        GoRoute(
-          path: '/category',
-          builder: (context, state) => const CategoriesScreen(),
-        ),
-        GoRoute(
-          path: '/downloads',
-          builder: (context, state) => const DownloadsScreen(),
-        ),
-        GoRoute(
-          path: '/search',
-          builder: (context, state) => const SearchScreen(),
-        ),
-        GoRoute(
-          path: '/my-riyobox',
-          builder: (context, state) => const MyRiyoboxScreen(),
-        ),
-      ],
-    ),
-    GoRoute(
-      path: '/movie/:id',
-      parentNavigatorKey: _rootNavigatorKey,
-      builder: (context, state) {
-        final id = state.pathParameters['id']!;
-        return MovieDetailsScreen(movieId: id);
-      },
-    ),
-    GoRoute(
-      path: '/movie/:id/play',
-      parentNavigatorKey: _rootNavigatorKey,
-      builder: (context, state) {
-        final id = state.pathParameters['id'];
-        return VideoPlayerScreen(movieId: id);
-      },
-    ),
-    GoRoute(
-      path: '/settings',
-      parentNavigatorKey: _rootNavigatorKey,
-      builder: (context, state) => const SettingsScreen(),
-    ),
-    GoRoute(
-      path: '/profile',
-      parentNavigatorKey: _rootNavigatorKey,
-      builder: (context, state) => const ProfileScreen(),
-    ),
-    GoRoute(
-      path: '/cast',
-      parentNavigatorKey: _rootNavigatorKey,
-      builder: (context, state) => const CastScreen(),
-    ),
-  ],
-);
+GoRouter _createRouter(AuthProvider authProvider) {
+  return GoRouter(
+    navigatorKey: _rootNavigatorKey,
+    initialLocation: '/splash',
+    refreshListenable: authProvider,
+    redirect: (context, state) {
+      final bool loggingIn = state.uri.path == '/login';
+      final bool signingUp = state.uri.path == '/signup';
+      final bool splash = state.uri.path == '/splash';
+      final bool welcome = state.uri.path == '/welcome';
+
+      if (splash) return null;
+
+      if (!authProvider.isOnboardingComplete) {
+        return welcome ? null : '/welcome';
+      }
+
+      if (!authProvider.isAuthenticated) {
+        return (loggingIn || signingUp || welcome) ? null : '/login';
+      }
+
+      if (loggingIn || signingUp || welcome) {
+        return '/home';
+      }
+
+      return null;
+    },
+    routes: [
+      GoRoute(
+        path: '/splash',
+        builder: (context, state) => const SplashScreen(),
+      ),
+      GoRoute(
+        path: '/welcome',
+        builder: (context, state) => const WelcomeScreen(),
+      ),
+      GoRoute(
+        path: '/login',
+        builder: (context, state) => const LoginScreen(),
+      ),
+      GoRoute(
+        path: '/signup',
+        builder: (context, state) => const SignUpScreen(),
+      ),
+      ShellRoute(
+        navigatorKey: _shellNavigatorKey,
+        builder: (context, state, child) {
+          return MainScreen(child: child);
+        },
+        routes: [
+          GoRoute(
+            path: '/home',
+            builder: (context, state) => const HomeScreen(),
+          ),
+          GoRoute(
+            path: '/category',
+            builder: (context, state) => const CategoriesScreen(),
+          ),
+          GoRoute(
+            path: '/downloads',
+            builder: (context, state) => const DownloadsScreen(),
+          ),
+          GoRoute(
+            path: '/search',
+            builder: (context, state) => const SearchScreen(),
+          ),
+          GoRoute(
+            path: '/my-riyobox',
+            builder: (context, state) => const MyRiyoboxScreen(),
+          ),
+        ],
+      ),
+      GoRoute(
+        path: '/movie/:id',
+        parentNavigatorKey: _rootNavigatorKey,
+        builder: (context, state) {
+          final id = state.pathParameters['id']!;
+          return MovieDetailsScreen(movieId: id);
+        },
+      ),
+      GoRoute(
+        path: '/movie/:id/play',
+        parentNavigatorKey: _rootNavigatorKey,
+        builder: (context, state) {
+          final id = state.pathParameters['id'];
+          return VideoPlayerScreen(movieId: id);
+        },
+      ),
+      GoRoute(
+        path: '/settings',
+        parentNavigatorKey: _rootNavigatorKey,
+        builder: (context, state) => const SettingsScreen(),
+      ),
+      GoRoute(
+        path: '/profile',
+        parentNavigatorKey: _rootNavigatorKey,
+        builder: (context, state) => const ProfileScreen(),
+      ),
+      GoRoute(
+        path: '/cast',
+        parentNavigatorKey: _rootNavigatorKey,
+        builder: (context, state) => const CastScreen(),
+      ),
+    ],
+  );
+}
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
@@ -105,28 +149,29 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => PlaybackProvider()),
         ChangeNotifierProvider(create: (_) => DownloadProvider()),
         ChangeNotifierProvider(create: (_) => CastService()),
+        ChangeNotifierProvider(create: (_) => AuthProvider()),
       ],
-      child: Consumer<SettingsProvider>(
-        builder: (context, settings, child) {
+      child: Consumer2<SettingsProvider, AuthProvider>(
+        builder: (context, settings, auth, child) {
           return MaterialApp.router(
-          routerConfig: _router,
-          title: 'RIYOBOX',
-          locale: settings.language == 'Arabic' ? const Locale('ar', '') : const Locale('en', ''),
-          builder: (context, child) {
-            return Directionality(
-              textDirection: settings.language == 'Arabic' ? TextDirection.rtl : TextDirection.ltr,
-              child: child!,
-            );
-          },
-          theme: ThemeData.dark().copyWith(
-        primaryColor: Colors.deepPurple,
-        scaffoldBackgroundColor: const Color(0xFF1C1B1F),
-        colorScheme: const ColorScheme.dark(
-          primary: Colors.deepPurple,
-          secondary: Colors.yellow,
-          onPrimary: Colors.white,
-          onSecondary: Colors.black,
-        ),
+            routerConfig: _createRouter(auth),
+            title: 'RIYOBOX',
+            locale: settings.language == 'Arabic' ? const Locale('ar', '') : const Locale('en', ''),
+            builder: (context, child) {
+              return Directionality(
+                textDirection: settings.language == 'Arabic' ? TextDirection.rtl : TextDirection.ltr,
+                child: child!,
+              );
+            },
+            theme: ThemeData.dark().copyWith(
+              primaryColor: Colors.deepPurple,
+              scaffoldBackgroundColor: const Color(0xFF1C1B1F),
+              colorScheme: const ColorScheme.dark(
+                primary: Colors.deepPurple,
+                secondary: Colors.yellow,
+                onPrimary: Colors.white,
+                onSecondary: Colors.black,
+              ),
               bottomNavigationBarTheme: const BottomNavigationBarThemeData(
                 backgroundColor: Color(0xFF1C1B1F),
                 selectedItemColor: Colors.yellow,
