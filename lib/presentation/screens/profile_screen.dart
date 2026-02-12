@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
@@ -6,12 +7,19 @@ class ProfileScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: const Color(0xFF1C1C2A),
       appBar: AppBar(
-        title: const Text('My Profile'),
+        backgroundColor: const Color(0xFF1C1C2A),
+        title: const Text('My Profile', style: TextStyle(color: Colors.white)),
+        iconTheme: const IconThemeData(color: Colors.white),
         actions: [
-          IconButton(
-            icon: const Icon(Icons.edit),
-            onPressed: () {},
+          TextButton(
+            onPressed: () {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('Profile updated successfully!')),
+              );
+            },
+            child: const Text('SAVE', style: TextStyle(color: Colors.yellow, fontWeight: FontWeight.bold)),
           ),
         ],
       ),
@@ -19,63 +27,140 @@ class ProfileScreen extends StatelessWidget {
         child: Column(
           children: [
             const SizedBox(height: 20),
-            const Center(
-              child: CircleAvatar(
-                radius: 60,
-                backgroundImage: NetworkImage('https://picsum.photos/seed/avatar/200/200'),
-              ),
+            _buildProfileImage(),
+            const SizedBox(height: 24),
+            _buildProfileField('Full Name', 'Jules Engineer'),
+            _buildProfileField('Email', 'jules@riyobox.com'),
+            _buildProfileField('Phone', '+252 61 1234567'),
+            const SizedBox(height: 32),
+            _buildActionItem(
+              context,
+              title: 'Change Password',
+              icon: Icons.lock_outline,
+              onTap: () {},
             ),
-            const SizedBox(height: 16),
-            const Text(
-              'User Name',
-              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+            _buildActionItem(
+              context,
+              title: 'Watch History',
+              icon: Icons.history,
+              onTap: () => context.push('/my-riyobox'),
             ),
-            const Text(
-              'user@example.com',
-              style: TextStyle(color: Colors.grey),
+            _buildActionItem(
+              context,
+              title: 'App Settings',
+              icon: Icons.settings_outlined,
+              onTap: () => context.push('/settings'),
+            ),
+             _buildActionItem(
+              context,
+              title: 'Payment Methods',
+              icon: Icons.payment,
+              onTap: () {},
             ),
             const SizedBox(height: 32),
-            _buildProfileSection(
-              title: 'My List',
-              icon: Icons.add,
-              onTap: () {},
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16.0),
+              child: ListTile(
+                tileColor: Colors.red.withAlpha(25),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                leading: const Icon(Icons.logout, color: Colors.red),
+                title: const Text('Sign Out', style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold)),
+                trailing: const Icon(Icons.arrow_forward_ios, size: 16, color: Colors.red),
+                onTap: () {
+                  _showLogoutDialog(context);
+                },
+              ),
             ),
-            _buildProfileSection(
-              title: 'App Settings',
-              icon: Icons.settings,
-              onTap: () {},
-            ),
-            _buildProfileSection(
-              title: 'Account',
-              icon: Icons.person_outline,
-              onTap: () {},
-            ),
-            _buildProfileSection(
-              title: 'Sign Out',
-              icon: Icons.logout,
-              onTap: () {},
-              textColor: Colors.red,
-            ),
+            const SizedBox(height: 40),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildProfileSection({
-    required String title,
-    required IconData icon,
-    required VoidCallback onTap,
-    Color? textColor,
-  }) {
-    return ListTile(
-      leading: Icon(icon, color: textColor ?? Colors.white),
-      title: Text(
-        title,
-        style: TextStyle(color: textColor ?? Colors.white),
+  Widget _buildProfileImage() {
+    return Center(
+      child: Stack(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(4),
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              border: Border.all(color: Colors.yellow, width: 2),
+            ),
+            child: const CircleAvatar(
+              radius: 60,
+              backgroundImage: NetworkImage('https://picsum.photos/seed/profile/200/200'),
+            ),
+          ),
+          Positioned(
+            bottom: 0,
+            right: 0,
+            child: Container(
+              padding: const EdgeInsets.all(8),
+              decoration: const BoxDecoration(
+                color: Colors.yellow,
+                shape: BoxShape.circle,
+              ),
+              child: const Icon(Icons.camera_alt, color: Colors.black, size: 20),
+            ),
+          ),
+        ],
       ),
-      trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+    );
+  }
+
+  Widget _buildProfileField(String label, String value) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(label, style: const TextStyle(color: Colors.grey, fontSize: 12)),
+          const SizedBox(height: 4),
+          TextField(
+            controller: TextEditingController(text: value),
+            style: const TextStyle(color: Colors.white, fontSize: 16),
+            decoration: InputDecoration(
+              filled: true,
+              fillColor: const Color(0xFF2A2A3A),
+              contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(8),
+                borderSide: BorderSide.none,
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(8),
+                borderSide: const BorderSide(color: Colors.yellow, width: 1),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildActionItem(BuildContext context, {required String title, required IconData icon, required VoidCallback onTap}) {
+    return ListTile(
+      leading: Icon(icon, color: Colors.yellow),
+      title: Text(title, style: const TextStyle(color: Colors.white)),
+      trailing: const Icon(Icons.arrow_forward_ios, size: 16, color: Colors.grey),
       onTap: onTap,
+    );
+  }
+
+  void _showLogoutDialog(BuildContext context) {
+     showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        backgroundColor: const Color(0xFF2A2A3A),
+        title: const Text('Sign Out', style: TextStyle(color: Colors.white)),
+        content: const Text('Are you sure you want to sign out?', style: TextStyle(color: Colors.grey)),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancel', style: TextStyle(color: Colors.white))),
+          TextButton(onPressed: () => Navigator.pop(context), child: const Text('Sign Out', style: TextStyle(color: Colors.red))),
+        ],
+      ),
     );
   }
 }

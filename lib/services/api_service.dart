@@ -53,13 +53,12 @@ class ApiService {
   }
 
   Future<List<Movie>> _getMockMovies() async {
-    await Future.delayed(const Duration(milliseconds: 500));
+    await Future.delayed(const Duration(milliseconds: 300));
     return [
       Movie(
         id: 1,
         title: 'Inception',
-        overview:
-            'A thief who steals corporate secrets through the use of dream-sharing technology is given the inverse task of planting an idea into the mind of a C.E.O.',
+        overview: 'A thief who steals corporate secrets through the use of dream-sharing technology...',
         posterPath: '/edv5CZvfkjSfm9kfCghQ9KyTM9J.jpg',
         backdropPath: '/8ZTVqvKDcmSjS0Bv0vUvMG7uH9d.jpg',
         releaseDate: '2010-07-15',
@@ -68,8 +67,7 @@ class ApiService {
       Movie(
         id: 2,
         title: 'The Dark Knight',
-        overview:
-            'When the menace known as the Joker wreaks havoc and chaos on the people of Gotham, Batman must accept one of the greatest psychological and physical tests of his ability to fight injustice.',
+        overview: 'When the menace known as the Joker wreaks havoc...',
         posterPath: '/qJ2tW6WMUDp9QmSbmz94S0OOTvW.jpg',
         backdropPath: '/nMKdUUtnkbviS79pQvMKuH2pS0E.jpg',
         releaseDate: '2008-07-16',
@@ -78,8 +76,7 @@ class ApiService {
       Movie(
         id: 3,
         title: 'Interstellar',
-        overview:
-            'The adventures of a group of explorers who make use of a newly discovered wormhole to surpass the limitations on human space travel and conquer the vast distances involved in an interstellar voyage.',
+        overview: 'The adventures of a group of explorers...',
         posterPath: '/gEU2QniE6EwfVDxCzs25vQO2Cq9.jpg',
         backdropPath: '/rAi91vS9VQ9o6X6mYm96UDZp6em.jpg',
         releaseDate: '2014-11-05',
@@ -88,12 +85,38 @@ class ApiService {
       Movie(
         id: 4,
         title: 'The Matrix',
-        overview:
-            'Set in the 22nd century, The Matrix tells the story of a computer hacker who joins a group of underground insurgents fighting the vast and powerful computers who now rule the earth.',
+        overview: 'Set in the 22nd century...',
         posterPath: '/f89U3Y9SJuCYFJj7G0qywaO9Lbn.jpg',
         backdropPath: '/nc6Yn63FIBnB88W6OQeFp0r7iXN.jpg',
         releaseDate: '1999-03-30',
         voteAverage: 8.2,
+      ),
+      Movie(
+        id: 5,
+        title: 'Pulp Fiction',
+        overview: 'The lives of two mob hitmen, a boxer, a gangster and his wife...',
+        posterPath: '/d5iIl9h9FvS6o9HqSfe66C2oQvW.jpg',
+        backdropPath: '/suaAg0uYInNiS309699696o8Qf8.jpg',
+        releaseDate: '1994-09-10',
+        voteAverage: 8.9,
+      ),
+       Movie(
+        id: 6,
+        title: 'The Boys',
+        overview: 'A group of vigilantes set out to take down corrupt superheroes...',
+        posterPath: '/7YvYvS337oNooT5YIrj6i6H8E2C.jpg',
+        backdropPath: '/n69v9K3p7lH2C89X7P6X0B3Y8S.jpg',
+        releaseDate: '2019-07-26',
+        voteAverage: 8.7,
+      ),
+      Movie(
+        id: 7,
+        title: 'Dune: Part Two',
+        overview: 'Paul Atreides unites with Chani and the Fremen while on a warpath of revenge...',
+        posterPath: '/8uS9uS9uS9uS9uS9uS9uS9uS9uS.jpg',
+        backdropPath: '/9uS9uS9uS9uS9uS9uS9uS9uS9uS.jpg',
+        releaseDate: '2024-02-27',
+        voteAverage: 8.3,
       ),
     ];
   }

@@ -1,6 +1,8 @@
 
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
+import 'package:riyobox/providers/settings_provider.dart';
 import 'package:riyobox/presentation/screens/home_screen.dart';
 import 'package:riyobox/presentation/screens/movie_details_screen.dart';
 import 'package:riyobox/presentation/screens/video_player_screen.dart';
@@ -90,10 +92,23 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp.router(
-      routerConfig: _router,
-      title: 'RIYOBOX',
-      theme: ThemeData.dark().copyWith(
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => SettingsProvider()),
+      ],
+      child: Consumer<SettingsProvider>(
+        builder: (context, settings, child) {
+          return MaterialApp.router(
+          routerConfig: _router,
+          title: 'RIYOBOX',
+          locale: settings.language == 'Arabic' ? const Locale('ar', '') : const Locale('en', ''),
+          builder: (context, child) {
+            return Directionality(
+              textDirection: settings.language == 'Arabic' ? TextDirection.rtl : TextDirection.ltr,
+              child: child!,
+            );
+          },
+          theme: ThemeData.dark().copyWith(
         primaryColor: Colors.deepPurple,
         scaffoldBackgroundColor: const Color(0xFF1C1B1F),
         colorScheme: const ColorScheme.dark(
@@ -102,13 +117,16 @@ class MyApp extends StatelessWidget {
           onPrimary: Colors.white,
           onSecondary: Colors.black,
         ),
-        bottomNavigationBarTheme: const BottomNavigationBarThemeData(
-          backgroundColor: Color(0xFF1C1B1F),
-          selectedItemColor: Colors.yellow,
-          unselectedItemColor: Colors.grey,
-          type: BottomNavigationBarType.fixed,
-          showUnselectedLabels: true,
-        ),
+              bottomNavigationBarTheme: const BottomNavigationBarThemeData(
+                backgroundColor: Color(0xFF1C1B1F),
+                selectedItemColor: Colors.yellow,
+                unselectedItemColor: Colors.grey,
+                type: BottomNavigationBarType.fixed,
+                showUnselectedLabels: true,
+              ),
+            ),
+          );
+        },
       ),
     );
   }

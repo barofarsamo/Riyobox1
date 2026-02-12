@@ -8,21 +8,24 @@ class MyRiyoboxScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final List<Map<String, String>> recentlyWatched = [
+    final List<Map<String, dynamic>> recentlyWatched = [
       {
-        'title': 'Reacher',
-        'details': '2022 • 2 Seasons • TV-14',
-        'image': 'https://picsum.photos/seed/reacher/400/225'
+        'id': '1',
+        'title': 'Inception',
+        'details': '2010 • Action • 8.3',
+        'image': 'https://image.tmdb.org/t/p/w500/edv5CZvfkjSfm9kfCghQ9KyTM9J.jpg'
       },
       {
-        'title': 'The Office',
-        'details': '2005 • 9 Seasons • TV-14',
-        'image': 'https://picsum.photos/seed/theoffice/400/225'
+        'id': '6',
+        'title': 'The Boys',
+        'details': '2019 • Sci-Fi • 8.7',
+        'image': 'https://image.tmdb.org/t/p/w500/7YvYvS337oNooT5YIrj6i6H8E2C.jpg'
       },
       {
-        'title': 'Oppenheimer',
-        'details': '2023 • 3h 0m',
-        'image': 'https://picsum.photos/seed/oppenheimer/400/225'
+        'id': '3',
+        'title': 'Interstellar',
+        'details': '2014 • Adventure • 8.4',
+        'image': 'https://image.tmdb.org/t/p/w500/gEU2QniE6EwfVDxCzs25vQO2Cq9.jpg'
       },
     ];
 
@@ -31,7 +34,7 @@ class MyRiyoboxScreen extends StatelessWidget {
       appBar: AppBar(
         backgroundColor: const Color(0xFF1C1C2A),
         elevation: 0,
-        title: const Text('RIYOBOX', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 24, color: Colors.white)),
+        title: const Text('My RIYOBOX', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 24, color: Colors.white)),
         actions: [
           IconButton(
             icon: const Icon(Icons.cast, color: Colors.white),
@@ -59,13 +62,15 @@ class MyRiyoboxScreen extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            _buildProfileHeader(),
+            _buildProfileHeader(context),
             const SizedBox(height: 24),
-            _buildStatsSection(),
+            _buildStatsSection(context),
             const SizedBox(height: 32),
-            _buildSectionHeader('Recently Watched'),
+            _buildSectionHeader('Recently Watched', onTap: () {
+               // Show history
+            }),
             const SizedBox(height: 16),
-            _buildRecentlyWatchedList(recentlyWatched),
+            _buildRecentlyWatchedList(context, recentlyWatched),
             const SizedBox(height: 32),
             _buildSectionHeader('ACCOUNT SETTINGS', showArrow: false),
             const SizedBox(height: 16),
@@ -78,40 +83,44 @@ class MyRiyoboxScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildProfileHeader() {
+  Widget _buildProfileHeader(BuildContext context) {
     return Column(
       children: [
-        Stack(
-          clipBehavior: Clip.none,
-          alignment: Alignment.bottomRight,
-          children: [
-            const CircleAvatar(
-              radius: 50,
-              backgroundImage: NetworkImage('https://picsum.photos/seed/mainprofile/200/200'),
-            ),
-            Positioned(
-              right: -5,
-              bottom: -5,
-              child: Container(
-                decoration: BoxDecoration(
-                  color: Colors.yellow,
-                  shape: BoxShape.circle,
-                  border: Border.all(color: const Color(0xFF1C1C2A), width: 2),
-                ),
-                padding: const EdgeInsets.all(6),
-                child: const Icon(Icons.edit, color: Colors.black, size: 20),
+        GestureDetector(
+          onTap: () => context.push('/profile'),
+          child: Stack(
+            clipBehavior: Clip.none,
+            alignment: Alignment.bottomRight,
+            children: [
+              const CircleAvatar(
+                radius: 50,
+                backgroundImage: NetworkImage('https://picsum.photos/seed/mainprofile/200/200'),
               ),
-            ),
-          ],
+              Positioned(
+                right: -5,
+                bottom: -5,
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: Colors.yellow,
+                    shape: BoxShape.circle,
+                    border: Border.all(color: const Color(0xFF1C1C2A), width: 2),
+                  ),
+                  padding: const EdgeInsets.all(6),
+                  child: const Icon(Icons.edit, color: Colors.black, size: 20),
+                ),
+              ),
+            ],
+          ),
         ),
         const SizedBox(height: 16),
-        const Text('Mmmm', style: TextStyle(color: Colors.white, fontSize: 24, fontWeight: FontWeight.bold)),
+        const Text('Jules Engineer', style: TextStyle(color: Colors.white, fontSize: 24, fontWeight: FontWeight.bold)),
         const SizedBox(height: 8),
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
           decoration: BoxDecoration(
-            color: Colors.grey[800],
+            color: Colors.yellow.withAlpha(51),
             borderRadius: BorderRadius.circular(20),
+            border: Border.all(color: Colors.yellow, width: 1),
           ),
           child: const Text('PREMIUM MEMBER', style: TextStyle(color: Colors.yellow, fontSize: 12, fontWeight: FontWeight.bold)),
         ),
@@ -119,72 +128,81 @@ class MyRiyoboxScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildStatsSection() {
+  Widget _buildStatsSection(BuildContext context) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       children: [
-        _buildStatItem('0', 'WATCHLIST'),
-        _buildStatItem('10', 'HISTORY'),
-        _buildStatItem('12', 'DOWNLOADS'),
+        _buildStatItem(context, '5', 'WATCHLIST', () {}),
+        _buildStatItem(context, '10', 'HISTORY', () {}),
+        _buildStatItem(context, '12', 'DOWNLOADS', () => context.go('/downloads')),
       ],
     );
   }
 
-  Widget _buildStatItem(String value, String label) {
-    return Column(
-      children: [
-        Text(value, style: const TextStyle(color: Colors.white, fontSize: 22, fontWeight: FontWeight.bold)),
-        const SizedBox(height: 4),
-        Text(label, style: TextStyle(color: Colors.grey[400], fontSize: 12)),
-      ],
+  Widget _buildStatItem(BuildContext context, String value, String label, VoidCallback onTap) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Column(
+        children: [
+          Text(value, style: const TextStyle(color: Colors.white, fontSize: 22, fontWeight: FontWeight.bold)),
+          const SizedBox(height: 4),
+          Text(label, style: TextStyle(color: Colors.grey[400], fontSize: 12)),
+        ],
+      ),
     );
   }
 
-  Widget _buildSectionHeader(String title, {bool showArrow = true}) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Text(title, style: const TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
-        if (showArrow)
-          const Icon(Icons.arrow_forward_ios, color: Colors.white, size: 16),
-      ],
+  Widget _buildSectionHeader(String title, {bool showArrow = true, VoidCallback? onTap}) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(title, style: const TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
+          if (showArrow)
+            const Icon(Icons.arrow_forward_ios, color: Colors.white, size: 16),
+        ],
+      ),
     );
   }
 
-  Widget _buildRecentlyWatchedList(List<Map<String, String>> items) {
+  Widget _buildRecentlyWatchedList(BuildContext context, List<Map<String, dynamic>> items) {
     return SizedBox(
-      height: 180,
+      height: 200,
       child: ListView.builder(
         scrollDirection: Axis.horizontal,
         itemCount: items.length,
         itemBuilder: (context, index) {
           final item = items[index];
-          return Container(
-            width: 160,
-            margin: const EdgeInsets.only(right: 16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Expanded(
-                  child: Card(
-                    clipBehavior: Clip.antiAlias,
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                    child: Image.network(
-                      item['image']!,
-                      fit: BoxFit.cover,
-                      width: double.infinity,
-                       loadingBuilder: (context, child, progress) {
-                        if (progress == null) return child;
-                        return const ShimmerLoading.rectangular(height: 180);
-                      },
+          return GestureDetector(
+            onTap: () => context.push('/movie/${item['id']}'),
+            child: Container(
+              width: 140,
+              margin: const EdgeInsets.only(right: 16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Expanded(
+                    child: Card(
+                      clipBehavior: Clip.antiAlias,
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                      child: Image.network(
+                        item['image']!,
+                        fit: BoxFit.cover,
+                        width: double.infinity,
+                         loadingBuilder: (context, child, progress) {
+                          if (progress == null) return child;
+                          return const ShimmerLoading.rectangular(height: 200);
+                        },
+                      ),
                     ),
                   ),
-                ),
-                const SizedBox(height: 8),
-                Text(item['title']!, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
-                const SizedBox(height: 4),
-                Text(item['details']!, style: TextStyle(color: Colors.grey[400], fontSize: 12)),
-              ],
+                  const SizedBox(height: 8),
+                  Text(item['title']!, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold), maxLines: 1, overflow: TextOverflow.ellipsis),
+                  const SizedBox(height: 4),
+                  Text(item['details']!, style: TextStyle(color: Colors.grey[400], fontSize: 12)),
+                ],
+              ),
             ),
           );
         },
@@ -197,11 +215,29 @@ class MyRiyoboxScreen extends StatelessWidget {
       children: [
         _buildSettingsButton(
           context,
+          icon: Icons.person_outline,
+          text: 'Profile Information',
+          onTap: () => context.push('/profile'),
+        ),
+        const SizedBox(height: 12),
+        _buildSettingsButton(
+          context,
           icon: Icons.settings_outlined,
-          text: 'Edit Profile & Account',
+          text: 'App Settings',
           onTap: () => context.push('/settings'),
         ),
-        const SizedBox(height: 16),
+        const SizedBox(height: 12),
+         _buildSettingsButton(
+          context,
+          icon: Icons.subscriptions_outlined,
+          text: 'Subscription Plans',
+          onTap: () {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('Subscription management coming soon!')),
+            );
+          },
+        ),
+        const SizedBox(height: 24),
         _buildSettingsButton(
           context,
           icon: Icons.logout,
@@ -209,7 +245,18 @@ class MyRiyoboxScreen extends StatelessWidget {
           iconColor: Colors.red,
           textColor: Colors.red,
           onTap: () {
-            // Handle Logout
+             showDialog(
+              context: context,
+              builder: (context) => AlertDialog(
+                backgroundColor: const Color(0xFF2A2A3A),
+                title: const Text('Logout', style: TextStyle(color: Colors.white)),
+                content: const Text('Are you sure you want to logout?', style: TextStyle(color: Colors.grey)),
+                actions: [
+                  TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancel', style: TextStyle(color: Colors.white))),
+                  TextButton(onPressed: () => Navigator.pop(context), child: const Text('Logout', style: TextStyle(color: Colors.red))),
+                ],
+              ),
+            );
           },
         ),
       ],
@@ -225,12 +272,14 @@ class MyRiyoboxScreen extends StatelessWidget {
         decoration: BoxDecoration(
           color: const Color(0xFF2A2A3A),
           borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: Colors.white.withAlpha(13), width: 1),
         ),
         child: Row(
           children: [
-            Icon(icon, color: iconColor),
+            Icon(icon, color: iconColor, size: 22),
             const SizedBox(width: 16),
-            Text(text, style: TextStyle(color: textColor, fontSize: 16, fontWeight: FontWeight.w500)),
+            Expanded(child: Text(text, style: TextStyle(color: textColor, fontSize: 16, fontWeight: FontWeight.w500))),
+            const Icon(Icons.arrow_forward_ios, color: Colors.grey, size: 14),
           ],
         ),
       ),
@@ -240,7 +289,7 @@ class MyRiyoboxScreen extends StatelessWidget {
   Widget _buildFooter() {
     return Column(
       children: [
-        Text('RIYOBOX PREMIUM V2.4.0', style: TextStyle(color: Colors.grey[600], fontSize: 12)),
+        Text('RIYOBOX PREMIUM V2.4.0', style: TextStyle(color: Colors.grey[600], fontSize: 12, fontWeight: FontWeight.bold)),
         const SizedBox(height: 4),
         Text('Cloud ID: 9L6k4d38', style: TextStyle(color: Colors.grey[600], fontSize: 12)),
       ],
