@@ -1,6 +1,6 @@
 # TV Casting Setup Instructions
 
-This app uses the `cast` package for a pure Dart implementation of the Google Cast protocol, allowing for a custom Flutter device picker. It also includes `flutter_cast_video` for native integration.
+This app uses the `flutter_chrome_cast` package for a high-quality integration with the Google Cast SDK.
 
 ## Android Setup
 
@@ -11,10 +11,16 @@ This app uses the `cast` package for a pure Dart implementation of the Google Ca
    - `CHANGE_WIFI_MULTICAST_STATE`
 
 2. **Cast Options Provider**:
-   The `AndroidManifest.xml` includes the `OPTIONS_PROVIDER_CLASS_NAME` meta-data pointing to `com.vrt.flutter_cast_video.CastOptionsProvider`.
+   The `AndroidManifest.xml` includes the `OPTIONS_PROVIDER_CLASS_NAME` meta-data pointing to `com.felnanuke.google_cast.GoogleCastOptionsProvider`.
 
 3. **Dependencies**:
    `implementation("com.google.android.gms:play-services-cast-framework:21.4.0")` is added to `android/app/build.gradle.kts`.
+
+4. **Activity Class**:
+   `MainActivity` extends `FlutterFragmentActivity` to support the Cast SDK's UI requirements.
+
+5. **Theme**:
+   The app theme is set to `Theme.AppCompat.NoActionBar` as required by the Cast SDK.
 
 ## iOS Setup (Requirements)
 
@@ -30,20 +36,19 @@ To support casting on iOS, you must add the following to your `Info.plist`:
 <key>NSBonjourServices</key>
 <array>
   <string>_googlecast._tcp</string>
-  <string>_CC1AD845._tcp</string>
+  <string>_CC1AD845._googlecast._tcp</string>
 </array>
 ```
 
 ## How Casting Works Internally
 
-1. **Discovery**: The app uses mDNS (Multicast DNS) to scan the local network for devices that advertise the `_googlecast._tcp` service.
-2. **Connection**: Once a device is selected, the app establishes a socket connection to the TV's IP address on port 8009.
-3. **Session**: A virtual session is created. The app sends a `LAUNCH` command to start the Default Media Receiver app on the TV.
-4. **Media Loading**: The app sends a `LOAD` message containing the Video URL, content type, and metadata (title, etc.).
-5. **Control**: The TV fetches the video from the URL and starts playback. The app can then send commands like `PLAY`, `PAUSE`, `STOP`, or `SEEK`.
+1. **Initialization**: `GoogleCastContext.instance.setSharedInstanceWithOptions` initializes the native SDK.
+2. **Discovery**: `GoogleCastDiscoveryManager` starts searching for devices using mDNS and Bluetooth.
+3. **Session**: `GoogleCastSessionManager` handles connecting to a device and maintaining the session.
+4. **Media Control**: `GoogleCastRemoteMediaClient` sends commands like `loadMedia`, `play`, and `pause` to the connected TV.
 
 ## Troubleshooting
 
-- Ensure both the phone and the TV are on the **exact same Wi-Fi network** (and the same band, e.g., both on 2.4GHz or both on 5GHz).
+- Ensure both the phone and the TV are on the **exact same Wi-Fi network**.
 - AP Isolation must be disabled on your router.
 - For Android 12+, ensure "Nearby devices" permission is granted.

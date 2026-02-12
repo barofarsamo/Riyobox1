@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:riyobox/services/cast_service.dart';
-import 'package:flutter_cast_video/flutter_cast_video.dart';
+import 'package:flutter_chrome_cast/flutter_chrome_cast.dart';
 
 class CastScreen extends StatefulWidget {
   const CastScreen({super.key});
@@ -14,6 +14,16 @@ class _CastScreenState extends State<CastScreen> {
   final String _sampleVideoUrl = 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4';
 
   @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      final service = context.read<CastService>();
+      await service.initContext();
+      service.startScanning();
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
     final castService = context.watch<CastService>();
 
@@ -23,75 +33,90 @@ class _CastScreenState extends State<CastScreen> {
         backgroundColor: const Color(0xFF141414),
         title: const Text('CAST TO DEVICE', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
         iconTheme: const IconThemeData(color: Colors.white),
-      ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Icon(Icons.cast, size: 100, color: Colors.white10),
-            const SizedBox(height: 32),
-            const Padding(
-              padding: EdgeInsets.symmetric(horizontal: 40),
-              child: Text(
-                'Connect to a Chromecast or Android TV to start watching on the big screen.',
-                textAlign: TextAlign.center,
-                style: TextStyle(color: Colors.white70, fontSize: 16),
-              ),
+        actions: [
+          if (!castService.isScanning)
+            IconButton(
+              icon: const Icon(Icons.refresh, color: Colors.deepPurpleAccent),
+              onPressed: () => castService.startScanning(),
             ),
-            const SizedBox(height: 48),
-            // The official Cast Button
-            Container(
-              width: 80,
-              height: 80,
-              decoration: BoxDecoration(
-                color: Colors.deepPurpleAccent.withAlpha(50),
-                shape: BoxShape.circle,
-              ),
-              child: ChromeCastButton(
-                size: 40,
-                color: Colors.white,
-                onButtonCreated: (controller) {
-                  castService.setController(controller);
-                },
-                onSessionStarted: () {
-                  castService.updateConnectionStatus(true);
-                  // We can't use controller here, we must use the one from setController
-                },
-                onSessionEnded: () {
-                  castService.updateConnectionStatus(false);
-                },
-                onRequestFailed: (error) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text('Cast failed: $error'), backgroundColor: Colors.red),
+        ],
+      ),
+      body: Column(
+        children: [
+          if (castService.isScanning && castService.devices.isEmpty)
+            const Expanded(child: Center(child: CircularProgressIndicator(color: Colors.deepPurpleAccent)))
+          else if (castService.devices.isEmpty)
+             Expanded(
+               child: Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Icon(Icons.cast, size: 80, color: Colors.white10),
+                    const SizedBox(height: 16),
+                    const Text('No devices found', style: TextStyle(color: Colors.white70)),
+                    TextButton(onPressed: () => castService.startScanning(), child: const Text('SEARCH AGAIN')),
+                  ],
+                ),
+            ),
+             )
+          else
+            Expanded(
+              child: ListView.builder(
+                itemCount: castService.devices.length,
+                itemBuilder: (context, index) {
+                  final device = castService.devices[index];
+                  final isConnected = castService.isConnected && castService.selectedDevice == device;
+
+                  return ListTile(
+                    leading: Icon(Icons.cast, color: isConnected ? Colors.deepPurpleAccent : Colors.white70),
+                    title: Text(device.friendlyName, style: const TextStyle(color: Colors.white)),
+                    subtitle: Text(device.modelName ?? '', style: const TextStyle(color: Colors.grey, fontSize: 12)),
+                    trailing: isConnected
+                      ? const Icon(Icons.check_circle, color: Colors.deepPurpleAccent)
+                      : null,
+                    onTap: () async {
+                      if (isConnected) {
+                        await castService.disconnect();
+                      } else {
+                        await castService.connectToDevice(device);
+                      }
+                    },
                   );
                 },
               ),
             ),
-            const SizedBox(height: 16),
-            const Text(
-              'TAP TO CAST',
-              style: TextStyle(color: Colors.deepPurpleAccent, fontWeight: FontWeight.bold, fontSize: 12, letterSpacing: 1.2),
-            ),
-            const SizedBox(height: 40),
-            ElevatedButton(
-              onPressed: castService.isConnected
-                ? () => castService.loadMedia(_sampleVideoUrl)
-                : null,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.white,
-                foregroundColor: Colors.black,
-                disabledBackgroundColor: Colors.white10,
+          if (castService.isConnected)
+            Container(
+              padding: const EdgeInsets.all(16),
+              color: const Color(0xFF1C1C1C),
+              child: SafeArea(
+                top: false,
+                child: Column(
+                  children: [
+                    Row(
+                      children: [
+                        const Icon(Icons.cast_connected, color: Colors.deepPurpleAccent),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Text('Connected to ${castService.selectedDevice?.friendlyName}', style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                        ),
+                        IconButton(onPressed: () => castService.disconnect(), icon: const Icon(Icons.close, color: Colors.white)),
+                      ],
+                    ),
+                    const SizedBox(height: 16),
+                    SizedBox(
+                      width: double.infinity,
+                      child: ElevatedButton(
+                        onPressed: () => castService.loadMedia(_sampleVideoUrl, title: 'Big Buck Bunny'),
+                        style: ElevatedButton.styleFrom(backgroundColor: Colors.white, foregroundColor: Colors.black),
+                        child: const Text('CAST SAMPLE VIDEO'),
+                      ),
+                    ),
+                  ],
+                ),
               ),
-              child: const Text('START CASTING VIDEO'),
             ),
-            if (castService.isConnected) ...[
-              const SizedBox(height: 16),
-              const Text('Connected to TV', style: TextStyle(color: Colors.green, fontWeight: FontWeight.bold)),
-              const SizedBox(height: 8),
-              const Text('Playing: Big Buck Bunny', style: TextStyle(color: Colors.grey)),
-            ],
-          ],
-        ),
+        ],
       ),
     );
   }
