@@ -26,8 +26,61 @@ class ApiService {
   Future<Movie> getMovieDetails(String movieId) async {
     if (_isMock) {
       final movies = await _getMockMovies();
-      return movies.firstWhere((m) => m.id.toString() == movieId,
+      final movie = movies.firstWhere((m) => m.id.toString() == movieId,
           orElse: () => movies[0]);
+
+      // If it's The Boys, add seasons
+      if (movie.id == 6) {
+        return Movie(
+          id: movie.id,
+          title: movie.title,
+          overview: movie.overview,
+          posterPath: movie.posterPath,
+          backdropPath: movie.backdropPath,
+          releaseDate: movie.releaseDate,
+          voteAverage: movie.voteAverage,
+          runtime: 60,
+          genres: ['Action', 'Sci-Fi', 'Comedy'],
+          cast: ['Karl Urban', 'Jack Quaid', 'Antony Starr'],
+          director: 'Eric Kripke',
+          contentRating: 'R',
+          isTvShow: true,
+          seasons: [
+            Season(
+              number: 1,
+              title: 'Season 1 (2019)',
+              episodes: [
+                Episode(number: 1, title: 'The Name of the Game', duration: '60min'),
+                Episode(number: 2, title: 'Cherry', duration: '56min'),
+                Episode(number: 3, title: 'Get Some', duration: '58min'),
+                Episode(number: 4, title: 'The Female of the Species', duration: '55min'),
+              ],
+            ),
+            Season(
+              number: 2,
+              title: 'Season 2 (2020)',
+              episodes: [
+                Episode(number: 1, title: 'The Big Ride', duration: '62min'),
+              ],
+            ),
+          ],
+        );
+      }
+
+      return Movie(
+        id: movie.id,
+        title: movie.title,
+        overview: movie.overview,
+        posterPath: movie.posterPath,
+        backdropPath: movie.backdropPath,
+        releaseDate: movie.releaseDate,
+        voteAverage: movie.voteAverage,
+        runtime: 148,
+        genres: ['Action', 'Sci-Fi', 'Adventure'],
+        cast: ['Actor 1', 'Actor 2', 'Actor 3'],
+        director: 'John Director',
+        contentRating: 'PG-13',
+      );
     }
     final response =
         await http.get(Uri.parse('$_baseUrl/movie/$movieId?api_key=$_apiKey'));
@@ -108,6 +161,7 @@ class ApiService {
         backdropPath: '/n69v9K3p7lH2C89X7P6X0B3Y8S.jpg',
         releaseDate: '2019-07-26',
         voteAverage: 8.7,
+        isTvShow: true,
       ),
       Movie(
         id: 7,
@@ -119,5 +173,15 @@ class ApiService {
         voteAverage: 8.3,
       ),
     ];
+  }
+
+  Future<List<Movie>> getSimilarMovies(String movieId) async {
+    final all = await _getMockMovies();
+    return all.where((m) => m.id.toString() != movieId).take(4).toList();
+  }
+
+  Future<List<Movie>> getMoviesByDirector(String director) async {
+    final all = await _getMockMovies();
+    return all.take(2).toList();
   }
 }

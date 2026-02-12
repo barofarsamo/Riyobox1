@@ -33,7 +33,7 @@ class CategoriesScreen extends StatelessWidget {
             backgroundColor: const Color(0xFF1C1C2A),
             title: Row(
               children: [
-                const Text('RIYO', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white)),
+                const Text('RIYOBOX', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white)),
                 const SizedBox(width: 8),
                 Container(
                   width: 8,

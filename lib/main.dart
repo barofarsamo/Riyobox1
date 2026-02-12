@@ -3,16 +3,17 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:riyobox/providers/settings_provider.dart';
+import 'package:riyobox/providers/playback_provider.dart';
 import 'package:riyobox/presentation/screens/home_screen.dart';
 import 'package:riyobox/presentation/screens/movie_details_screen.dart';
 import 'package:riyobox/presentation/screens/video_player_screen.dart';
 import 'package:riyobox/presentation/screens/settings_screen.dart';
 import 'package:riyobox/presentation/screens/profile_screen.dart';
 import 'package:riyobox/presentation/screens/cast_screen.dart';
-import 'categories_screen.dart';
-import 'downloads_screen.dart';
-import 'my_riyobox_screen.dart';
-import 'search_screen.dart';
+import 'package:riyobox/presentation/screens/categories_screen.dart';
+import 'package:riyobox/presentation/screens/downloads_screen.dart';
+import 'package:riyobox/presentation/screens/my_riyobox_screen.dart';
+import 'package:riyobox/presentation/screens/search_screen.dart';
 
 void main() {
   runApp(const MyApp());
@@ -95,6 +96,7 @@ class MyApp extends StatelessWidget {
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => SettingsProvider()),
+        ChangeNotifierProvider(create: (_) => PlaybackProvider()),
       ],
       child: Consumer<SettingsProvider>(
         builder: (context, settings, child) {

@@ -2,6 +2,8 @@
 import 'package:flutter/material.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
+import 'package:riyobox/providers/playback_provider.dart';
 import 'package:riyobox/models/movie.dart';
 import 'package:riyobox/services/api_service.dart';
 import 'package:riyobox/presentation/widgets/movie_card.dart';
@@ -95,6 +97,7 @@ class _HomeScreenState extends State<HomeScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               _buildCarouselSlider(),
+              _buildContinueWatchingSection(),
               const SizedBox(height: 20),
               _buildMovieCategory("Filimada Riyobox", _apiService.getTrendingMovies()),
               _buildMovieCategory("Asalka Riyobox", _apiService.getTopRatedMovies()),
@@ -210,6 +213,90 @@ class _HomeScreenState extends State<HomeScreen> {
               }).toList(),
             ),
           ],
+        );
+      },
+    );
+  }
+
+  Widget _buildContinueWatchingSection() {
+    return Consumer<PlaybackProvider>(
+      builder: (context, playback, child) {
+        // Just for demo, let's assume if there's any progress we show a mock item
+        // In a real app we'd fetch the actual movie data for these IDs
+        return FutureBuilder<List<Movie>>(
+          future: _apiService.getTrendingMovies(),
+          builder: (context, snapshot) {
+            if (!snapshot.hasData || snapshot.data!.isEmpty) return const SizedBox();
+            final moviesWithProgress = snapshot.data!.where((m) => playback.getProgress(m.id.toString()) > Duration.zero).toList();
+            if (moviesWithProgress.isEmpty) return const SizedBox();
+
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Padding(
+                  padding: EdgeInsets.fromLTRB(16, 24, 16, 8),
+                  child: Text('⏸️ CONTINUE WATCHING', style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
+                ),
+                SizedBox(
+                  height: 160,
+                  child: ListView.builder(
+                    scrollDirection: Axis.horizontal,
+                    padding: const EdgeInsets.symmetric(horizontal: 8),
+                    itemCount: moviesWithProgress.length,
+                    itemBuilder: (context, index) {
+                      final movie = moviesWithProgress[index];
+                      return Container(
+                        width: 240,
+                        margin: const EdgeInsets.symmetric(horizontal: 8),
+                        child: GestureDetector(
+                          onTap: () => context.push('/movie/${movie.id}/play'),
+                          child: Stack(
+                            alignment: Alignment.bottomCenter,
+                            children: [
+                              ClipRRect(
+                                borderRadius: BorderRadius.circular(8),
+                                child: Image.network(
+                                  'https://image.tmdb.org/t/p/w500${movie.backdropPath ?? movie.posterPath}',
+                                  fit: BoxFit.cover,
+                                  width: 240,
+                                  height: 135,
+                                ),
+                              ),
+                              Container(
+                                width: 240,
+                                height: 4,
+                                color: Colors.white24,
+                              ),
+                              Positioned(
+                                left: 0,
+                                child: Container(
+                                  width: 120, // Mock progress
+                                  height: 4,
+                                  color: Colors.yellow,
+                                ),
+                              ),
+                              Positioned(
+                                top: 0,
+                                left: 0,
+                                right: 0,
+                                bottom: 0,
+                                child: Icon(Icons.play_circle_fill, color: Colors.white.withAlpha(204), size: 48),
+                              ),
+                              Positioned(
+                                bottom: 8,
+                                left: 8,
+                                child: Text(movie.title, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12)),
+                              ),
+                            ],
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                ),
+              ],
+            );
+          },
         );
       },
     );

@@ -18,8 +18,8 @@ void main() {
     await tester.pumpAndSettle();
 
     // Verify that the app title or some key element is present.
-    // In CategoriesScreen, the title is "RIYO"
-    expect(find.text('RIYO'), findsOneWidget);
+    // In CategoriesScreen, the title is "RIYOBOX"
+    expect(find.text('RIYOBOX'), findsOneWidget);
 
     // Verify that the bottom navigation bar is present
     expect(find.text('Home'), findsOneWidget);
