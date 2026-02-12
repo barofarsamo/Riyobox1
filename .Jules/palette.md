@@ -1,0 +1,3 @@
+## 2025-02-12 - Verifying Flutter Web Accessibility with Playwright
+**Learning:** In Flutter Web builds, the `tooltip` property of an `IconButton` is rendered as the text content of the corresponding `flt-semantics` node (with `role="button"`), rather than an `aria-label` attribute. Interactive elements with ARIA labels (like tooltips) may not appear in the DOM unless the 'Enable accessibility' button in the Flutter Semantics layer is triggered via the `flt-semantics-placeholder`.
+**Action:** For local verification of Flutter Web accessibility, serve the `build/web` folder and use Playwright to interact with the `flt-semantics-placeholder` to expose and query ARIA attributes. Use `dispatch_event('click')` if the placeholder is reported as off-screen.
