@@ -185,7 +185,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       child: Stack(
                         children: [
                           Image.network(
-                            'https://image.tmdb.org/t/p/w500${movie.posterPath}',
+                            movie.posterPath.startsWith('http') ? movie.posterPath : 'https://image.tmdb.org/t/p/w500${movie.posterPath}',
                             fit: BoxFit.cover,
                             height: 250.0,
                             width: double.infinity,
@@ -291,7 +291,9 @@ class _HomeScreenState extends State<HomeScreen> {
                               ClipRRect(
                                 borderRadius: BorderRadius.circular(8),
                                 child: Image.network(
-                                  'https://image.tmdb.org/t/p/w500${movie.backdropPath ?? movie.posterPath}',
+                                  (movie.backdropPath ?? movie.posterPath).startsWith('http')
+                                      ? (movie.backdropPath ?? movie.posterPath)
+                                      : 'https://image.tmdb.org/t/p/w500${movie.backdropPath ?? movie.posterPath}',
                                   fit: BoxFit.cover,
                                   width: 240,
                                   height: 135,

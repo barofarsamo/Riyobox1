@@ -4,6 +4,7 @@ import 'package:riyobox/providers/auth_provider.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:riyobox/models/movie.dart';
+import 'package:riyobox/core/constants.dart';
 
 class AdminPanelScreen extends StatefulWidget {
   const AdminPanelScreen({super.key});
@@ -22,7 +23,7 @@ class _AdminPanelScreenState extends State<AdminPanelScreen> with SingleTickerPr
   List<Movie> _movies = [];
   bool _isLoadingMovies = false;
 
-  static const String _backendUrl = 'http://localhost:5000';
+  static const String _backendUrl = Constants.apiBaseUrl;
 
   @override
   void initState() {

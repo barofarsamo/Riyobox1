@@ -88,7 +88,9 @@ class _MovieDetailsScreenState extends State<MovieDetailsScreen> {
           fit: StackFit.expand,
           children: [
             Image.network(
-              'https://image.tmdb.org/t/p/original${movie.backdropPath ?? movie.posterPath}',
+              (movie.backdropPath ?? movie.posterPath).startsWith('http')
+                  ? (movie.backdropPath ?? movie.posterPath)
+                  : 'https://image.tmdb.org/t/p/original${movie.backdropPath ?? movie.posterPath}',
               fit: BoxFit.cover,
             ),
             Container(

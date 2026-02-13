@@ -26,7 +26,7 @@ class MovieCard extends StatelessWidget {
               width: double.infinity,
               child: Image.network(
                 movie.posterPath.isNotEmpty
-                  ? 'https://image.tmdb.org/t/p/w500${movie.posterPath}'
+                  ? (movie.posterPath.startsWith('http') ? movie.posterPath : 'https://image.tmdb.org/t/p/w500${movie.posterPath}')
                   : 'https://picsum.photos/seed/${movie.id}/200/300',
                 fit: BoxFit.cover,
                 loadingBuilder: (context, child, progress) {

@@ -28,7 +28,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Sign up failed. Please try again.')),
+          SnackBar(content: Text('Sign up failed: ${e.toString().replaceAll('Exception: ', '')}')),
         );
       }
     } finally {

@@ -1,18 +1,19 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:riyobox/models/movie.dart';
+import 'package:riyobox/core/constants.dart';
 
 class ApiService {
-  static const String _apiKey = 'YOUR_API_KEY'; // TODO: Replace with your TMDB API key
-  static const String _baseUrl = 'https://api.themoviedb.org/3';
-  static const String _backendUrl = 'http://localhost:5000';
+  static const String _apiKey = Constants.tmdbApiKey;
+  static const String _baseUrl = Constants.tmdbBaseUrl;
+  static const String _backendUrl = Constants.apiBaseUrl;
 
   bool get _isMock => _apiKey == 'YOUR_API_KEY';
 
   Future<List<Movie>> getTrendingMovies({String? token}) async {
     try {
       if (token != null) {
-        final response = await http.get(Uri.parse('$_backendUrl/movies'), headers: {'Authorization': 'Bearer $token'});
+        final response = await http.get(Uri.parse('$_backendUrl/movies'), headers: {'Authorization': 'Bearer $token'}).timeout(const Duration(seconds: 5));
         if (response.statusCode == 200) {
           final List<dynamic> results = json.decode(response.body);
           final backendMovies = results.map((json) => Movie.fromJson(json)).toList();
