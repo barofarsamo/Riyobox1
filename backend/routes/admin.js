@@ -1,5 +1,6 @@
 const express = require('express');
 const Movie = require('../models/Movie');
+const User = require('../models/User');
 const { protect, adminOnly } = require('../middleware/authMiddleware');
 const router = express.Router();
 
@@ -32,6 +33,15 @@ router.delete('/movies/:id', protect, adminOnly, async (req, res) => {
     } else {
       res.status(404).json({ message: 'Movie not found' });
     }
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
+router.get('/users', protect, adminOnly, async (req, res) => {
+  try {
+    const users = await User.find({}).select('-password');
+    res.json(users);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }

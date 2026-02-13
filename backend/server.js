@@ -7,7 +7,13 @@ const User = require('./models/User');
 dotenv.config();
 const app = express();
 app.use(express.json());
-app.use(cors());
+
+// Enable CORS for all origins
+app.use(cors({
+  origin: '*',
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
+}));
 
 app.use('/auth', require('./routes/auth'));
 app.use('/admin', require('./routes/admin'));
