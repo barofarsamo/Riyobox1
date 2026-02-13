@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:riyobox/models/movie.dart';
 import 'package:riyobox/services/api_service.dart';
+import 'package:riyobox/providers/auth_provider.dart';
 import 'package:riyobox/providers/settings_provider.dart';
 import 'package:riyobox/presentation/widgets/movie_card.dart';
 import 'package:riyobox/presentation/widgets/shimmer_loading.dart';
@@ -21,7 +22,7 @@ class _SearchScreenState extends State<SearchScreen> {
   bool _isLoading = false;
   bool _hasSearched = false;
 
-  void _onSearchChanged(String query, bool isOffline) async {
+  void _onSearchChanged(String query, bool isOffline, {String? token}) async {
     if (query.isEmpty) {
       setState(() {
         _searchResults = [];
@@ -37,7 +38,7 @@ class _SearchScreenState extends State<SearchScreen> {
     });
 
     try {
-      final movies = await _apiService.getTrendingMovies();
+      final movies = await _apiService.getTrendingMovies(token: token);
       var filteredMovies = movies.where((movie) =>
         movie.title.toLowerCase().contains(query.toLowerCase())).toList();
 
@@ -59,13 +60,14 @@ class _SearchScreenState extends State<SearchScreen> {
   @override
   Widget build(BuildContext context) {
     final settings = Provider.of<SettingsProvider>(context);
+    final auth = Provider.of<AuthProvider>(context);
 
     return Scaffold(
       backgroundColor: const Color(0xFF141414),
       body: SafeArea(
         child: Column(
           children: [
-            _buildSearchHeader(settings.isOffline),
+            _buildSearchHeader(settings.isOffline, token: auth.token),
             Expanded(
               child: _isLoading
                 ? _buildLoadingGrid()
@@ -77,7 +79,7 @@ class _SearchScreenState extends State<SearchScreen> {
     );
   }
 
-  Widget _buildSearchHeader(bool isOffline) {
+  Widget _buildSearchHeader(bool isOffline, {String? token}) {
     return Padding(
       padding: const EdgeInsets.all(16.0),
       child: Row(
@@ -85,7 +87,7 @@ class _SearchScreenState extends State<SearchScreen> {
           Expanded(
             child: TextField(
               controller: _searchController,
-              onChanged: (val) => _onSearchChanged(val, isOffline),
+              onChanged: (val) => _onSearchChanged(val, isOffline, token: token),
               style: const TextStyle(color: Colors.white),
               decoration: InputDecoration(
                 hintText: isOffline ? 'Search downloads...' : 'Search movies, TV shows...',
@@ -102,7 +104,7 @@ class _SearchScreenState extends State<SearchScreen> {
                       icon: const Icon(Icons.clear, color: Colors.white54),
                       onPressed: () {
                         _searchController.clear();
-                        _onSearchChanged('', isOffline);
+                      _onSearchChanged('', isOffline, token: token);
                       },
                     )
                   : null,
@@ -115,7 +117,7 @@ class _SearchScreenState extends State<SearchScreen> {
               child: GestureDetector(
                 onTap: () {
                   _searchController.clear();
-                  _onSearchChanged('', isOffline);
+                  _onSearchChanged('', isOffline, token: token);
                   FocusScope.of(context).unfocus();
                 },
                 child: const Text(

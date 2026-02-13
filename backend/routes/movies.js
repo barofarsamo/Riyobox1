@@ -1,4 +1,5 @@
 const express = require('express');
+const mongoose = require('mongoose');
 const Movie = require('../models/Movie');
 const { protect } = require('../middleware/authMiddleware');
 const router = express.Router();
@@ -14,6 +15,9 @@ router.get('/', protect, async (req, res) => {
 
 router.get('/:id', protect, async (req, res) => {
   try {
+    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+      return res.status(400).json({ message: 'Invalid movie ID' });
+    }
     const movie = await Movie.findById(req.params.id);
     if (movie) {
       res.json(movie);

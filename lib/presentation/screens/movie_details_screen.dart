@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
+import 'package:riyobox/providers/auth_provider.dart';
 import 'package:riyobox/models/movie.dart';
 import 'package:riyobox/services/api_service.dart';
 import 'package:riyobox/presentation/widgets/movie_card.dart';
@@ -20,10 +22,11 @@ class _MovieDetailsScreenState extends State<MovieDetailsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final auth = Provider.of<AuthProvider>(context);
     return Scaffold(
       backgroundColor: const Color(0xFF141414),
       body: FutureBuilder<Movie>(
-        future: _apiService.getMovieDetails(widget.movieId),
+        future: _apiService.getMovieDetails(widget.movieId, token: auth.token),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator(color: Colors.deepPurple));
@@ -48,7 +51,7 @@ class _MovieDetailsScreenState extends State<MovieDetailsScreen> {
                       const SizedBox(height: 20),
                       _buildMainInfo(movie),
                       const SizedBox(height: 24),
-                      _buildActionsBar(context),
+                      _buildActionsBar(context, movie),
                       const SizedBox(height: 24),
                       _buildBadges(),
                       const SizedBox(height: 24),
@@ -109,7 +112,10 @@ class _MovieDetailsScreenState extends State<MovieDetailsScreen> {
             Center(
               child: IconButton(
                 icon: const Icon(Icons.play_circle_outline, size: 80, color: Colors.white70),
-                onPressed: () => context.push('/movie/${movie.id}/play'),
+                onPressed: () {
+                   final id = movie.backendId ?? movie.id.toString();
+                   context.push('/movie/$id/play');
+                },
               ),
             ),
           ],
@@ -174,13 +180,16 @@ class _MovieDetailsScreenState extends State<MovieDetailsScreen> {
     );
   }
 
-  Widget _buildActionsBar(BuildContext context) {
+  Widget _buildActionsBar(BuildContext context, Movie movie) {
     return Column(
       children: [
         SizedBox(
           width: double.infinity,
           child: ElevatedButton.icon(
-            onPressed: () => context.push('/movie/1/play'),
+            onPressed: () {
+               final id = movie.backendId ?? movie.id.toString();
+               context.push('/movie/$id/play');
+            },
             icon: const Icon(Icons.play_arrow, color: Colors.black),
             label: const Text('RESUME', style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold)),
             style: ElevatedButton.styleFrom(
@@ -397,13 +406,14 @@ class _MovieDetailsScreenState extends State<MovieDetailsScreen> {
   }
 
   Widget _buildRecommendationsSection(String title) {
+    final auth = Provider.of<AuthProvider>(context, listen: false);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(title, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16)),
         const SizedBox(height: 16),
         FutureBuilder<List<Movie>>(
-          future: _apiService.getTrendingMovies(),
+          future: _apiService.getTrendingMovies(token: auth.token),
           builder: (context, snapshot) {
             if (!snapshot.hasData) return const SizedBox(height: 180, child: ShimmerLoading.rectangular(height: 180));
             final movies = snapshot.data!;

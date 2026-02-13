@@ -112,6 +112,20 @@ class SettingsScreen extends StatelessWidget {
             onTap: () => _showLanguageDialog(context, settings),
           ),
           _buildDivider(),
+          _buildSectionHeader('SUPPORT'),
+          ListTile(
+            leading: const Icon(Icons.help_outline, color: Colors.white),
+            title: const Text('Help Center', style: TextStyle(color: Colors.white)),
+            trailing: const Icon(Icons.open_in_new, size: 16, color: Colors.grey),
+            onTap: () {},
+          ),
+          ListTile(
+            leading: const Icon(Icons.info_outline, color: Colors.white),
+            title: const Text('About RIYOBOX', style: TextStyle(color: Colors.white)),
+            trailing: const Icon(Icons.arrow_forward_ios, size: 16, color: Colors.grey),
+            onTap: () {},
+          ),
+          _buildDivider(),
           ListTile(
             leading: const Icon(Icons.logout, color: Colors.redAccent),
             title: const Text('Log Out', style: TextStyle(color: Colors.redAccent, fontWeight: FontWeight.bold)),

@@ -14,7 +14,8 @@ class MovieCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () {
-        context.push('/movie/${movie.id}');
+        final id = movie.backendId ?? movie.id.toString();
+        context.push('/movie/$id');
       },
       child: Stack(
         children: [

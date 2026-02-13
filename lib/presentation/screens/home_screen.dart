@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
+import 'package:riyobox/providers/auth_provider.dart';
 import 'package:riyobox/providers/playback_provider.dart';
 import 'package:riyobox/providers/settings_provider.dart';
 import 'package:riyobox/models/movie.dart';
@@ -35,11 +36,18 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     final settings = Provider.of<SettingsProvider>(context);
+    final auth = Provider.of<AuthProvider>(context);
 
     return Scaffold(
       backgroundColor: const Color(0xFF141414),
-      body: NestedScrollView(
-        headerSliverBuilder: (BuildContext context, bool innerBoxIsScrolled) {
+      body: RefreshIndicator(
+        onRefresh: () async {
+           setState(() {});
+        },
+        color: Colors.deepPurpleAccent,
+        backgroundColor: const Color(0xFF1C1C1C),
+        child: NestedScrollView(
+          headerSliverBuilder: (BuildContext context, bool innerBoxIsScrolled) {
           return <Widget>[
             SliverAppBar(
               backgroundColor: const Color(0xFF141414),
@@ -109,8 +117,8 @@ class _HomeScreenState extends State<HomeScreen> {
         },
         body: FutureBuilder<List<Movie>>(
           future: settings.isOffline
-            ? _apiService.getTrendingMovies().then((movies) => movies.where((m) => m.isDownloaded).toList())
-            : _apiService.getTrendingMovies(),
+            ? _apiService.getTrendingMovies(token: auth.token).then((movies) => movies.where((m) => m.isDownloaded).toList())
+            : _apiService.getTrendingMovies(token: auth.token),
           builder: (context, snapshot) {
             if (settings.isOffline && snapshot.hasData && snapshot.data!.isEmpty) {
               return NoInternetState(
@@ -132,12 +140,12 @@ class _HomeScreenState extends State<HomeScreen> {
                       const SizedBox(height: 400),
                     ]
                   : [
-                      _buildCarouselSlider(),
-                      _buildContinueWatchingSection(),
+                      _buildCarouselSlider(auth.token),
+                      _buildContinueWatchingSection(auth.token),
                       const SizedBox(height: 20),
-                      _buildMovieCategory("Trending Now", _apiService.getTrendingMovies()),
-                      _buildMovieCategory("Popular on RIYOBOX", _apiService.getTopRatedMovies()),
-                      _buildMovieCategory("New Releases", _apiService.getNowPlayingMovies()),
+                      _buildMovieCategory("Trending Now", _apiService.getTrendingMovies(token: auth.token)),
+                      _buildMovieCategory("Popular on RIYOBOX", _apiService.getTopRatedMovies(token: auth.token)),
+                      _buildMovieCategory("New Releases", _apiService.getNowPlayingMovies(token: auth.token)),
                       const SizedBox(height: 40),
                     ],
               ),
@@ -148,9 +156,9 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget _buildCarouselSlider() {
+  Widget _buildCarouselSlider(String? token) {
     return FutureBuilder<List<Movie>>(
-      future: _apiService.getTrendingMovies(),
+      future: _apiService.getTrendingMovies(token: token),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const ShimmerLoading.rectangular(height: 250);
@@ -181,7 +189,10 @@ class _HomeScreenState extends State<HomeScreen> {
                 return Builder(
                   builder: (BuildContext context) {
                     return GestureDetector(
-                      onTap: () => context.push('/movie/${movie.id}'),
+                      onTap: () {
+                        final id = movie.backendId ?? movie.id.toString();
+                        context.push('/movie/$id');
+                      },
                       child: Stack(
                         children: [
                           Image.network(
@@ -255,11 +266,11 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget _buildContinueWatchingSection() {
+  Widget _buildContinueWatchingSection(String? token) {
     return Consumer<PlaybackProvider>(
       builder: (context, playback, child) {
         return FutureBuilder<List<Movie>>(
-          future: _apiService.getTrendingMovies(),
+          future: _apiService.getTrendingMovies(token: token),
           builder: (context, snapshot) {
             if (!snapshot.hasData || snapshot.data!.isEmpty) return const SizedBox();
             final moviesWithProgress = snapshot.data!.where((m) => playback.getProgress(m.id.toString()) > Duration.zero).toList();
@@ -284,7 +295,10 @@ class _HomeScreenState extends State<HomeScreen> {
                         width: 240,
                         margin: const EdgeInsets.symmetric(horizontal: 8),
                         child: GestureDetector(
-                          onTap: () => context.push('/movie/${movie.id}/play'),
+                          onTap: () {
+                             final id = movie.backendId ?? movie.id.toString();
+                             context.push('/movie/$id/play');
+                          },
                           child: Stack(
                             alignment: Alignment.bottomCenter,
                             children: [
