@@ -13,14 +13,19 @@ class ApiService {
   Future<List<Movie>> getTrendingMovies({String? token}) async {
     try {
       if (token != null) {
-        final response = await http.get(Uri.parse('$_backendUrl/movies'), headers: {'Authorization': 'Bearer $token'}).timeout(const Duration(seconds: 5));
+        final response = await http.get(Uri.parse('$_backendUrl/movies'), headers: {'Authorization': 'Bearer $token'}).timeout(const Duration(seconds: 15));
         if (response.statusCode == 200) {
           final List<dynamic> results = json.decode(response.body);
           final backendMovies = results.map((json) => Movie.fromJson(json)).toList();
           if (backendMovies.isNotEmpty) return backendMovies;
         }
       }
-    } catch (e) { print('Error fetching from backend: $e'); }
+    } catch (e) {
+      print('Error fetching from backend: $e');
+      if (e.toString().contains('SocketException')) {
+        print('Backend connection failed. Is the server running?');
+      }
+    }
     if (_isMock) return _getMockMovies();
     return _fetchMovies('/trending/movie/day');
   }

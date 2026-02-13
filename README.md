@@ -18,6 +18,17 @@ RIYOBOX is a production-grade movie streaming application prototype built with F
 *   **Database:** MongoDB (via Mongoose).
 *   **Auth:** JWT (JSON Web Tokens).
 
+## 🌍 Cloud Deployment (Render)
+
+The backend is configured for easy deployment on [Render](https://render.com).
+
+1.  **Connect GitHub Repository:** Connect your repository to Render.
+2.  **Environment Variables:** Add the following variables in Render dashboard:
+    *   `MONGO_URI`: Your MongoDB Atlas connection string.
+    *   `JWT_SECRET`: A secure random string for signing tokens.
+    *   `PORT`: `5000` (Render will set this automatically).
+3.  **Update Frontend:** The frontend is currently pointing to `https://riyobox1-1.onrender.com`. You can change this in `lib/core/constants.dart`.
+
 ## 📂 Project Structure
 
 ```text

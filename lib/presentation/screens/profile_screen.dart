@@ -1,11 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
+import 'package:riyobox/providers/auth_provider.dart';
 
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final auth = Provider.of<AuthProvider>(context);
+
     return Scaffold(
       backgroundColor: const Color(0xFF1C1C2A),
       appBar: AppBar(
@@ -29,9 +33,9 @@ class ProfileScreen extends StatelessWidget {
             const SizedBox(height: 20),
             _buildProfileImage(),
             const SizedBox(height: 24),
-            _buildProfileField('Full Name', 'Jules Engineer'),
-            _buildProfileField('Email', 'jules@riyobox.com'),
-            _buildProfileField('Phone', '+252 61 1234567'),
+            _buildProfileField('Full Name', auth.isAuthenticated ? 'User' : 'Guest'),
+            _buildProfileField('Email', auth.isAuthenticated ? 'user@example.com' : 'Not signed in'),
+            _buildProfileField('Role', auth.role ?? 'N/A'),
             const SizedBox(height: 32),
             _buildActionItem(
               context,
@@ -67,7 +71,7 @@ class ProfileScreen extends StatelessWidget {
                 title: const Text('Sign Out', style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold)),
                 trailing: const Icon(Icons.arrow_forward_ios, size: 16, color: Colors.red),
                 onTap: () {
-                  _showLogoutDialog(context);
+                  _showLogoutDialog(context, auth);
                 },
               ),
             ),
@@ -149,7 +153,7 @@ class ProfileScreen extends StatelessWidget {
     );
   }
 
-  void _showLogoutDialog(BuildContext context) {
+  void _showLogoutDialog(BuildContext context, AuthProvider auth) {
      showDialog(
       context: context,
       builder: (context) => AlertDialog(
@@ -158,7 +162,12 @@ class ProfileScreen extends StatelessWidget {
         content: const Text('Are you sure you want to sign out?', style: TextStyle(color: Colors.grey)),
         actions: [
           TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancel', style: TextStyle(color: Colors.white))),
-          TextButton(onPressed: () => Navigator.pop(context), child: const Text('Sign Out', style: TextStyle(color: Colors.red))),
+          TextButton(
+            onPressed: () {
+              auth.logout();
+              context.go('/login');
+            },
+            child: const Text('Sign Out', style: TextStyle(color: Colors.red))),
         ],
       ),
     );

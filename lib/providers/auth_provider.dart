@@ -35,7 +35,7 @@ class AuthProvider with ChangeNotifier {
         Uri.parse('$_backendUrl/auth/login'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({'email': email, 'password': password}),
-      );
+      ).timeout(const Duration(seconds: 30));
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
         _token = data['token'];
@@ -47,9 +47,15 @@ class AuthProvider with ChangeNotifier {
         await prefs.setString('role', _role!);
         notifyListeners();
       } else {
-        throw Exception(jsonDecode(response.body)['message'] ?? 'Login failed');
+        final errorMsg = _parseErrorMessage(response);
+        throw Exception(errorMsg);
       }
-    } catch (e) { rethrow; }
+    } catch (e) {
+      if (e is http.ClientException || e.toString().contains('SocketException')) {
+        throw Exception('Unable to connect to the server. Please check your internet connection and ensure the backend is running.');
+      }
+      rethrow;
+    }
   }
 
   Future<void> signup(String name, String email, String password) async {
@@ -58,7 +64,7 @@ class AuthProvider with ChangeNotifier {
         Uri.parse('$_backendUrl/auth/register'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({'name': name, 'email': email, 'password': password}),
-      );
+      ).timeout(const Duration(seconds: 30));
       if (response.statusCode == 201) {
         final data = jsonDecode(response.body);
         _token = data['token'];
@@ -70,9 +76,15 @@ class AuthProvider with ChangeNotifier {
         await prefs.setString('role', _role!);
         notifyListeners();
       } else {
-        throw Exception(jsonDecode(response.body)['message'] ?? 'Registration failed');
+        final errorMsg = _parseErrorMessage(response);
+        throw Exception(errorMsg);
       }
-    } catch (e) { rethrow; }
+    } catch (e) {
+      if (e is http.ClientException || e.toString().contains('SocketException')) {
+        throw Exception('Unable to connect to the server. Please check your internet connection and ensure the backend is running.');
+      }
+      rethrow;
+    }
   }
 
   Future<void> logout() async {
@@ -91,6 +103,15 @@ class AuthProvider with ChangeNotifier {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool('isOnboardingComplete', true);
     notifyListeners();
+  }
+
+  String _parseErrorMessage(http.Response response) {
+    try {
+      final data = jsonDecode(response.body);
+      return data['message'] ?? 'Status Code: ${response.statusCode}';
+    } catch (_) {
+      return 'Error: ${response.statusCode} - ${response.reasonPhrase}';
+    }
   }
 
   Future<bool> checkSession() async {

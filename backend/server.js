@@ -13,27 +13,44 @@ app.use('/auth', require('./routes/auth'));
 app.use('/admin', require('./routes/admin'));
 app.use('/movies', require('./routes/movies'));
 
-app.get('/', (req, res) => res.send('Riyobox API is running...'));
+app.get('/', (req, res) => res.json({
+  message: 'Riyobox API is running...',
+  database: mongoose.connection.readyState === 1 ? 'Connected' : 'Disconnected',
+  timestamp: new Date().toISOString()
+}));
 
 const PORT = process.env.PORT || 5000;
 const MONGO_URI = process.env.MONGO_URI || 'mongodb://localhost:27017/riyobox';
 
 const createDefaultAdmin = async () => {
   try {
-    const adminExists = await User.findOne({ email: 'admin@example.com' });
+    const adminEmail = 'admin@example.com';
+    const adminExists = await User.findOne({ email: adminEmail });
+
     if (!adminExists) {
-      await User.create({ name: 'Super Admin', email: 'admin@example.com', password: 'admin123', role: 'admin' });
-      console.log('Default admin created: admin@example.com / admin123');
+      console.log('Creating default admin account...');
+      const admin = await User.create({
+        name: 'Super Admin',
+        email: adminEmail,
+        password: 'admin123',
+        role: 'admin'
+      });
+      console.log('✅ Default admin created successfully:', admin.email);
+    } else {
+      console.log('ℹ️ Admin account already exists:', adminExists.email);
     }
   } catch (error) {
-    console.error('Error creating default admin:', error.message);
+    console.error('❌ Error creating default admin:', error.message);
+    if (error.code === 11000) {
+      console.error('Email already exists (Race condition handled)');
+    }
   }
 };
 
 mongoose.connect(MONGO_URI)
-  .then(() => {
+  .then(async () => {
     console.log('MongoDB connected');
-    createDefaultAdmin();
+    await createDefaultAdmin();
     app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
   })
   .catch((err) => {

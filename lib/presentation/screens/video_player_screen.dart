@@ -8,6 +8,9 @@ import 'dart:developer' as developer;
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:riyobox/providers/playback_provider.dart';
+import 'package:riyobox/providers/auth_provider.dart';
+import 'package:riyobox/services/api_service.dart';
+import 'package:riyobox/models/movie.dart';
 
 class VideoPlayerScreen extends StatefulWidget {
   final String? movieId;
@@ -20,7 +23,7 @@ class VideoPlayerScreen extends StatefulWidget {
 }
 
 class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
-  late VideoPlayerController _controller;
+  VideoPlayerController? _controller;
   bool _isControlsVisible = true;
   Timer? _hideControlsTimer;
   double _currentVolume = 0.5;
@@ -35,39 +38,50 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
   void initState() {
     super.initState();
     WakelockPlus.enable();
-    final url = widget.videoUrl ??
-        'http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4';
-    _controller = VideoPlayerController.networkUrl(
-      Uri.parse(url),
-    )..initialize().then((_) {
+    _initPlayer();
+    _initVolume();
+    _initBrightness();
+  }
+
+  Future<void> _initPlayer() async {
+    String? url = widget.videoUrl;
+
+    if (url == null && widget.movieId != null) {
+      try {
+        final token = Provider.of<AuthProvider>(context, listen: false).token;
+        final movie = await ApiService().getMovieDetails(widget.movieId!, token: token);
+        url = movie.videoUrl;
+      } catch (e) {
+        developer.log('Error fetching movie details: $e');
+      }
+    }
+
+    url ??= 'http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4';
+
+    _controller = VideoPlayerController.networkUrl(Uri.parse(url))
+      ..initialize().then((_) {
         if (mounted) {
           setState(() {});
-
           final progress = Provider.of<PlaybackProvider>(context, listen: false).getProgress(widget.movieId ?? '');
           if (progress > Duration.zero) {
             _showResumeDialog(progress);
           } else {
-            _controller.play();
+            _controller!.play();
           }
           _startHideControlsTimer();
         }
       });
 
-    _controller.addListener(() {
+    _controller!.addListener(() {
       if (mounted) {
-        final isBuffering = _controller.value.isBuffering;
+        final isBuffering = _controller!.value.isBuffering;
         if (isBuffering != _isBuffering) {
-           setState(() {
-            _isBuffering = isBuffering;
-          });
+           setState(() => _isBuffering = isBuffering);
         } else {
            setState(() {});
         }
       }
     });
-
-    _initVolume();
-    _initBrightness();
   }
 
   Future<void> _initVolume() async {
@@ -102,24 +116,24 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
     showDialog(
       context: context,
       barrierDismissible: false,
-      builder: (context) => AlertDialog(
+      builder: (dialogContext) => AlertDialog(
         backgroundColor: const Color(0xFF2A2A3A),
         title: const Text('CONTINUE WATCHING', style: TextStyle(color: Colors.yellow, fontSize: 16)),
         content: Text('Resume from ${_formatDuration(progress)}?', style: const TextStyle(color: Colors.white)),
         actions: [
           TextButton(
             onPressed: () {
-              Provider.of<PlaybackProvider>(this.context, listen: false).resetProgress(widget.movieId ?? '');
-              _controller.play();
-              Navigator.pop(context);
+              Provider.of<PlaybackProvider>(context, listen: false).resetProgress(widget.movieId ?? '');
+              _controller?.play();
+              Navigator.pop(dialogContext);
             },
             child: const Text('Restart', style: TextStyle(color: Colors.grey)),
           ),
           ElevatedButton(
             onPressed: () {
-              _controller.seekTo(progress);
-              _controller.play();
-              Navigator.pop(context);
+              _controller?.seekTo(progress);
+              _controller?.play();
+              Navigator.pop(dialogContext);
             },
             style: ElevatedButton.styleFrom(backgroundColor: Colors.yellow),
             child: const Text('Resume', style: TextStyle(color: Colors.black)),
@@ -132,7 +146,7 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
   void _startHideControlsTimer() {
     _hideControlsTimer?.cancel();
     _hideControlsTimer = Timer(const Duration(seconds: 3), () {
-      if (mounted && _controller.value.isPlaying) {
+      if (mounted && _controller != null && _controller!.value.isPlaying) {
         setState(() {
           _isControlsVisible = false;
         });
@@ -142,11 +156,11 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
 
   @override
   void dispose() {
-    if (widget.movieId != null) {
-      Provider.of<PlaybackProvider>(context, listen: false).updateProgress(widget.movieId!, _controller.value.position);
+    if (widget.movieId != null && _controller != null) {
+      Provider.of<PlaybackProvider>(context, listen: false).updateProgress(widget.movieId!, _controller!.value.position);
     }
     WakelockPlus.disable();
-    _controller.dispose();
+    _controller?.dispose();
     _hideControlsTimer?.cancel();
     super.dispose();
   }
@@ -173,10 +187,10 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
         child: Stack(
           children: <Widget>[
             Center(
-              child: _controller.value.isInitialized
+              child: (_controller != null && _controller!.value.isInitialized)
                   ? AspectRatio(
-                      aspectRatio: _controller.value.aspectRatio,
-                      child: VideoPlayer(_controller),
+                      aspectRatio: _controller!.value.aspectRatio,
+                      child: VideoPlayer(_controller!),
                     )
                   : const CircularProgressIndicator(color: Colors.yellow),
             ),
@@ -237,14 +251,15 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
   }
 
   Widget _buildPlaybackControls() {
+    if (_controller == null) return const SizedBox();
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         IconButton(
           icon: const Icon(Icons.replay_10, color: Colors.white, size: 40),
           onPressed: () {
-            _controller.seekTo(
-              _controller.value.position - const Duration(seconds: 10),
+            _controller!.seekTo(
+              _controller!.value.position - const Duration(seconds: 10),
             );
             _startHideControlsTimer();
           },
@@ -252,13 +267,13 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
         const SizedBox(width: 40),
         IconButton(
           icon: Icon(
-            _controller.value.isPlaying ? Icons.pause_circle_filled : Icons.play_circle_filled,
+            _controller!.value.isPlaying ? Icons.pause_circle_filled : Icons.play_circle_filled,
             color: Colors.yellow,
             size: 80,
           ),
           onPressed: () {
             setState(() {
-              _controller.value.isPlaying ? _controller.pause() : _controller.play();
+              _controller!.value.isPlaying ? _controller!.pause() : _controller!.play();
               _startHideControlsTimer();
             });
           },
@@ -267,8 +282,8 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
         IconButton(
           icon: const Icon(Icons.forward_10, color: Colors.white, size: 40),
           onPressed: () {
-            _controller.seekTo(
-              _controller.value.position + const Duration(seconds: 10),
+            _controller!.seekTo(
+              _controller!.value.position + const Duration(seconds: 10),
             );
             _startHideControlsTimer();
           },
@@ -278,12 +293,13 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
   }
 
   Widget _buildBottomBar() {
+    if (_controller == null) return const SizedBox();
     return Padding(
       padding: const EdgeInsets.all(16.0),
       child: Column(
         children: [
            VideoProgressIndicator(
-            _controller,
+            _controller!,
             allowScrubbing: true,
             colors: const VideoProgressColors(
               playedColor: Colors.yellow,
@@ -296,7 +312,7 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                '${_formatDuration(_controller.value.position)} / ${_formatDuration(_controller.value.duration)}',
+                '${_formatDuration(_controller!.value.position)} / ${_formatDuration(_controller!.value.duration)}',
                 style: const TextStyle(color: Colors.white, fontSize: 12),
               ),
               Row(
@@ -333,7 +349,7 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
     _showBottomDialog('Playback Speed', ['0.5x', '0.75x', '1.0x', '1.25x', '1.5x', '2.0x'], (val) {
       setState(() {
         _playbackSpeed = double.parse(val.replaceAll('x', ''));
-        _controller.setPlaybackSpeed(_playbackSpeed);
+        _controller?.setPlaybackSpeed(_playbackSpeed);
       });
     });
   }
