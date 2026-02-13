@@ -33,6 +33,27 @@ class _HomeScreenState extends State<HomeScreen> {
   ];
   String _selectedFilter = "All";
 
+  Future<List<Movie>> _getFilteredMovies(String? token, bool isOffline) async {
+    List<Movie> movies;
+    if (_selectedFilter == "My List") {
+      movies = await _apiService.getWatchlist(token ?? "");
+    } else {
+      movies = await _apiService.getTrendingMovies(token: token);
+    }
+
+    if (isOffline) {
+      movies = movies.where((m) => m.isDownloaded).toList();
+    }
+
+    if (_selectedFilter == "Movies") {
+      movies = movies.where((m) => !m.isTvShow).toList();
+    } else if (_selectedFilter == "TV Shows") {
+      movies = movies.where((m) => m.isTvShow).toList();
+    }
+
+    return movies;
+  }
+
   @override
   Widget build(BuildContext context) {
     final settings = Provider.of<SettingsProvider>(context);
@@ -116,9 +137,7 @@ class _HomeScreenState extends State<HomeScreen> {
           ];
         },
         body: FutureBuilder<List<Movie>>(
-          future: settings.isOffline
-            ? _apiService.getTrendingMovies(token: auth.token).then((movies) => movies.where((m) => m.isDownloaded).toList())
-            : _apiService.getTrendingMovies(token: auth.token),
+          future: _getFilteredMovies(auth.token, settings.isOffline),
           builder: (context, snapshot) {
             if (settings.isOffline && snapshot.hasData && snapshot.data!.isEmpty) {
               return NoInternetState(

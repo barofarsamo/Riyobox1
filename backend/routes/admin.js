@@ -5,9 +5,18 @@ const { protect, adminOnly } = require('../middleware/authMiddleware');
 const router = express.Router();
 
 router.post('/movies', protect, adminOnly, async (req, res) => {
-  const { title, description, posterUrl, videoUrl } = req.body;
+  const {
+    title, description, posterUrl, backdropUrl,
+    videoUrl, duration, year, genre,
+    isTrending, contentRating
+  } = req.body;
+
   try {
-    const movie = new Movie({ title, description, posterUrl, videoUrl });
+    const movie = new Movie({
+      title, description, posterUrl, backdropUrl,
+      videoUrl, duration, year, genre,
+      isTrending, contentRating
+    });
     const createdMovie = await movie.save();
     res.status(201).json(createdMovie);
   } catch (error) {

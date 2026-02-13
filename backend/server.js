@@ -18,6 +18,7 @@ app.use(cors({
 app.use('/auth', require('./routes/auth'));
 app.use('/admin', require('./routes/admin'));
 app.use('/movies', require('./routes/movies'));
+app.use('/users', require('./routes/users'));
 
 app.get('/', (req, res) => res.json({
   message: 'Riyobox API is running...',

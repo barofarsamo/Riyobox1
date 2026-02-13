@@ -18,7 +18,12 @@ class _AdminPanelScreenState extends State<AdminPanelScreen> with SingleTickerPr
   final _titleController = TextEditingController();
   final _descriptionController = TextEditingController();
   final _posterUrlController = TextEditingController();
+  final _backdropUrlController = TextEditingController();
   final _videoUrlController = TextEditingController();
+  final _yearController = TextEditingController();
+  final _genreController = TextEditingController();
+  final _durationController = TextEditingController();
+  final _contentRatingController = TextEditingController();
   bool _isUploading = false;
   List<Movie> _movies = [];
   bool _isLoadingMovies = false;
@@ -68,7 +73,13 @@ class _AdminPanelScreenState extends State<AdminPanelScreen> with SingleTickerPr
           'title': _titleController.text,
           'description': _descriptionController.text,
           'posterUrl': _posterUrlController.text,
+          'backdropUrl': _backdropUrlController.text,
           'videoUrl': _videoUrlController.text,
+          'year': int.tryParse(_yearController.text),
+          'genre': _genreController.text.split(',').map((e) => e.trim()).toList(),
+          'duration': _durationController.text,
+          'contentRating': _contentRatingController.text,
+          'isTrending': true, // New uploads are usually trending
         }),
       );
       if (response.statusCode == 201) {
@@ -76,7 +87,12 @@ class _AdminPanelScreenState extends State<AdminPanelScreen> with SingleTickerPr
         _titleController.clear();
         _descriptionController.clear();
         _posterUrlController.clear();
+        _backdropUrlController.clear();
         _videoUrlController.clear();
+        _yearController.clear();
+        _genreController.clear();
+        _durationController.clear();
+        _contentRatingController.clear();
         _fetchMovies();
         _tabController.animateTo(1);
       }
@@ -142,7 +158,21 @@ class _AdminPanelScreenState extends State<AdminPanelScreen> with SingleTickerPr
           const SizedBox(height: 16),
           _buildTextField(_posterUrlController, 'Poster Image URL'),
           const SizedBox(height: 16),
+          _buildTextField(_backdropUrlController, 'Backdrop Image URL'),
+          const SizedBox(height: 16),
           _buildTextField(_videoUrlController, 'Video URL (Direct link)'),
+          const SizedBox(height: 16),
+          Row(
+            children: [
+              Expanded(child: _buildTextField(_yearController, 'Year (e.g. 2024)', keyboardType: TextInputType.number)),
+              const SizedBox(width: 16),
+              Expanded(child: _buildTextField(_durationController, 'Duration (e.g. 1h 45m)')),
+            ],
+          ),
+          const SizedBox(height: 16),
+          _buildTextField(_genreController, 'Genres (Comma separated)'),
+          const SizedBox(height: 16),
+          _buildTextField(_contentRatingController, 'Maturity Rating (e.g. 13+, R)'),
           const SizedBox(height: 32),
           ElevatedButton(
             onPressed: _isUploading ? null : _addMovie,
@@ -180,10 +210,11 @@ class _AdminPanelScreenState extends State<AdminPanelScreen> with SingleTickerPr
     );
   }
 
-  Widget _buildTextField(TextEditingController controller, String label, {int maxLines = 1}) {
+  Widget _buildTextField(TextEditingController controller, String label, {int maxLines = 1, TextInputType keyboardType = TextInputType.text}) {
     return TextField(
       controller: controller,
       maxLines: maxLines,
+      keyboardType: keyboardType,
       style: const TextStyle(color: Colors.white),
       decoration: InputDecoration(
         labelText: label,

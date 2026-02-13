@@ -2,6 +2,8 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:riyobox/presentation/widgets/shimmer_loading.dart';
+import 'package:riyobox/models/movie.dart';
+import 'package:riyobox/services/api_service.dart';
 import 'package:riyobox/presentation/widgets/state_widgets.dart';
 import 'package:riyobox/providers/auth_provider.dart';
 import 'package:provider/provider.dart';
@@ -11,26 +13,8 @@ class MyRiyoboxScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final List<Map<String, dynamic>> recentlyWatched = [
-      {
-        'id': '1',
-        'title': 'Inception',
-        'details': '2010 | Action | 8.3',
-        'image': 'https://image.tmdb.org/t/p/w500/edv5CZvfkjSfm9kfCghQ9KyTM9J.jpg'
-      },
-      {
-        'id': '9',
-        'title': 'Road House',
-        'details': '2024 | Action | 7.0',
-        'image': 'https://image.tmdb.org/t/p/w500/z9p316R936N79S309699696o8Qf8.jpg'
-      },
-      {
-        'id': '3',
-        'title': 'Interstellar',
-        'details': '2014 | Adventure | 8.4',
-        'image': 'https://image.tmdb.org/t/p/w500/gEU2QniE6EwfVDxCzs25vQO2Cq9.jpg'
-      },
-    ];
+    final auth = Provider.of<AuthProvider>(context);
+    final apiService = ApiService();
 
     return Scaffold(
       backgroundColor: const Color(0xFF141414),
@@ -66,11 +50,17 @@ class MyRiyoboxScreen extends StatelessWidget {
           children: [
             _buildProfileHeader(context),
             const SizedBox(height: 32),
-            _buildStatsSection(context),
+            _buildStatsSection(context, auth.token),
             const SizedBox(height: 40),
-            _buildSectionHeader('RECENTLY WATCHED', onTap: () {}),
+            _buildSectionHeader('MY WATCHLIST', onTap: () {}),
             const SizedBox(height: 16),
-            _buildRecentlyWatchedList(context, recentlyWatched),
+            FutureBuilder<List<Movie>>(
+              future: auth.token != null ? apiService.getWatchlist(auth.token!) : Future.value([]),
+              builder: (context, snapshot) {
+                if (!snapshot.hasData) return const Center(child: CircularProgressIndicator());
+                return _buildMovieHorizontalList(context, snapshot.data!);
+              }
+            ),
             const SizedBox(height: 40),
             _buildSectionHeader('ACCOUNT SETTINGS', showArrow: false),
             const SizedBox(height: 16),
@@ -129,14 +119,21 @@ class MyRiyoboxScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildStatsSection(BuildContext context) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-      children: [
-        _buildStatItem(context, '5', 'WATCHLIST', () {}),
-        _buildStatItem(context, '10', 'HISTORY', () {}),
-        _buildStatItem(context, '12', 'DOWNLOADS', () => context.go('/downloads')),
-      ],
+  Widget _buildStatsSection(BuildContext context, String? token) {
+    final apiService = ApiService();
+    return FutureBuilder<List<Movie>>(
+      future: token != null ? apiService.getWatchlist(token) : Future.value([]),
+      builder: (context, snapshot) {
+        final watchlistCount = snapshot.data?.length ?? 0;
+        return Row(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: [
+            _buildStatItem(context, watchlistCount.toString(), 'WATCHLIST', () {}),
+            _buildStatItem(context, '0', 'HISTORY', () {}),
+            _buildStatItem(context, '0', 'DOWNLOADS', () => context.go('/downloads')),
+          ],
+        );
+      }
     );
   }
 
@@ -167,20 +164,23 @@ class MyRiyoboxScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildRecentlyWatchedList(BuildContext context, List<Map<String, dynamic>> items) {
-    if (items.isEmpty) {
-      return NoHistoryState(onStartWatching: () => context.go('/home'));
+  Widget _buildMovieHorizontalList(BuildContext context, List<Movie> movies) {
+    if (movies.isEmpty) {
+      return const Center(child: Text('Your list is empty', style: TextStyle(color: Colors.white54)));
     }
 
     return SizedBox(
       height: 180,
       child: ListView.builder(
         scrollDirection: Axis.horizontal,
-        itemCount: items.length,
+        itemCount: movies.length,
         itemBuilder: (context, index) {
-          final item = items[index];
+          final movie = movies[index];
           return GestureDetector(
-            onTap: () => context.push('/movie/${item['id']}'),
+            onTap: () {
+              final id = movie.backendId ?? movie.id.toString();
+              context.push('/movie/$id');
+            },
             child: Container(
               width: 130,
               margin: const EdgeInsets.only(right: 16),
@@ -191,7 +191,7 @@ class MyRiyoboxScreen extends StatelessWidget {
                     child: ClipRRect(
                       borderRadius: BorderRadius.circular(4),
                       child: Image.network(
-                        item['image']!,
+                        movie.posterPath.startsWith('http') ? movie.posterPath : 'https://image.tmdb.org/t/p/w500${movie.posterPath}',
                         fit: BoxFit.cover,
                         width: double.infinity,
                          loadingBuilder: (context, child, progress) {
@@ -203,9 +203,9 @@ class MyRiyoboxScreen extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: 8),
-                  Text(item['title']!, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 13), maxLines: 1, overflow: TextOverflow.ellipsis),
+                  Text(movie.title, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 13), maxLines: 1, overflow: TextOverflow.ellipsis),
                   const SizedBox(height: 4),
-                  Text(item['details']!, style: const TextStyle(color: Colors.grey, fontSize: 11)),
+                  Text('${movie.releaseDate.split('-')[0]} | ${movie.genres?.first ?? "N/A"}', style: const TextStyle(color: Colors.grey, fontSize: 11)),
                 ],
               ),
             ),

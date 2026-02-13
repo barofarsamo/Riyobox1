@@ -6,7 +6,12 @@ const router = express.Router();
 
 router.get('/', protect, async (req, res) => {
   try {
-    const movies = await Movie.find({});
+    const { genre, isTrending } = req.query;
+    let query = {};
+    if (genre) query.genre = genre;
+    if (isTrending) query.isTrending = isTrending === 'true';
+
+    const movies = await Movie.find(query);
     res.json(movies);
   } catch (error) {
     res.status(500).json({ message: error.message });

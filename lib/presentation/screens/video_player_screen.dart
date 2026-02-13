@@ -165,12 +165,37 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
     super.dispose();
   }
 
+  void _seekRelative(Duration duration) {
+    if (_controller == null) return;
+    final newPosition = _controller!.value.position + duration;
+    _controller!.seekTo(newPosition);
+    _startHideControlsTimer();
+
+    // Show a quick visual indicator
+    ScaffoldMessenger.of(context).clearSnackBars();
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(duration.isNegative ? 'Seek -10s' : 'Seek +10s'),
+        duration: const Duration(milliseconds: 500),
+        behavior: SnackBarBehavior.floating,
+        width: 100,
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.black,
       body: GestureDetector(
         onTap: _toggleControls,
+        onDoubleTapDown: (details) {
+          if (details.localPosition.dx < MediaQuery.of(context).size.width / 2) {
+             _seekRelative(const Duration(seconds: -10));
+          } else {
+             _seekRelative(const Duration(seconds: 10));
+          }
+        },
         onVerticalDragUpdate: (details) {
           if (details.localPosition.dx < MediaQuery.of(context).size.width / 2) {
             // Brightness

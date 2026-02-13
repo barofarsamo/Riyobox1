@@ -10,10 +10,13 @@ class ApiService {
 
   bool get _isMock => _apiKey == 'YOUR_API_KEY';
 
-  Future<List<Movie>> getTrendingMovies({String? token}) async {
+  Future<List<Movie>> getTrendingMovies({String? token, String? genre}) async {
     try {
       if (token != null) {
-        final response = await http.get(Uri.parse('$_backendUrl/movies'), headers: {'Authorization': 'Bearer $token'}).timeout(const Duration(seconds: 15));
+        String url = '$_backendUrl/movies';
+        if (genre != null) url += '?genre=$genre';
+
+        final response = await http.get(Uri.parse(url), headers: {'Authorization': 'Bearer $token'}).timeout(const Duration(seconds: 15));
         if (response.statusCode == 200) {
           final List<dynamic> results = json.decode(response.body);
           return results.map((json) => Movie.fromJson(json)).toList();
@@ -142,5 +145,38 @@ class ApiService {
   Future<List<Movie>> getMoviesByDirector(String director) async {
     final all = await _getMockMovies();
     return all.take(2).toList();
+  }
+
+  Future<bool> toggleWatchlist(String movieId, String token) async {
+    try {
+      final response = await http.post(
+        Uri.parse('$_backendUrl/users/watchlist/$movieId'),
+        headers: {'Authorization': 'Bearer $token'},
+      );
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        return data['isAdded'];
+      }
+    } catch (e) {
+      print('Error toggling watchlist: $e');
+    }
+    return false;
+  }
+
+  Future<List<Movie>> getWatchlist(String token) async {
+    try {
+      final response = await http.get(
+        Uri.parse('$_backendUrl/users/profile'),
+        headers: {'Authorization': 'Bearer $token'},
+      );
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        final List<dynamic> watchlist = data['watchlist'];
+        return watchlist.map((json) => Movie.fromJson(json)).toList();
+      }
+    } catch (e) {
+      print('Error fetching watchlist: $e');
+    }
+    return [];
   }
 }

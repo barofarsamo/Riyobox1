@@ -19,6 +19,27 @@ class MovieDetailsScreen extends StatefulWidget {
 class _MovieDetailsScreenState extends State<MovieDetailsScreen> {
   final ApiService _apiService = ApiService();
   Season? _selectedSeason;
+  bool _isInWatchlist = false;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _checkWatchlistStatus();
+    });
+  }
+
+  void _checkWatchlistStatus() async {
+    final auth = Provider.of<AuthProvider>(context, listen: false);
+    if (!auth.isAuthenticated || auth.token == null) return;
+
+    final watchlist = await _apiService.getWatchlist(auth.token!);
+    if (mounted) {
+      setState(() {
+        _isInWatchlist = watchlist.any((m) => (m.backendId ?? m.id.toString()) == widget.movieId);
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -35,6 +56,10 @@ class _MovieDetailsScreenState extends State<MovieDetailsScreen> {
             return Center(child: Text('Error: ${snapshot.error}', style: const TextStyle(color: Colors.white)));
           }
           final movie = snapshot.data!;
+
+          // Check if movie is in watchlist (ideally backend returns this in movie details)
+          // For now, we can check it if we had a full profile in auth provider or separate call
+
           if (movie.isTvShow && movie.seasons != null && _selectedSeason == null) {
             _selectedSeason = movie.seasons![0];
           }
@@ -180,9 +205,37 @@ class _MovieDetailsScreenState extends State<MovieDetailsScreen> {
     );
   }
 
+  void _toggleWatchlist(String? token, String movieId) async {
+    if (token == null) return;
+    final res = await _apiService.toggleWatchlist(movieId, token);
+    setState(() {
+      _isInWatchlist = res;
+    });
+  }
+
   Widget _buildActionsBar(BuildContext context, Movie movie) {
+    final auth = Provider.of<AuthProvider>(context, listen: false);
+
     return Column(
       children: [
+        Row(
+          children: [
+             Expanded(
+               child: _buildActionIconButton(
+                 _isInWatchlist ? Icons.check : Icons.add,
+                 'MY LIST',
+                 onTap: () => _toggleWatchlist(auth.token, movie.backendId ?? movie.id.toString())
+               ),
+             ),
+             Expanded(
+               child: _buildActionIconButton(Icons.thumb_up_alt_outlined, 'RATE'),
+             ),
+             Expanded(
+               child: _buildActionIconButton(Icons.share_outlined, 'SHARE'),
+             ),
+          ],
+        ),
+        const SizedBox(height: 24),
         SizedBox(
           width: double.infinity,
           child: ElevatedButton.icon(
@@ -214,6 +267,19 @@ class _MovieDetailsScreenState extends State<MovieDetailsScreen> {
           ),
         ),
       ],
+    );
+  }
+
+  Widget _buildActionIconButton(IconData icon, String label, {VoidCallback? onTap}) {
+    return InkWell(
+      onTap: onTap,
+      child: Column(
+        children: [
+          Icon(icon, color: Colors.white, size: 28),
+          const SizedBox(height: 8),
+          Text(label, style: const TextStyle(color: Colors.grey, fontSize: 10, fontWeight: FontWeight.bold)),
+        ],
+      ),
     );
   }
 

@@ -9,7 +9,12 @@ const Movies = () => {
     title: '',
     description: '',
     posterUrl: '',
-    videoUrl: ''
+    backdropUrl: '',
+    videoUrl: '',
+    year: '',
+    duration: '',
+    genre: '',
+    contentRating: ''
   });
 
   const fetchMovies = async () => {
@@ -40,10 +45,20 @@ const Movies = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    const data = {
+      ...formData,
+      year: parseInt(formData.year),
+      genre: formData.genre.split(',').map(g => g.trim()),
+      isTrending: true
+    };
     try {
-      await api.post('/admin/movies', formData);
+      await api.post('/admin/movies', data);
       setIsModalOpen(false);
-      setFormData({ title: '', description: '', posterUrl: '', videoUrl: '' });
+      setFormData({
+        title: '', description: '', posterUrl: '',
+        backdropUrl: '', videoUrl: '', year: '',
+        duration: '', genre: '', contentRating: ''
+      });
       fetchMovies();
     } catch (err) {
       alert('Upload failed');
@@ -127,14 +142,24 @@ const Movies = () => {
                   onChange={(e) => setFormData({...formData, description: e.target.value})}
                 />
               </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-400 mb-1">Poster Image URL</label>
-                <input
-                  required
-                  className="w-full bg-[#262626] border border-white/10 rounded px-4 py-2 focus:outline-none focus:border-purple-500"
-                  value={formData.posterUrl}
-                  onChange={(e) => setFormData({...formData, posterUrl: e.target.value})}
-                />
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-400 mb-1">Poster Image URL</label>
+                  <input
+                    required
+                    className="w-full bg-[#262626] border border-white/10 rounded px-4 py-2 focus:outline-none focus:border-purple-500"
+                    value={formData.posterUrl}
+                    onChange={(e) => setFormData({...formData, posterUrl: e.target.value})}
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-400 mb-1">Backdrop Image URL</label>
+                  <input
+                    className="w-full bg-[#262626] border border-white/10 rounded px-4 py-2 focus:outline-none focus:border-purple-500"
+                    value={formData.backdropUrl}
+                    onChange={(e) => setFormData({...formData, backdropUrl: e.target.value})}
+                  />
+                </div>
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-400 mb-1">Direct Video URL</label>
@@ -144,6 +169,43 @@ const Movies = () => {
                   value={formData.videoUrl}
                   onChange={(e) => setFormData({...formData, videoUrl: e.target.value})}
                 />
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-400 mb-1">Year</label>
+                  <input
+                    type="number"
+                    className="w-full bg-[#262626] border border-white/10 rounded px-4 py-2 focus:outline-none focus:border-purple-500"
+                    value={formData.year}
+                    onChange={(e) => setFormData({...formData, year: e.target.value})}
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-400 mb-1">Duration (e.g. 2h 10m)</label>
+                  <input
+                    className="w-full bg-[#262626] border border-white/10 rounded px-4 py-2 focus:outline-none focus:border-purple-500"
+                    value={formData.duration}
+                    onChange={(e) => setFormData({...formData, duration: e.target.value})}
+                  />
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-400 mb-1">Genres (Comma separated)</label>
+                  <input
+                    className="w-full bg-[#262626] border border-white/10 rounded px-4 py-2 focus:outline-none focus:border-purple-500"
+                    value={formData.genre}
+                    onChange={(e) => setFormData({...formData, genre: e.target.value})}
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-400 mb-1">Rating (e.g. 13+, R)</label>
+                  <input
+                    className="w-full bg-[#262626] border border-white/10 rounded px-4 py-2 focus:outline-none focus:border-purple-500"
+                    value={formData.contentRating}
+                    onChange={(e) => setFormData({...formData, contentRating: e.target.value})}
+                  />
+                </div>
               </div>
               <div className="pt-4">
                 <button

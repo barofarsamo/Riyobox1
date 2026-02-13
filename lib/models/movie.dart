@@ -54,10 +54,12 @@ class Movie {
       title: json['title'] ?? '',
       overview: json['overview'] ?? json['description'] ?? '',
       posterPath: json['poster_path'] ?? json['posterUrl'] ?? '',
-      backdropPath: json['backdrop_path'] ?? json['posterUrl'],
-      releaseDate: json['release_date'] ?? json['createdAt']?.toString().split('T')[0] ?? '',
-      voteAverage: (json['vote_average'] as num?)?.toDouble() ?? 0.0,
-      runtime: json['runtime'],
+      backdropPath: json['backdrop_path'] ?? json['backdropUrl'] ?? json['posterUrl'],
+      releaseDate: json['release_date'] ?? json['year']?.toString() ?? json['createdAt']?.toString().split('T')[0] ?? '',
+      voteAverage: (json['vote_average'] as num?)?.toDouble() ?? (json['rating'] as num?)?.toDouble() ?? 0.0,
+      runtime: json['runtime'] ?? (json['duration'] != null ? _parseDuration(json['duration']) : null),
+      genres: json['genre'] != null ? List<String>.from(json['genre']) : null,
+      contentRating: json['contentRating'],
       isTvShow: json['is_tv_show'] ?? false,
       videoUrl: json['videoUrl'],
       isDownloaded: json['is_downloaded'] ?? false,
@@ -66,6 +68,23 @@ class Movie {
       fileSize: json['file_size'] ?? '0 MB',
       downloadedEpisodesCount: json['downloaded_episodes_count'] ?? 0,
     );
+  }
+
+  static int? _parseDuration(String duration) {
+    try {
+      if (duration.contains('h')) {
+        final parts = duration.split('h');
+        int hours = int.parse(parts[0].trim());
+        int minutes = 0;
+        if (parts[1].contains('m')) {
+          minutes = int.parse(parts[1].replaceAll('m', '').trim());
+        }
+        return (hours * 60) + minutes;
+      }
+      return int.tryParse(duration.replaceAll('min', '').trim());
+    } catch (_) {
+      return null;
+    }
   }
 
   Movie copyWith({

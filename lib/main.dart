@@ -21,6 +21,7 @@ import 'package:riyobox/presentation/screens/categories_screen.dart';
 import 'package:riyobox/presentation/screens/downloads_screen.dart';
 import 'package:riyobox/presentation/screens/my_riyobox_screen.dart';
 import 'package:riyobox/presentation/screens/search_screen.dart';
+import 'package:riyobox/presentation/screens/genre_movies_screen.dart';
 import 'package:riyobox/presentation/screens/admin/admin_panel_screen.dart';
 
 void main() async {
@@ -100,6 +101,13 @@ GoRouter _createRouter(AuthProvider authProvider) {
           GoRoute(
             path: '/my-riyobox',
             builder: (context, state) => const MyRiyoboxScreen(),
+          ),
+          GoRoute(
+            path: '/genre/:name',
+            builder: (context, state) {
+              final name = state.pathParameters['name']!;
+              return GenreMoviesScreen(genreName: name);
+            },
           ),
         ],
       ),

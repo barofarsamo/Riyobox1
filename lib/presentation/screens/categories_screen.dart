@@ -92,7 +92,15 @@ class CategoriesScreen extends StatelessWidget {
               ),
               delegate: SliverChildBuilderDelegate(
                 (context, index) {
-                  return _buildGenreCard(genres[index]['name']!, genres[index]['image']!);
+                  final genre = genres[index]['name']!;
+                  return InkWell(
+                    onTap: () {
+                      // Navigate to a screen showing movies of this genre
+                      // For now, we reuse search or a new route
+                      context.push('/genre/$genre');
+                    },
+                    child: _buildGenreCard(genre, genres[index]['image']!),
+                  );
                 },
                 childCount: genres.length,
               ),
