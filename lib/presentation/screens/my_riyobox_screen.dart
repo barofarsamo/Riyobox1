@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:riyobox/presentation/widgets/shimmer_loading.dart';
 import 'package:riyobox/presentation/widgets/state_widgets.dart';
+import 'package:riyobox/providers/auth_provider.dart';
+import 'package:provider/provider.dart';
 
 class MyRiyoboxScreen extends StatelessWidget {
   const MyRiyoboxScreen({super.key});
@@ -214,8 +216,18 @@ class MyRiyoboxScreen extends StatelessWidget {
   }
 
   Widget _buildAccountSettings(BuildContext context) {
+    final auth = Provider.of<AuthProvider>(context, listen: false);
     return Column(
       children: [
+        if (auth.role == 'admin')
+           _buildSettingsButton(
+            context,
+            icon: Icons.admin_panel_settings_outlined,
+            text: 'Admin Panel',
+            onTap: () => context.push('/admin'),
+          ),
+        if (auth.role == 'admin')
+          const SizedBox(height: 8),
         _buildSettingsButton(
           context,
           icon: Icons.person_outline,

@@ -21,6 +21,7 @@ import 'package:riyobox/presentation/screens/categories_screen.dart';
 import 'package:riyobox/presentation/screens/downloads_screen.dart';
 import 'package:riyobox/presentation/screens/my_riyobox_screen.dart';
 import 'package:riyobox/presentation/screens/search_screen.dart';
+import 'package:riyobox/presentation/screens/admin/admin_panel_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -133,6 +134,11 @@ GoRouter _createRouter(AuthProvider authProvider) {
         parentNavigatorKey: _rootNavigatorKey,
         builder: (context, state) => const CastScreen(),
       ),
+    GoRoute(
+      path: '/admin',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) => const AdminPanelScreen(),
+    ),
     ],
   );
 }

@@ -5,10 +5,21 @@ import 'package:riyobox/models/movie.dart';
 class ApiService {
   static const String _apiKey = 'YOUR_API_KEY'; // TODO: Replace with your TMDB API key
   static const String _baseUrl = 'https://api.themoviedb.org/3';
+  static const String _backendUrl = 'http://localhost:5000';
 
   bool get _isMock => _apiKey == 'YOUR_API_KEY';
 
-  Future<List<Movie>> getTrendingMovies() async {
+  Future<List<Movie>> getTrendingMovies({String? token}) async {
+    try {
+      if (token != null) {
+        final response = await http.get(Uri.parse('$_backendUrl/movies'), headers: {'Authorization': 'Bearer $token'});
+        if (response.statusCode == 200) {
+          final List<dynamic> results = json.decode(response.body);
+          final backendMovies = results.map((json) => Movie.fromJson(json)).toList();
+          if (backendMovies.isNotEmpty) return backendMovies;
+        }
+      }
+    } catch (e) { print('Error fetching from backend: $e'); }
     if (_isMock) return _getMockMovies();
     return _fetchMovies('/trending/movie/day');
   }
@@ -23,7 +34,13 @@ class ApiService {
     return _fetchMovies('/movie/now_playing');
   }
 
-  Future<Movie> getMovieDetails(String movieId) async {
+  Future<Movie> getMovieDetails(String movieId, {String? token}) async {
+    try {
+      if (token != null) {
+        final response = await http.get(Uri.parse('$_backendUrl/movies/$movieId'), headers: {'Authorization': 'Bearer $token'});
+        if (response.statusCode == 200) return Movie.fromJson(json.decode(response.body));
+      }
+    } catch (e) { print('Error fetching movie details from backend: $e'); }
     if (_isMock) {
       final movies = await _getMockMovies();
       final movie = movies.firstWhere((m) => m.id.toString() == movieId,

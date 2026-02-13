@@ -1,5 +1,6 @@
 class Movie {
   final int id;
+  final String? backendId; // MongoDB _id
   final String title;
   final String overview;
   final String posterPath;
@@ -13,6 +14,7 @@ class Movie {
   final String? contentRating;
   final bool isTvShow;
   final List<Season>? seasons;
+  final String? videoUrl;
 
   // Download related fields
   final bool isDownloaded;
@@ -23,6 +25,7 @@ class Movie {
 
   Movie({
     required this.id,
+    this.backendId,
     required this.title,
     required this.overview,
     required this.posterPath,
@@ -36,6 +39,7 @@ class Movie {
     this.contentRating,
     this.isTvShow = false,
     this.seasons,
+    this.videoUrl,
     this.isDownloaded = false,
     this.isDownloading = false,
     this.downloadProgress = 0.0,
@@ -45,15 +49,17 @@ class Movie {
 
   factory Movie.fromJson(Map<String, dynamic> json) {
     return Movie(
-      id: json['id'],
-      title: json['title'],
-      overview: json['overview'],
-      posterPath: json['poster_path'],
-      backdropPath: json['backdrop_path'],
-      releaseDate: json['release_date'] ?? '',
+      id: json['id'] ?? (json['_id'] != null ? json['_id'].toString().hashCode : 0),
+      backendId: json['_id']?.toString(),
+      title: json['title'] ?? '',
+      overview: json['overview'] ?? json['description'] ?? '',
+      posterPath: json['poster_path'] ?? json['posterUrl'] ?? '',
+      backdropPath: json['backdrop_path'] ?? json['posterUrl'],
+      releaseDate: json['release_date'] ?? json['createdAt']?.toString().split('T')[0] ?? '',
       voteAverage: (json['vote_average'] as num?)?.toDouble() ?? 0.0,
       runtime: json['runtime'],
       isTvShow: json['is_tv_show'] ?? false,
+      videoUrl: json['videoUrl'],
       isDownloaded: json['is_downloaded'] ?? false,
       isDownloading: json['is_downloading'] ?? false,
       downloadProgress: (json['download_progress'] as num?)?.toDouble() ?? 0.0,
