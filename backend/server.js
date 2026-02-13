@@ -33,7 +33,7 @@ const createDefaultAdmin = async () => {
         password: 'admin123',
         role: 'admin'
       });
-      await admin.save(); // use save() instead of create()
+      await admin.save(); // pre-save hook will hash password
       console.log('Default admin created: admin@example.com / admin123');
     }
   } catch (error) {
@@ -42,7 +42,7 @@ const createDefaultAdmin = async () => {
 };
 
 // Connect MongoDB and start server
-mongoose.connect(MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true })
+mongoose.connect(MONGO_URI) // <-- NO options here (Mongoose 6+ handles defaults)
   .then(() => {
     console.log('MongoDB connected');
     createDefaultAdmin();
