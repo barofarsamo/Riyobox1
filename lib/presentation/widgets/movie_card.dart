@@ -11,20 +11,25 @@ class MovieCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      clipBehavior: Clip.antiAlias,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      child: SizedBox(
-        height: height,
-        width: double.infinity,
-        child: Image.network(
-          'https://image.tmdb.org/t/p/w500${movie.posterPath}',
-          fit: BoxFit.cover,
-          loadingBuilder: (context, child, progress) {
+    return Semantics(
+      label: 'Movie: ${movie.title}',
+      child: Card(
+        clipBehavior: Clip.antiAlias,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        child: SizedBox(
+          height: height,
+          width: double.infinity,
+          child: ExcludeSemantics(
+            child: Image.network(
+              'https://image.tmdb.org/t/p/w500${movie.posterPath}',
+              fit: BoxFit.cover,
+              loadingBuilder: (context, child, progress) {
             if (progress == null) return child;
             return ShimmerLoading.rectangular(height: height);
           },
-          errorBuilder: (context, error, stackTrace) => const Center(child: Icon(Icons.error)),
+              errorBuilder: (context, error, stackTrace) => const Center(child: Icon(Icons.error)),
+            ),
+          ),
         ),
       ),
     );

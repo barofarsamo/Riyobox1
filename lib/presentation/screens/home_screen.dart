@@ -36,12 +36,23 @@ class _HomeScreenState extends State<HomeScreen> {
             SliverAppBar(
               title: const Text('RIYOBOX', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 24)),
               actions: [
-                IconButton(icon: const Icon(Icons.cast), onPressed: () {}),
-                IconButton(icon: const Icon(Icons.settings), onPressed: () {}),
-                const Padding(
-                  padding: EdgeInsets.all(8.0),
-                  child: CircleAvatar(
-                    backgroundImage: NetworkImage('https://picsum.photos/seed/avatar/100/100'),
+                IconButton(
+                  icon: const Icon(Icons.cast),
+                  onPressed: () {},
+                  tooltip: 'Google Cast',
+                ),
+                IconButton(
+                  icon: const Icon(Icons.settings),
+                  onPressed: () {},
+                  tooltip: 'Settings',
+                ),
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Semantics(
+                    label: 'User Profile',
+                    child: const CircleAvatar(
+                      backgroundImage: NetworkImage('https://picsum.photos/seed/avatar/100/100'),
+                    ),
                   ),
                 ),
               ],
@@ -128,46 +139,54 @@ class _HomeScreenState extends State<HomeScreen> {
               items: movies.map((movie) {
                 return Builder(
                   builder: (BuildContext context) {
-                    return Stack(
-                      children: [
-                        Image.network(
-                          'https://image.tmdb.org/t/p/w500${movie.posterPath}',
-                          fit: BoxFit.cover,
-                          height: 250.0,
-                          width: double.infinity,
-                          loadingBuilder: (context, child, progress) {
-                            return progress == null ? child : const ShimmerLoading.rectangular(height: 250);
-                          },
-                          errorBuilder: (context, error, stackTrace) => const Center(child: Icon(Icons.error)),
-                        ),
-                        Container(
-                          height: 250.0,
-                          decoration: BoxDecoration(
-                            gradient: LinearGradient(
-                              begin: Alignment.bottomCenter,
-                              end: Alignment.topCenter,
-                              colors: [Colors.black.withAlpha(204), Colors.transparent],
+                    return Semantics(
+                      label: 'Featured movie: ${movie.title}',
+                      container: true,
+                      child: Stack(
+                        children: [
+                          ExcludeSemantics(
+                            child: Image.network(
+                              'https://image.tmdb.org/t/p/w500${movie.posterPath}',
+                              fit: BoxFit.cover,
+                              height: 250.0,
+                              width: double.infinity,
+                              loadingBuilder: (context, child, progress) {
+                                return progress == null ? child : const ShimmerLoading.rectangular(height: 250);
+                              },
+                              errorBuilder: (context, error, stackTrace) => const Center(child: Icon(Icons.error)),
                             ),
                           ),
-                        ),
-                        Positioned(
-                          bottom: 20,
-                          left: 20,
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                movie.title,
-                                style: const TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 24,
-                                  fontWeight: FontWeight.bold,
-                                ),
+                          Container(
+                            height: 250.0,
+                            decoration: BoxDecoration(
+                              gradient: LinearGradient(
+                                begin: Alignment.bottomCenter,
+                                end: Alignment.topCenter,
+                                colors: [Colors.black.withAlpha(204), Colors.transparent],
                               ),
-                            ],
+                            ),
                           ),
-                        ),
-                      ],
+                          Positioned(
+                            bottom: 20,
+                            left: 20,
+                            child: ExcludeSemantics(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    movie.title,
+                                    style: const TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 24,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
                     );
                   },
                 );
@@ -176,18 +195,23 @@ class _HomeScreenState extends State<HomeScreen> {
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: movies.asMap().entries.map((entry) {
-                return GestureDetector(
-                  onTap: () => setState(() => _currentCarouselIndex = entry.key),
-                  child: Container(
-                    width: 8.0,
-                    height: 8.0,
-                    margin: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 2.0),
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: (Theme.of(context).brightness == Brightness.dark
-                              ? Colors.white
-                              : Colors.black)
-                          .withAlpha(_currentCarouselIndex == entry.key ? 230 : 102),
+                return Semantics(
+                  label: 'Movie indicator ${entry.key + 1}',
+                  selected: _currentCarouselIndex == entry.key,
+                  button: true,
+                  child: GestureDetector(
+                    onTap: () => setState(() => _currentCarouselIndex = entry.key),
+                    child: Container(
+                      width: 8.0,
+                      height: 8.0,
+                      margin: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 2.0),
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: (Theme.of(context).brightness == Brightness.dark
+                                ? Colors.white
+                                : Colors.black)
+                            .withAlpha(_currentCarouselIndex == entry.key ? 230 : 102),
+                      ),
                     ),
                   ),
                 );
