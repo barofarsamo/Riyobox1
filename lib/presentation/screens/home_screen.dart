@@ -150,11 +150,12 @@ class _HomeScreenState extends State<HomeScreen> {
                     ],
               ),
             );
-          }
+          },
         ),
       ),
-    );
-  }
+    ),
+  );
+}
 
   Widget _buildCarouselSlider(String? token) {
     return FutureBuilder<List<Movie>>(
