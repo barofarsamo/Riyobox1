@@ -50,11 +50,13 @@ class _MovieDetailsScreenState extends State<MovieDetailsScreen> {
                   background: Stack(
                     fit: StackFit.expand,
                     children: [
-                      Image.network(
-                        'https://image.tmdb.org/t/p/w500${movie.posterPath}',
-                        fit: BoxFit.cover,
-                        errorBuilder: (context, error, stackTrace) =>
-                            const Center(child: Icon(Icons.error)),
+                      ExcludeSemantics(
+                        child: Image.network(
+                          'https://image.tmdb.org/t/p/w500${movie.posterPath}',
+                          fit: BoxFit.cover,
+                          errorBuilder: (context, error, stackTrace) =>
+                              const Center(child: Icon(Icons.error)),
+                        ),
                       ),
                       Container(
                         decoration: BoxDecoration(
@@ -75,6 +77,7 @@ class _MovieDetailsScreenState extends State<MovieDetailsScreen> {
                 leading: IconButton(
                   icon: const Icon(Icons.arrow_back, color: Colors.white),
                   onPressed: () => context.pop(),
+                  tooltip: 'Back',
                 ),
               ),
               SliverToBoxAdapter(

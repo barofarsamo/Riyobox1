@@ -50,16 +50,21 @@ class CategoriesScreen extends StatelessWidget {
               IconButton(
                 icon: const Icon(Icons.cast, color: Colors.white),
                 onPressed: () {},
+                tooltip: 'Google Cast',
               ),
               IconButton(
                 icon: const Icon(Icons.settings, color: Colors.white),
                 onPressed: () {},
+                tooltip: 'Settings',
               ),
-              const Padding(
-                padding: EdgeInsets.only(right: 16.0),
-                child: CircleAvatar(
-                  radius: 16,
-                  backgroundImage: NetworkImage('https://picsum.photos/seed/profile/100/100'),
+              Padding(
+                padding: const EdgeInsets.only(right: 16.0),
+                child: Semantics(
+                  label: 'User Profile',
+                  child: const CircleAvatar(
+                    radius: 16,
+                    backgroundImage: NetworkImage('https://picsum.photos/seed/profile/100/100'),
+                  ),
                 ),
               ),
             ],
@@ -186,32 +191,40 @@ class CategoriesScreen extends StatelessWidget {
   }
 
   Widget _buildGenreCard(String name, String imageUrl) {
-    return Card(
-      clipBehavior: Clip.antiAlias,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      child: Stack(
-        alignment: Alignment.center,
-        children: [
-          Image.network(
-            imageUrl,
-            width: double.infinity,
-            height: double.infinity,
-            fit: BoxFit.cover,
-          ),
-          Container(
-            decoration: BoxDecoration(
-              color: Colors.black.withAlpha(102),
+    return Semantics(
+      label: 'Genre: $name',
+      button: true,
+      child: Card(
+        clipBehavior: Clip.antiAlias,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        child: Stack(
+          alignment: Alignment.center,
+          children: [
+            ExcludeSemantics(
+              child: Image.network(
+                imageUrl,
+                width: double.infinity,
+                height: double.infinity,
+                fit: BoxFit.cover,
+              ),
             ),
-          ),
-          Text(
-            name,
-            style: const TextStyle(
-              color: Colors.white,
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
+            Container(
+              decoration: BoxDecoration(
+                color: Colors.black.withAlpha(102),
+              ),
             ),
-          ),
-        ],
+            ExcludeSemantics(
+              child: Text(
+                name,
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
