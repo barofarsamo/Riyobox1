@@ -9,6 +9,7 @@ RIYOBOX is a production-grade movie streaming application prototype built with F
 *   **Casting:** Seamless TV casting using Google Cast SDK.
 *   **Downloads & Offline Mode:** Robust download manager with progress tracking and a dedicated Offline Mode to watch saved content without internet.
 *   **Admin Panel:** Secure panel for administrators to upload movies and manage content in real-time.
+*   **User Web App:** A complete streaming website for users to watch content on any browser.
 *   **Cloudflare R2 Storage:** Direct integration for high-performance video and image hosting with direct-to-cloud uploads.
 *   **Multi-Language Support:** Global support for English, Arabic (RTL), and Somali.
 
@@ -40,9 +41,8 @@ riyobox/
 │   ├── providers/            # State management
 │   └── services/             # API and Casting services
 ├── backend/                  # Node.js source code
-│   ├── middleware/           # Auth and Role guards
-│   ├── models/               # MongoDB Schemas
-│   └── routes/               # API Endpoints
+├── web_admin/                # React-based Admin Dashboard
+├── web_user/                 # React-based User Streaming Website
 └── test/                     # Widget and Unit tests
 ```
 
