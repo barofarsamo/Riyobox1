@@ -61,4 +61,4 @@ I will follow a clean and scalable architecture to ensure the app is maintainabl
 
 ## 5. Current Task: Initial Setup
 
-I will now begin by setting up the project, including updating the necessary files and adding the `http` dependency.
+I will now begin by setting up the project, including updating the necessary files and adding the `http` dependency
