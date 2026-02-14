@@ -5,6 +5,28 @@ const dotenv = require('dotenv');
 const User = require('./models/User');
 
 dotenv.config();
+
+// Validate Environment Variables
+const requiredEnvVars = [
+  'MONGO_URI',
+  'JWT_SECRET',
+  'R2_ACCESS_KEY_ID',
+  'R2_SECRET_ACCESS_KEY',
+  'R2_BUCKET_NAME',
+  'R2_S3_ENDPOINT'
+];
+
+const validateEnv = () => {
+  const missing = requiredEnvVars.filter(v => !process.env[v]);
+  if (missing.length > 0) {
+    console.warn('⚠️ WARNING: Missing recommended environment variables:', missing.join(', '));
+    console.warn('Backend features like Auth or R2 Storage might not work properly.');
+  } else {
+    console.log('✅ All environment variables are configured.');
+  }
+};
+
+validateEnv();
 const app = express();
 app.use(express.json());
 
@@ -21,11 +43,17 @@ app.use('/movies', require('./routes/movies'));
 app.use('/users', require('./routes/users'));
 app.use('/upload', require('./routes/upload'));
 
-app.get('/', (req, res) => res.json({
-  message: 'Riyobox API is running...',
-  database: mongoose.connection.readyState === 1 ? 'Connected' : 'Disconnected',
-  timestamp: new Date().toISOString()
-}));
+app.get('/', (req, res) => {
+  const r2Configured = !!(process.env.R2_ACCESS_KEY_ID && process.env.R2_SECRET_ACCESS_KEY && process.env.R2_BUCKET_NAME);
+
+  res.json({
+    message: 'Riyobox API is running...',
+    status: 'Operational',
+    database: mongoose.connection.readyState === 1 ? 'Connected' : 'Disconnected',
+    storage: r2Configured ? 'R2 Configured' : 'R2 Missing Configuration',
+    timestamp: new Date().toISOString()
+  });
+});
 
 const PORT = process.env.PORT || 5000;
 const MONGO_URI = process.env.MONGO_URI || 'mongodb://localhost:27017/riyobox';

@@ -4,7 +4,10 @@ const User = require('../models/User');
 const router = express.Router();
 
 const generateToken = (id) => {
-  return jwt.sign({ id }, process.env.JWT_SECRET || 'secret123', { expiresIn: '30d' });
+  if (!process.env.JWT_SECRET) {
+    throw new Error('JWT_SECRET is missing from environment variables');
+  }
+  return jwt.sign({ id }, process.env.JWT_SECRET, { expiresIn: '30d' });
 };
 
 router.post('/register', async (req, res) => {

@@ -20,11 +20,17 @@ Minimal Node.js backend for the RIYOBOX streaming app. It handles authentication
     ```
 
 3.  **Environment Configuration:**
-    Create a `.env` file in the root of the `backend` folder (you can use `.env.example` as a template):
+    Create a `.env` file in the root of the `backend` folder. These variables are **required** for full functionality in deployment:
     ```env
     PORT=5000
     MONGO_URI=mongodb://localhost:27017/riyobox
     JWT_SECRET=your_super_secret_key
+
+    # Cloudflare R2 Storage
+    R2_ACCESS_KEY_ID=your_access_key
+    R2_SECRET_ACCESS_KEY=your_secret_key
+    R2_BUCKET_NAME=your_bucket_name
+    R2_S3_ENDPOINT=https://your_account_id.r2.cloudflarestorage.com
     ```
 
 4.  **Start the server:**

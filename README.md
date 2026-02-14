@@ -28,6 +28,10 @@ The backend is configured for easy deployment on [Render](https://render.com).
 2.  **Environment Variables:** Add the following variables in Render dashboard:
     *   `MONGO_URI`: Your MongoDB Atlas connection string.
     *   `JWT_SECRET`: A secure random string for signing tokens.
+    *   `R2_ACCESS_KEY_ID`: Cloudflare R2 Access Key.
+    *   `R2_SECRET_ACCESS_KEY`: Cloudflare R2 Secret Key.
+    *   `R2_BUCKET_NAME`: Cloudflare R2 Bucket Name.
+    *   `R2_S3_ENDPOINT`: Cloudflare R2 S3 Endpoint.
     *   `PORT`: `5000` (Render will set this automatically).
 3.  **Update Frontend:** The frontend is currently pointing to `https://riyobox1-1.onrender.com`. You can change this in `lib/core/constants.dart`.
 
