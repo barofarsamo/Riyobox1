@@ -24,11 +24,27 @@ class _SearchScreenState extends State<SearchScreen> {
                   Expanded(
                     child: TextField(
                       controller: _searchController,
+                      onChanged: (value) {
+                        setState(() {});
+                      },
+                      textInputAction: TextInputAction.search,
                       style: const TextStyle(color: Colors.white),
                       decoration: InputDecoration(
                         hintText: 'Search movies, TV shows...',
                         hintStyle: const TextStyle(color: Colors.white54),
-                        prefixIcon: const Icon(Icons.search, color: Colors.white54),
+                        prefixIcon:
+                            const Icon(Icons.search, color: Colors.white54),
+                        suffixIcon: _searchController.text.isNotEmpty
+                            ? IconButton(
+                                icon: const Icon(Icons.clear,
+                                    color: Colors.white54),
+                                onPressed: () {
+                                  _searchController.clear();
+                                  setState(() {});
+                                },
+                                tooltip: 'Clear search',
+                              )
+                            : null,
                         filled: true,
                         fillColor: const Color(0xFF2A2A3A),
                         border: OutlineInputBorder(
