@@ -3,8 +3,10 @@ import api from '../utils/api';
 
 const Movies = () => {
   const [movies, setMovies] = useState([]);
+  const [r2Files, setR2Files] = useState([]);
   const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [videoSource, setVideoSource] = useState('upload'); // upload, url, storage
   const [uploadProgress, setUploadProgress] = useState({ poster: 0, video: 0 });
   const [isUploading, setIsUploading] = useState(false);
   const [formData, setFormData] = useState({
@@ -22,8 +24,12 @@ const Movies = () => {
   const fetchMovies = async () => {
     setLoading(true);
     try {
-      const res = await api.get('/admin/movies');
-      setMovies(res.data);
+      const [movieRes, r2Res] = await Promise.all([
+        api.get('/admin/movies'),
+        api.get('/upload')
+      ]);
+      setMovies(movieRes.data);
+      setR2Files(r2Res.data);
     } catch (err) {
       console.error(err);
     } finally {
@@ -155,7 +161,7 @@ const Movies = () => {
               <h2 className="text-xl font-bold">Upload New Content</h2>
               <button onClick={() => setIsModalOpen(false)} className="text-gray-500 hover:text-white">✕</button>
             </div>
-            <form onSubmit={handleSubmit} className="p-6 space-y-4">
+            <form onSubmit={handleSubmit} className="p-6 space-y-4 max-h-[70vh] overflow-y-auto custom-scrollbar">
               <div>
                 <label className="block text-sm font-medium text-gray-400 mb-1">Movie Title</label>
                 <input
@@ -175,13 +181,70 @@ const Movies = () => {
                   onChange={(e) => setFormData({...formData, description: e.target.value})}
                 />
               </div>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="bg-[#262626] p-4 rounded-xl border border-white/5">
+                <label className="block text-xs font-black text-gray-500 mb-3 uppercase tracking-widest">Video Content Source</label>
+                <div className="flex space-x-2 mb-4">
+                   {['upload', 'url', 'storage'].map(type => (
+                     <button
+                        key={type}
+                        type="button"
+                        onClick={() => setVideoSource(type)}
+                        className={`flex-1 py-2 text-xs font-bold rounded-lg transition-all ${
+                          videoSource === type ? 'bg-purple-600 text-white shadow-lg' : 'bg-white/5 text-gray-400 hover:bg-white/10'
+                        }`}
+                     >
+                       {type.toUpperCase()}
+                     </button>
+                   ))}
+                </div>
+
+                {videoSource === 'upload' && (
+                  <div>
+                    <input
+                      type="file"
+                      accept="video/*"
+                      className="w-full bg-[#141414] border border-white/10 rounded px-4 py-2 text-sm"
+                      onChange={(e) => handleFileUpload(e.target.files[0], 'video')}
+                    />
+                    {uploadProgress.video > 0 && (
+                      <div className="w-full bg-gray-700 h-1 mt-2 rounded-full overflow-hidden">
+                        <div className="bg-blue-500 h-full" style={{ width: `${uploadProgress.video}%` }}></div>
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {videoSource === 'url' && (
+                  <input
+                    placeholder="Paste direct MP4/HLS link"
+                    className="w-full bg-[#141414] border border-white/10 rounded px-4 py-2 text-sm focus:border-purple-500"
+                    value={formData.videoUrl}
+                    onChange={(e) => setFormData({...formData, videoUrl: e.target.value})}
+                  />
+                )}
+
+                {videoSource === 'storage' && (
+                  <select
+                    className="w-full bg-[#141414] border border-white/10 rounded px-4 py-2 text-sm outline-none focus:border-purple-500"
+                    value={formData.videoUrl}
+                    onChange={(e) => setFormData({...formData, videoUrl: e.target.value})}
+                  >
+                    <option value="">Select a file from R2 Storage</option>
+                    {r2Files.filter(f => f.key.toLowerCase().endsWith('.mp4')).map(file => (
+                      <option key={file.key} value={file.url}>{file.key} ({(file.size/1024/1024).toFixed(2)}MB)</option>
+                    ))}
+                  </select>
+                )}
+              </div>
+
+              <div className="grid grid-cols-1 gap-4 bg-[#262626] p-4 rounded-xl border border-white/5">
+                <label className="block text-xs font-black text-gray-500 mb-1 uppercase tracking-widest">Poster & Visuals</label>
                 <div>
-                  <label className="block text-sm font-medium text-gray-400 mb-1">Poster File</label>
+                  <label className="block text-[10px] text-gray-400 mb-1 font-bold">POSTER IMAGE FILE</label>
                   <input
                     type="file"
                     accept="image/*"
-                    className="w-full bg-[#262626] border border-white/10 rounded px-4 py-2 text-sm"
+                    className="w-full bg-[#141414] border border-white/10 rounded px-4 py-2 text-sm"
                     onChange={(e) => handleFileUpload(e.target.files[0], 'poster')}
                   />
                   {uploadProgress.poster > 0 && (
@@ -191,18 +254,12 @@ const Movies = () => {
                   )}
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-400 mb-1">Video File</label>
+                  <label className="block text-[10px] text-gray-400 mb-1 font-bold">BACKDROP URL (OPTIONAL)</label>
                   <input
-                    type="file"
-                    accept="video/*"
-                    className="w-full bg-[#262626] border border-white/10 rounded px-4 py-2 text-sm"
-                    onChange={(e) => handleFileUpload(e.target.files[0], 'video')}
+                    className="w-full bg-[#141414] border border-white/10 rounded px-4 py-2 text-sm focus:border-purple-500"
+                    value={formData.backdropUrl}
+                    onChange={(e) => setFormData({...formData, backdropUrl: e.target.value})}
                   />
-                  {uploadProgress.video > 0 && (
-                    <div className="w-full bg-gray-700 h-1 mt-2 rounded-full overflow-hidden">
-                      <div className="bg-blue-500 h-full" style={{ width: `${uploadProgress.video}%` }}></div>
-                    </div>
-                  )}
                 </div>
               </div>
               <div className="grid grid-cols-2 gap-4">

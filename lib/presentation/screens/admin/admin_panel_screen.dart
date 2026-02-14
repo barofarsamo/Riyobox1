@@ -29,6 +29,7 @@ class _AdminPanelScreenState extends State<AdminPanelScreen> with SingleTickerPr
   final _genreController = TextEditingController();
   final _durationController = TextEditingController();
   final _contentRatingController = TextEditingController();
+  String _videoSourceType = 'upload'; // upload, url, library
   bool _isUploading = false;
   double _posterUploadProgress = 0;
   double _videoUploadProgress = 0;
@@ -249,6 +250,43 @@ class _AdminPanelScreenState extends State<AdminPanelScreen> with SingleTickerPr
     );
   }
 
+  void _showMediaPicker() {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: const Color(0xFF1C1C1C),
+      builder: (context) {
+        return Column(
+          children: [
+            const Padding(
+              padding: EdgeInsets.all(16.0),
+              child: Text('SELECT FROM STORAGE', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+            ),
+            Expanded(
+              child: _r2Files.isEmpty
+                ? const Center(child: Text('No files found', style: TextStyle(color: Colors.grey)))
+                : ListView.builder(
+                    itemCount: _r2Files.length,
+                    itemBuilder: (context, index) {
+                      final file = _r2Files[index];
+                      if (!file['key'].toString().endsWith('.mp4')) return const SizedBox();
+                      return ListTile(
+                        leading: const Icon(Icons.video_file, color: Colors.purpleAccent),
+                        title: Text(file['key'], style: const TextStyle(color: Colors.white, fontSize: 14)),
+                        onTap: () {
+                          _videoUrlController.text = file['url'];
+                          Navigator.pop(context);
+                          ScaffoldMessenger.of(this.context).showSnackBar(const SnackBar(content: Text('Media selected')));
+                        },
+                      );
+                    },
+                  ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   Widget _buildUploadTab() {
     return SingleChildScrollView(
       padding: const EdgeInsets.all(24.0),
@@ -262,10 +300,37 @@ class _AdminPanelScreenState extends State<AdminPanelScreen> with SingleTickerPr
           _buildTextField(_descriptionController, 'Description', maxLines: 3),
           const SizedBox(height: 24),
           _buildFileUploadSection('poster', 'POSTER IMAGE', _posterUploadProgress, _posterUrlController),
-          const SizedBox(height: 16),
-          _buildTextField(_backdropUrlController, 'Backdrop Image URL (Optional)'),
           const SizedBox(height: 24),
-          _buildFileUploadSection('video', 'VIDEO FILE', _videoUploadProgress, _videoUrlController),
+          const Text('VIDEO SOURCE', style: TextStyle(color: Colors.grey, fontSize: 12, fontWeight: FontWeight.bold)),
+          const SizedBox(height: 8),
+          Row(
+            children: [
+              _sourceChip('upload', 'UPLOAD', Icons.upload_file),
+              const SizedBox(width: 8),
+              _sourceChip('url', 'URL', Icons.link),
+              const SizedBox(width: 8),
+              _sourceChip('library', 'STORAGE', Icons.folder_shared),
+            ],
+          ),
+          const SizedBox(height: 16),
+          if (_videoSourceType == 'upload')
+            _buildFileUploadSection('video', 'VIDEO FILE', _videoUploadProgress, _videoUrlController)
+          else if (_videoSourceType == 'url')
+            _buildTextField(_videoUrlController, 'Enter direct video URL (MP4/HLS)')
+          else
+            Row(
+              children: [
+                Expanded(child: _buildTextField(_videoUrlController, 'No file selected', enabled: false)),
+                const SizedBox(width: 12),
+                ElevatedButton(
+                  onPressed: _showMediaPicker,
+                  style: ElevatedButton.styleFrom(backgroundColor: Colors.white10),
+                  child: const Text('PICK'),
+                ),
+              ],
+            ),
+          const SizedBox(height: 24),
+          _buildTextField(_backdropUrlController, 'Backdrop Image URL (Optional)'),
           const SizedBox(height: 16),
           Row(
             children: [
@@ -371,6 +436,23 @@ class _AdminPanelScreenState extends State<AdminPanelScreen> with SingleTickerPr
             child: LinearProgressIndicator(value: progress, color: Colors.deepPurpleAccent, backgroundColor: Colors.white10),
           ),
       ],
+    );
+  }
+
+  Widget _sourceChip(String type, String label, IconData icon) {
+    final isSelected = _videoSourceType == type;
+    return Expanded(
+      child: ChoiceChip(
+        label: Text(label, style: const TextStyle(fontSize: 10)),
+        avatar: Icon(icon, size: 14, color: isSelected ? Colors.white : Colors.grey),
+        selected: isSelected,
+        onSelected: (val) {
+           if (val) setState(() => _videoSourceType = type);
+        },
+        selectedColor: Colors.deepPurpleAccent,
+        backgroundColor: Colors.white10,
+        labelStyle: TextStyle(color: isSelected ? Colors.white : Colors.grey, fontWeight: FontWeight.bold),
+      ),
     );
   }
 
