@@ -20,7 +20,7 @@ This app uses the `flutter_chrome_cast` package for a high-quality integration w
    `MainActivity` extends `FlutterFragmentActivity` to support the Cast SDK's UI requirements.
 
 5. **Theme**:
-   The app theme is set to `Theme.AppCompat.NoActionBar` as required by the Cast SDK.
+   The app theme is set to `Theme.AppCompat.NoActionBar` as required by the Cast SDK
 
 ## iOS Setup (Requirements)
 
@@ -52,3 +52,4 @@ To support casting on iOS, you must add the following to your `Info.plist`:
 - Ensure both the phone and the TV are on the **exact same Wi-Fi network**.
 - AP Isolation must be disabled on your router.
 - For Android 12+, ensure "Nearby devices" permission is granted.
+-end
