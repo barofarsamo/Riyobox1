@@ -69,7 +69,21 @@ const Movies = () => {
         [type === 'poster' ? 'posterUrl' : 'videoUrl']: res.data.url
       }));
     } catch (err) {
-      alert(`${type} upload failed: ${err.message}`);
+      alert(`${type} upload failed: ${err.response?.data?.message || err.message}`);
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
+  const handleUploadFromUrl = async () => {
+    if (!formData.posterUrl) return;
+    try {
+      setIsUploading(true);
+      const res = await api.post('/upload/by-url', { url: formData.posterUrl });
+      setFormData(prev => ({ ...prev, posterUrl: res.data.url }));
+      alert('Poster fetched and saved to R2');
+    } catch (err) {
+      alert('URL fetch failed');
     } finally {
       setIsUploading(false);
     }
@@ -240,7 +254,7 @@ const Movies = () => {
               <div className="grid grid-cols-1 gap-4 bg-[#262626] p-4 rounded-xl border border-white/5">
                 <label className="block text-xs font-black text-gray-500 mb-1 uppercase tracking-widest">Poster & Visuals</label>
                 <div>
-                  <label className="block text-[10px] text-gray-400 mb-1 font-bold">POSTER IMAGE FILE</label>
+                  <label className="block text-[10px] text-gray-400 mb-1 font-bold italic">OPTION 1: UPLOAD LOCAL FILE</label>
                   <input
                     type="file"
                     accept="image/*"
@@ -253,10 +267,30 @@ const Movies = () => {
                     </div>
                   )}
                 </div>
+
                 <div>
-                  <label className="block text-[10px] text-gray-400 mb-1 font-bold">BACKDROP URL (OPTIONAL)</label>
+                  <label className="block text-[10px] text-gray-400 mb-1 font-bold italic">OPTION 2: FETCH FROM EXTERNAL URL</label>
+                  <div className="flex space-x-2">
+                    <input
+                      placeholder="Paste image link here..."
+                      className="flex-1 bg-[#141414] border border-white/10 rounded px-4 py-2 text-sm focus:border-purple-500 outline-none"
+                      value={formData.posterUrl}
+                      onChange={(e) => setFormData({...formData, posterUrl: e.target.value})}
+                    />
+                    <button
+                      type="button"
+                      onClick={handleUploadFromUrl}
+                      className="bg-white/10 hover:bg-white/20 px-4 rounded text-[10px] font-black uppercase tracking-tighter"
+                    >
+                      Fetch
+                    </button>
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-[10px] text-gray-400 mb-1 font-bold uppercase">Backdrop URL (Optional)</label>
                   <input
-                    className="w-full bg-[#141414] border border-white/10 rounded px-4 py-2 text-sm focus:border-purple-500"
+                    className="w-full bg-[#141414] border border-white/10 rounded px-4 py-2 text-sm focus:border-purple-500 outline-none"
                     value={formData.backdropUrl}
                     onChange={(e) => setFormData({...formData, backdropUrl: e.target.value})}
                   />

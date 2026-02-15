@@ -3,11 +3,12 @@ const dotenv = require('dotenv');
 
 dotenv.config();
 
-const r2Configured = !!(process.env.R2_ACCESS_KEY_ID && process.env.R2_SECRET_ACCESS_KEY && process.env.R2_S3_ENDPOINT);
+const r2Endpoint = process.env.R2_S3_ENDPOINT || (process.env.R2_ACCOUNT_ID ? `https://${process.env.R2_ACCOUNT_ID}.r2.cloudflarestorage.com` : 'https://missing-endpoint.com');
+const r2Configured = !!(process.env.R2_ACCESS_KEY_ID && process.env.R2_SECRET_ACCESS_KEY && (process.env.R2_S3_ENDPOINT || process.env.R2_ACCOUNT_ID));
 
 const r2Client = new S3Client({
   region: 'auto',
-  endpoint: process.env.R2_S3_ENDPOINT || 'https://missing-endpoint.com',
+  endpoint: r2Endpoint,
   credentials: {
     accessKeyId: process.env.R2_ACCESS_KEY_ID || 'missing',
     secretAccessKey: process.env.R2_SECRET_ACCESS_KEY || 'missing',

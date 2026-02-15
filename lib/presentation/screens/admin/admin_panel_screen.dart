@@ -152,6 +152,31 @@ class _AdminPanelScreenState extends State<AdminPanelScreen> with SingleTickerPr
     return null;
   }
 
+  Future<void> _uploadFromUrl(String url) async {
+    if (url.isEmpty) return;
+    setState(() => _isUploading = true);
+    final token = Provider.of<AuthProvider>(context, listen: false).token;
+    try {
+       final response = await http.post(
+         Uri.parse('$_backendUrl/upload/by-url'),
+         headers: {
+           'Content-Type': 'application/json',
+           'Authorization': 'Bearer $token',
+         },
+         body: jsonEncode({'url': url}),
+       );
+       if (response.statusCode == 201) {
+         final data = jsonDecode(response.body);
+         _posterUrlController.text = data['url'];
+         ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Poster fetched and uploaded to R2')));
+       }
+    } catch (e) {
+       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: $e')));
+    } finally {
+       setState(() => _isUploading = false);
+    }
+  }
+
   void _addMovie() async {
     if (_titleController.text.isEmpty) return;
     if (_posterUrlController.text.isEmpty || _videoUrlController.text.isEmpty) {
@@ -415,9 +440,15 @@ class _AdminPanelScreenState extends State<AdminPanelScreen> with SingleTickerPr
         Row(
           children: [
             Expanded(
-              child: _buildTextField(controller, 'URL will appear here...', enabled: false),
+              child: _buildTextField(controller, 'URL will appear here...', enabled: type == 'poster'),
             ),
             const SizedBox(width: 12),
+            if (type == 'poster')
+               IconButton(
+                 icon: const Icon(Icons.download, color: Colors.blueAccent),
+                 onPressed: () => _uploadFromUrl(controller.text),
+                 tooltip: 'Upload from URL to R2',
+               ),
             ElevatedButton(
               onPressed: () async {
                 final url = await _uploadFile(type);

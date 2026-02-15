@@ -18,7 +18,7 @@ RIYOBOX is a production-grade movie streaming application prototype built with F
 *   **Frontend:** Flutter (State management via Provider, Navigation via GoRouter).
 *   **Backend:** Node.js, Express.js.
 *   **Database:** MongoDB (via Mongoose).
-*   **Auth:** JWT (JSON Web Tokens)
+*   **Auth:** JWT (JSON Web Tokens).
 
 ## 🌍 Cloud Deployment (Render)
 
