@@ -1,6 +1,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:riyobox/models/movie.dart';
 import 'package:riyobox/presentation/widgets/shimmer_loading.dart';
 
@@ -25,17 +26,13 @@ class MovieCard extends StatelessWidget {
             child: SizedBox(
               height: height,
               width: double.infinity,
-              child: Image.network(
-                movie.posterPath.isNotEmpty
+              child: CachedNetworkImage(
+                imageUrl: movie.posterPath.isNotEmpty
                   ? (movie.posterPath.startsWith('http') ? movie.posterPath : 'https://image.tmdb.org/t/p/w500${movie.posterPath}')
                   : 'https://picsum.photos/seed/${movie.id}/200/300',
                 fit: BoxFit.cover,
-                loadingBuilder: (context, child, progress) {
-                  if (progress == null) return child;
-                  return ShimmerLoading.rectangular(height: height);
-                },
-                errorBuilder: (context, error, stackTrace) =>
-                    const Center(child: Icon(Icons.movie, color: Colors.white24)),
+                placeholder: (context, url) => ShimmerLoading.rectangular(height: height),
+                errorWidget: (context, url, error) => const Center(child: Icon(Icons.movie, color: Colors.white24)),
               ),
             ),
           ),

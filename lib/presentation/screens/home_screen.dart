@@ -1,6 +1,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:carousel_slider/carousel_slider.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:riyobox/providers/auth_provider.dart';
@@ -94,7 +95,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   child: GestureDetector(
                     onTap: () => context.push('/profile'),
                     child: const CircleAvatar(
-                      backgroundImage: NetworkImage(
+                      backgroundImage: CachedNetworkImageProvider(
                           'https://picsum.photos/seed/avatar/100/100'),
                     ),
                   ),
@@ -196,8 +197,11 @@ class _HomeScreenState extends State<HomeScreen> {
           children: [
             CarouselSlider(
               options: CarouselOptions(
-                height: 250.0,
+                height: 280.0, // Slightly taller for more impact
                 autoPlay: true,
+                autoPlayInterval: const Duration(seconds: 5),
+                autoPlayAnimationDuration: const Duration(milliseconds: 1000),
+                autoPlayCurve: Curves.fastOutSlowIn,
                 viewportFraction: 1.0,
                 onPageChanged: (index, reason) {
                   setState(() {
@@ -215,21 +219,18 @@ class _HomeScreenState extends State<HomeScreen> {
                       },
                       child: Stack(
                         children: [
-                          Image.network(
-                            movie.posterPath.startsWith('http') ? movie.posterPath : 'https://image.tmdb.org/t/p/w500${movie.posterPath}',
+                          CachedNetworkImage(
+                            imageUrl: (movie.backdropPath ?? movie.posterPath).startsWith('http')
+                                ? (movie.backdropPath ?? movie.posterPath)
+                                : 'https://image.tmdb.org/t/p/original${movie.backdropPath ?? movie.posterPath}',
                             fit: BoxFit.cover,
-                            height: 250.0,
+                            height: 280.0,
                             width: double.infinity,
-                            loadingBuilder: (context, child, progress) {
-                              return progress == null
-                                  ? child
-                                  : const ShimmerLoading.rectangular(height: 250);
-                            },
-                            errorBuilder: (context, error, stackTrace) =>
-                                const Center(child: Icon(Icons.error)),
+                            placeholder: (context, url) => const ShimmerLoading.rectangular(height: 280),
+                            errorWidget: (context, url, error) => const Center(child: Icon(Icons.error)),
                           ),
                         Container(
-                          height: 250.0,
+                          height: 280.0,
                           decoration: BoxDecoration(
                             gradient: LinearGradient(
                               begin: Alignment.bottomCenter,
@@ -239,18 +240,55 @@ class _HomeScreenState extends State<HomeScreen> {
                           ),
                         ),
                         Positioned(
-                          bottom: 20,
+                          bottom: 30,
                           left: 20,
+                          right: 20,
                           child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
+                            crossAxisAlignment: CrossAxisAlignment.center,
                             children: [
                               Text(
-                                movie.title,
+                                movie.title.toUpperCase(),
+                                textAlign: TextAlign.center,
                                 style: const TextStyle(
                                   color: Colors.white,
-                                  fontSize: 24,
-                                  fontWeight: FontWeight.bold,
+                                  fontSize: 28,
+                                  fontWeight: FontWeight.w900,
+                                  letterSpacing: 1.5,
+                                  shadows: [Shadow(color: Colors.black, blurRadius: 10)],
                                 ),
+                              ),
+                              const SizedBox(height: 15),
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  ElevatedButton.icon(
+                                    onPressed: () {
+                                      final id = movie.backendId ?? movie.id.toString();
+                                      context.push('/movie/$id/play');
+                                    },
+                                    icon: const Icon(Icons.play_arrow, color: Colors.black),
+                                    label: const Text('PLAY', style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold)),
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: Colors.white,
+                                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
+                                      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
+                                    ),
+                                  ),
+                                  const SizedBox(width: 12),
+                                  OutlinedButton.icon(
+                                    onPressed: () {
+                                      final id = movie.backendId ?? movie.id.toString();
+                                      context.push('/movie/$id');
+                                    },
+                                    icon: const Icon(Icons.info_outline, color: Colors.white),
+                                    label: const Text('DETAILS', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                                    style: OutlinedButton.styleFrom(
+                                      side: const BorderSide(color: Colors.white, width: 2),
+                                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
+                                      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+                                    ),
+                                  ),
+                                ],
                               ),
                             ],
                           ),
@@ -324,13 +362,15 @@ class _HomeScreenState extends State<HomeScreen> {
                             children: [
                               ClipRRect(
                                 borderRadius: BorderRadius.circular(8),
-                                child: Image.network(
-                                  (movie.backdropPath ?? movie.posterPath).startsWith('http')
+                                child: CachedNetworkImage(
+                                  imageUrl: (movie.backdropPath ?? movie.posterPath).startsWith('http')
                                       ? (movie.backdropPath ?? movie.posterPath)
                                       : 'https://image.tmdb.org/t/p/w500${movie.backdropPath ?? movie.posterPath}',
                                   fit: BoxFit.cover,
                                   width: 240,
                                   height: 135,
+                                  placeholder: (context, url) => const ShimmerLoading.rectangular(height: 135, width: 240),
+                                  errorWidget: (context, url, error) => const Center(child: Icon(Icons.error)),
                                 ),
                               ),
                               Container(

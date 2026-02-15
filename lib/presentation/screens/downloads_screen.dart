@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:riyobox/providers/download_provider.dart';
 import 'package:riyobox/models/movie.dart';
 import 'package:riyobox/presentation/widgets/state_widgets.dart';
@@ -86,12 +87,13 @@ class _DownloadsScreenState extends State<DownloadsScreen> {
             children: [
               ClipRRect(
                 borderRadius: BorderRadius.circular(4),
-                child: Image.network(
-                  movie.posterPath.startsWith('http') ? movie.posterPath : 'https://image.tmdb.org/t/p/w500${movie.posterPath}',
+                child: CachedNetworkImage(
+                  imageUrl: movie.posterPath.startsWith('http') ? movie.posterPath : 'https://image.tmdb.org/t/p/w500${movie.posterPath}',
                   width: 100,
                   height: 60,
                   fit: BoxFit.cover,
-                  errorBuilder: (_, __, ___) => Container(width: 100, height: 60, color: const Color(0xFF262626), child: const Icon(Icons.movie, color: Colors.grey)),
+                  placeholder: (context, url) => Container(width: 100, height: 60, color: const Color(0xFF262626)),
+                  errorWidget: (context, url, error) => Container(width: 100, height: 60, color: const Color(0xFF262626), child: const Icon(Icons.movie, color: Colors.grey)),
                 ),
               ),
               const SizedBox(width: 12),
@@ -148,12 +150,13 @@ class _DownloadsScreenState extends State<DownloadsScreen> {
         children: [
           ClipRRect(
             borderRadius: BorderRadius.circular(4),
-            child: Image.network(
-               movie.posterPath.startsWith('http') ? movie.posterPath : 'https://image.tmdb.org/t/p/w500${movie.posterPath}',
+            child: CachedNetworkImage(
+               imageUrl: movie.posterPath.startsWith('http') ? movie.posterPath : 'https://image.tmdb.org/t/p/w500${movie.posterPath}',
               width: 100,
               height: 60,
               fit: BoxFit.cover,
-              errorBuilder: (_, __, ___) => Container(width: 100, height: 60, color: const Color(0xFF262626), child: const Icon(Icons.check_circle, color: Colors.green)),
+              placeholder: (context, url) => Container(width: 100, height: 60, color: const Color(0xFF262626)),
+              errorWidget: (context, url, error) => Container(width: 100, height: 60, color: const Color(0xFF262626), child: const Icon(Icons.check_circle, color: Colors.green)),
             ),
           ),
           const SizedBox(width: 12),

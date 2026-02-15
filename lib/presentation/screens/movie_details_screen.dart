@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:riyobox/providers/auth_provider.dart';
@@ -123,11 +124,13 @@ class _MovieDetailsScreenState extends State<MovieDetailsScreen> {
         background: Stack(
           fit: StackFit.expand,
           children: [
-            Image.network(
-              (movie.backdropPath ?? movie.posterPath).startsWith('http')
+            CachedNetworkImage(
+              imageUrl: (movie.backdropPath ?? movie.posterPath).startsWith('http')
                   ? (movie.backdropPath ?? movie.posterPath)
                   : 'https://image.tmdb.org/t/p/original${movie.backdropPath ?? movie.posterPath}',
               fit: BoxFit.cover,
+              placeholder: (context, url) => const ShimmerLoading.rectangular(height: 250),
+              errorWidget: (context, url, error) => const Center(child: Icon(Icons.error)),
             ),
             Container(
               decoration: const BoxDecoration(
@@ -143,12 +146,20 @@ class _MovieDetailsScreenState extends State<MovieDetailsScreen> {
               ),
             ),
             Center(
-              child: IconButton(
-                icon: const Icon(Icons.play_circle_outline, size: 80, color: Colors.white70),
-                onPressed: () {
-                   final id = movie.backendId ?? movie.id.toString();
-                   context.push('/movie/$id/play');
+              child: GestureDetector(
+                onTap: () {
+                  final id = movie.backendId ?? movie.id.toString();
+                  context.push('/movie/$id/play');
                 },
+                child: Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: Colors.black38,
+                    shape: BoxShape.circle,
+                    border: Border.all(color: Colors.white, width: 2),
+                  ),
+                  child: const Icon(Icons.play_arrow, size: 60, color: Colors.white),
+                ),
               ),
             ),
           ],
@@ -161,16 +172,50 @@ class _MovieDetailsScreenState extends State<MovieDetailsScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          movie.title.toUpperCase(),
-          style: const TextStyle(color: Colors.white, fontSize: 28, fontWeight: FontWeight.bold, letterSpacing: 1.2),
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Prominent Poster overlay
+            ClipRRect(
+              borderRadius: BorderRadius.circular(8),
+              child: CachedNetworkImage(
+                imageUrl: movie.posterPath.startsWith('http') ? movie.posterPath : 'https://image.tmdb.org/t/p/w500${movie.posterPath}',
+                width: 100,
+                height: 150,
+                fit: BoxFit.cover,
+                placeholder: (context, url) => const ShimmerLoading.rectangular(width: 100, height: 150),
+              ),
+            ),
+            const SizedBox(width: 16),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    movie.title.toUpperCase(),
+                    style: const TextStyle(color: Colors.white, fontSize: 24, fontWeight: FontWeight.bold, letterSpacing: 1.2),
+                  ),
+                  const SizedBox(height: 12),
+                  _buildStatsRow(movie),
+                ],
+              ),
+            ),
+          ],
         ),
+      ],
+    );
+  }
+
+  Widget _buildStatsRow(Movie movie) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
         const SizedBox(height: 12),
         Row(
           children: [
             Text(
               movie.releaseDate.split('-')[0],
-              style: const TextStyle(color: Colors.grey, fontWeight: FontWeight.w500),
+              style: const TextStyle(color: Colors.grey, fontWeight: FontWeight.w500, fontSize: 13),
             ),
             const SizedBox(width: 12),
             Container(
@@ -326,6 +371,8 @@ class _MovieDetailsScreenState extends State<MovieDetailsScreen> {
     );
   }
 
+  bool _isSynopsisExpanded = false;
+
   Widget _buildSynopsis(Movie movie) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -333,13 +380,16 @@ class _MovieDetailsScreenState extends State<MovieDetailsScreen> {
         Text(
           movie.overview,
           style: const TextStyle(color: Colors.white, fontSize: 15, height: 1.4),
-          maxLines: 4,
-          overflow: TextOverflow.ellipsis,
+          maxLines: _isSynopsisExpanded ? null : 3,
+          overflow: _isSynopsisExpanded ? TextOverflow.visible : TextOverflow.ellipsis,
         ),
         const SizedBox(height: 8),
-        const Text(
-          'READ MORE',
-          style: TextStyle(color: Colors.grey, fontSize: 12, fontWeight: FontWeight.bold),
+        GestureDetector(
+          onTap: () => setState(() => _isSynopsisExpanded = !_isSynopsisExpanded),
+          child: Text(
+            _isSynopsisExpanded ? 'SHOW LESS' : 'READ MORE',
+            style: const TextStyle(color: Colors.grey, fontSize: 12, fontWeight: FontWeight.bold),
+          ),
         ),
       ],
     );

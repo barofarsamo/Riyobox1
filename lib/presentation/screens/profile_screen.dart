@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:riyobox/providers/auth_provider.dart';
 
 class ProfileScreen extends StatelessWidget {
@@ -94,7 +95,7 @@ class ProfileScreen extends StatelessWidget {
             ),
             child: const CircleAvatar(
               radius: 60,
-              backgroundImage: NetworkImage('https://picsum.photos/seed/profile/200/200'),
+              backgroundImage: CachedNetworkImageProvider('https://picsum.photos/seed/profile/200/200'),
             ),
           ),
           Positioned(
