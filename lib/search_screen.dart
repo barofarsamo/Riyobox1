@@ -11,6 +11,20 @@ class _SearchScreenState extends State<SearchScreen> {
   final TextEditingController _searchController = TextEditingController();
 
   @override
+  void initState() {
+    super.initState();
+    _searchController.addListener(() {
+      if (mounted) setState(() {});
+    });
+  }
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFF1C1C2A),
@@ -24,11 +38,24 @@ class _SearchScreenState extends State<SearchScreen> {
                   Expanded(
                     child: TextField(
                       controller: _searchController,
+                      textInputAction: TextInputAction.search,
+                      onSubmitted: (value) {
+                        // Handle search submission
+                      },
                       style: const TextStyle(color: Colors.white),
                       decoration: InputDecoration(
                         hintText: 'Search movies, TV shows...',
                         hintStyle: const TextStyle(color: Colors.white54),
                         prefixIcon: const Icon(Icons.search, color: Colors.white54),
+                        suffixIcon: _searchController.text.isNotEmpty
+                            ? IconButton(
+                                icon: const Icon(Icons.clear, color: Colors.white54),
+                                tooltip: 'Clear search',
+                                onPressed: () {
+                                  _searchController.clear();
+                                },
+                              )
+                            : null,
                         filled: true,
                         fillColor: const Color(0xFF2A2A3A),
                         border: OutlineInputBorder(
