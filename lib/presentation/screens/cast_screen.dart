@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:riyobox/services/cast_service.dart';
+import 'package:permission_handler/permission_handler.dart';
+import 'dart:io';
 
 class CastScreen extends StatefulWidget {
   const CastScreen({super.key});
@@ -16,10 +18,23 @@ class _CastScreenState extends State<CastScreen> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) async {
+      await _requestPermissions();
       final service = context.read<CastService>();
-      await service.initContext();
       service.startScanning();
     });
+  }
+
+  Future<void> _requestPermissions() async {
+    if (Platform.isAndroid) {
+      Map<Permission, PermissionStatus> statuses = await [
+        Permission.location,
+        Permission.nearbyWifiDevices,
+        Permission.bluetoothScan,
+        Permission.bluetoothConnect,
+      ].request();
+
+      print('Permission statuses: $statuses');
+    }
   }
 
   @override

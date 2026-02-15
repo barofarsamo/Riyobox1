@@ -18,6 +18,7 @@ class CastService extends ChangeNotifier {
 
   CastService() {
     _init();
+    initContext();
   }
 
   void _init() {
@@ -66,9 +67,16 @@ class CastService extends ChangeNotifier {
   }
 
   Future<void> connectToDevice(GoogleCastDevice device) async {
-    _selectedDevice = device;
-    notifyListeners();
-    await GoogleCastSessionManager.instance.startSessionWithDevice(device);
+    try {
+      _selectedDevice = device;
+      notifyListeners();
+      print('Connecting to device: ${device.friendlyName}');
+      await GoogleCastSessionManager.instance.startSessionWithDevice(device);
+    } catch (e) {
+      print('Error connecting to device: $e');
+      _selectedDevice = null;
+      notifyListeners();
+    }
   }
 
   Future<void> disconnect() async {
@@ -77,9 +85,13 @@ class CastService extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> loadMedia(String url, {String? title, String? subtitle}) async {
-    if (!_isConnected) return;
+  Future<void> loadMedia(String url, {String? title, String? subtitle, String? posterUrl}) async {
+    if (!_isConnected) {
+      print('Not connected to a cast device');
+      return;
+    }
 
+    print('Loading media: $url');
     final media = GoogleCastMediaInformation(
       contentId: url,
       contentType: 'video/mp4',
@@ -87,10 +99,16 @@ class CastService extends ChangeNotifier {
       metadata: GoogleCastMovieMediaMetadata(
         title: title ?? 'Video',
         subtitle: subtitle ?? 'RIYOBOX',
+        images: posterUrl != null ? [GoogleCastImage(url: Uri.parse(posterUrl))] : [],
       ),
     );
 
-    await GoogleCastRemoteMediaClient.instance.loadMedia(media);
+    try {
+      await GoogleCastRemoteMediaClient.instance.loadMedia(media);
+      print('Media loaded successfully');
+    } catch (e) {
+      print('Error loading media: $e');
+    }
   }
 
   @override

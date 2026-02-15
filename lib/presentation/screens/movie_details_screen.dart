@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:riyobox/providers/auth_provider.dart';
 import 'package:riyobox/providers/download_provider.dart';
+import 'package:riyobox/services/cast_service.dart';
 import 'package:riyobox/models/movie.dart';
 import 'package:riyobox/services/api_service.dart';
 import 'package:riyobox/presentation/widgets/movie_card.dart';
@@ -112,6 +113,12 @@ class _MovieDetailsScreenState extends State<MovieDetailsScreen> {
         icon: const Icon(Icons.arrow_back, color: Colors.white),
         onPressed: () => Navigator.pop(context),
       ),
+      actions: [
+        IconButton(
+          icon: const Icon(Icons.cast, color: Colors.white),
+          onPressed: () => context.push('/cast'),
+        ),
+      ],
       flexibleSpace: FlexibleSpaceBar(
         background: Stack(
           fit: StackFit.expand,
@@ -216,6 +223,7 @@ class _MovieDetailsScreenState extends State<MovieDetailsScreen> {
 
   Widget _buildActionsBar(BuildContext context, Movie movie) {
     final auth = Provider.of<AuthProvider>(context, listen: false);
+    final castService = Provider.of<CastService>(context);
     final downloads = Provider.of<DownloadProvider>(context);
     final bool isDownloaded = downloads.isDownloaded(movie.id);
     final bool isDownloading = downloads.isDownloading(movie.id);
@@ -238,6 +246,18 @@ class _MovieDetailsScreenState extends State<MovieDetailsScreen> {
              Expanded(
                child: _buildActionIconButton(Icons.share_outlined, 'SHARE'),
              ),
+             if (castService.isConnected)
+               Expanded(
+                 child: _buildActionIconButton(
+                   Icons.cast_connected,
+                   'CAST',
+                   onTap: () => castService.loadMedia(
+                     movie.videoUrl ?? '',
+                     title: movie.title,
+                     posterUrl: movie.posterPath
+                   )
+                 ),
+               ),
           ],
         ),
         const SizedBox(height: 24),

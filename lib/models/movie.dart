@@ -117,6 +117,7 @@ class Movie {
     int? downloadedEpisodesCount,
     String? localPath,
     String? videoUrl,
+    String? fileSize,
   }) {
     return Movie(
       id: id,
@@ -139,7 +140,7 @@ class Movie {
       isDownloaded: isDownloaded ?? this.isDownloaded,
       isDownloading: isDownloading ?? this.isDownloading,
       downloadProgress: downloadProgress ?? this.downloadProgress,
-      fileSize: fileSize,
+      fileSize: fileSize ?? this.fileSize,
       downloadedEpisodesCount: downloadedEpisodesCount ?? this.downloadedEpisodesCount,
     );
   }

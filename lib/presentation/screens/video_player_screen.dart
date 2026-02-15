@@ -4,11 +4,13 @@ import 'package:screen_brightness/screen_brightness.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
 import 'package:flutter_volume_controller/flutter_volume_controller.dart';
 import 'dart:async';
+import 'dart:io';
 import 'dart:developer' as developer;
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:riyobox/providers/playback_provider.dart';
 import 'package:riyobox/providers/auth_provider.dart';
+import 'package:riyobox/providers/download_provider.dart';
 import 'package:riyobox/services/api_service.dart';
 import 'package:riyobox/models/movie.dart';
 
