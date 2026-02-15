@@ -46,6 +46,34 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
   Future<void> _initPlayer() async {
     String? url = widget.videoUrl;
 
+    // Prioritize local file if downloaded
+    if (widget.movieId != null) {
+      final downloads = Provider.of<DownloadProvider>(context, listen: false);
+      final downloadedMovie = downloads.downloadedMovies.firstWhere(
+        (m) => (m.backendId ?? m.id.toString()) == widget.movieId,
+        orElse: () => Movie(id: 0, title: '', overview: '', posterPath: '', releaseDate: '')
+      );
+
+      if (downloadedMovie.id != 0 && downloadedMovie.localPath != null) {
+        final file = File(downloadedMovie.localPath!);
+        if (await file.exists()) {
+           developer.log('Playing from local path: ${downloadedMovie.localPath}');
+           _controller = VideoPlayerController.file(file)
+            ..initialize().then((_) {
+              if (mounted) {
+                setState(() {});
+                final progress = Provider.of<PlaybackProvider>(context, listen: false).getProgress(widget.movieId ?? '');
+                if (progress > Duration.zero) _showResumeDialog(progress);
+                else _controller!.play();
+                _startHideControlsTimer();
+              }
+            });
+           _setupControllerListeners();
+           return;
+        }
+      }
+    }
+
     if (url == null && widget.movieId != null) {
       try {
         final token = Provider.of<AuthProvider>(context, listen: false).token;
@@ -72,6 +100,10 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
         }
       });
 
+    _setupControllerListeners();
+  }
+
+  void _setupControllerListeners() {
     _controller!.addListener(() {
       if (mounted) {
         final isBuffering = _controller!.value.isBuffering;

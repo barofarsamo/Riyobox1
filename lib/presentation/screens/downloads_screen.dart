@@ -64,7 +64,7 @@ class _DownloadsScreenState extends State<DownloadsScreen> {
       padding: const EdgeInsets.all(16),
       width: double.infinity,
       child: Text(
-        '$totalVideos videos | 5h 17min | ${provider.downloadsSizeGB} GB',
+        '$totalVideos videos | Real-time Download Management',
         style: const TextStyle(color: Colors.grey, fontSize: 14),
       ),
     );
@@ -84,20 +84,24 @@ class _DownloadsScreenState extends State<DownloadsScreen> {
         children: [
           Row(
             children: [
-              Container(
-                width: 100,
-                height: 60,
-                color: const Color(0xFF262626),
-                child: const Icon(Icons.movie, color: Colors.grey),
+              ClipRRect(
+                borderRadius: BorderRadius.circular(4),
+                child: Image.network(
+                  movie.posterPath.startsWith('http') ? movie.posterPath : 'https://image.tmdb.org/t/p/w500${movie.posterPath}',
+                  width: 100,
+                  height: 60,
+                  fit: BoxFit.cover,
+                  errorBuilder: (_, __, ___) => Container(width: 100, height: 60, color: const Color(0xFF262626), child: const Icon(Icons.movie, color: Colors.grey)),
+                ),
               ),
               const SizedBox(width: 12),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('${movie.title} - Season 1', style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                    Text(movie.title, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
                     const SizedBox(height: 4),
-                    Text('${movie.downloadedEpisodesCount} episode | ${movie.fileSize}', style: const TextStyle(color: Colors.grey, fontSize: 12)),
+                    Text(movie.isTvShow ? 'TV Series' : 'Movie', style: const TextStyle(color: Colors.grey, fontSize: 12)),
                   ],
                 ),
               ),
@@ -142,11 +146,15 @@ class _DownloadsScreenState extends State<DownloadsScreen> {
       ),
       child: Row(
         children: [
-          Container(
-            width: 100,
-            height: 60,
-            color: const Color(0xFF262626),
-            child: const Icon(Icons.check_circle, color: Colors.green),
+          ClipRRect(
+            borderRadius: BorderRadius.circular(4),
+            child: Image.network(
+               movie.posterPath.startsWith('http') ? movie.posterPath : 'https://image.tmdb.org/t/p/w500${movie.posterPath}',
+              width: 100,
+              height: 60,
+              fit: BoxFit.cover,
+              errorBuilder: (_, __, ___) => Container(width: 100, height: 60, color: const Color(0xFF262626), child: const Icon(Icons.check_circle, color: Colors.green)),
+            ),
           ),
           const SizedBox(width: 12),
           Expanded(
@@ -155,17 +163,26 @@ class _DownloadsScreenState extends State<DownloadsScreen> {
               children: [
                 Text(movie.title, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
                 const SizedBox(height: 4),
-                Text('${movie.isTvShow ? '1 episode' : '2h 3min'} | ${movie.fileSize} | Downloaded', style: const TextStyle(color: Colors.grey, fontSize: 12)),
+                Text('${movie.fileSize} | Downloaded', style: const TextStyle(color: Colors.grey, fontSize: 12)),
               ],
             ),
           ),
           Row(
             children: [
-              IconButton(icon: const Icon(Icons.play_arrow, color: Colors.white), onPressed: () {}),
+              IconButton(
+                icon: const Icon(Icons.play_arrow, color: Colors.white),
+                onPressed: () {
+                   final id = movie.backendId ?? movie.id.toString();
+                   context.push('/movie/$id/play');
+                }
+              ),
               if (_isEditing)
                 IconButton(icon: const Icon(Icons.delete_outline, color: Colors.red), onPressed: () => provider.deleteDownload(movie.id))
               else
-                IconButton(icon: const Icon(Icons.settings_outlined, color: Colors.white, size: 20), onPressed: () {}),
+                IconButton(icon: const Icon(Icons.info_outline, color: Colors.white, size: 20), onPressed: () {
+                   final id = movie.backendId ?? movie.id.toString();
+                   context.push('/movie/$id');
+                }),
             ],
           ),
         ],
@@ -186,23 +203,22 @@ class _DownloadsScreenState extends State<DownloadsScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('Storage: ${provider.usedStorageGB} GB of ${provider.totalStorageGB} GB used', style: const TextStyle(color: Colors.grey, fontSize: 12)),
-            const SizedBox(height: 12),
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-              decoration: BoxDecoration(
-                color: Colors.white.withAlpha(13),
-                borderRadius: BorderRadius.circular(4),
+            if (provider.downloadingMovies.isNotEmpty)
+              Container(
+                margin: const EdgeInsets.only(bottom: 12),
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                decoration: BoxDecoration(
+                  color: Colors.white.withAlpha(13),
+                  borderRadius: BorderRadius.circular(4),
+                ),
+                child: Row(
+                  children: [
+                    const Icon(Icons.downloading, color: Colors.deepPurpleAccent, size: 16),
+                    const SizedBox(width: 8),
+                    Text('Download Queue: ${provider.downloadingMovies.length} pending', style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold)),
+                  ],
+                ),
               ),
-              child: const Row(
-                children: [
-                  Icon(Icons.speed, color: Colors.white, size: 16),
-                  SizedBox(width: 8),
-                  Text('Download Queue: 3 pending', style: TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold)),
-                ],
-              ),
-            ),
-            const SizedBox(height: 16),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:riyobox/providers/auth_provider.dart';
+import 'package:riyobox/providers/download_provider.dart';
 import 'package:riyobox/models/movie.dart';
 import 'package:riyobox/services/api_service.dart';
 import 'package:riyobox/presentation/widgets/movie_card.dart';
@@ -215,6 +216,10 @@ class _MovieDetailsScreenState extends State<MovieDetailsScreen> {
 
   Widget _buildActionsBar(BuildContext context, Movie movie) {
     final auth = Provider.of<AuthProvider>(context, listen: false);
+    final downloads = Provider.of<DownloadProvider>(context);
+    final bool isDownloaded = downloads.isDownloaded(movie.id);
+    final bool isDownloading = downloads.isDownloading(movie.id);
+    final double progress = downloads.getDownloadProgress(movie.id);
 
     return Column(
       children: [
@@ -255,16 +260,24 @@ class _MovieDetailsScreenState extends State<MovieDetailsScreen> {
         const SizedBox(height: 12),
         SizedBox(
           width: double.infinity,
-          child: ElevatedButton.icon(
-            onPressed: () {},
-            icon: const Icon(Icons.download, color: Colors.white),
-            label: const Text('DOWNLOAD', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFF262626),
-              padding: const EdgeInsets.symmetric(vertical: 12),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
-            ),
-          ),
+          child: isDownloading
+            ? Column(
+                children: [
+                  LinearProgressIndicator(value: progress, color: Colors.deepPurpleAccent, backgroundColor: Colors.white10),
+                  const SizedBox(height: 8),
+                  Text('Downloading... ${(progress * 100).toStringAsFixed(0)}%', style: const TextStyle(color: Colors.grey, fontSize: 12)),
+                ],
+              )
+            : ElevatedButton.icon(
+                onPressed: isDownloaded ? null : () => downloads.startDownload(movie),
+                icon: Icon(isDownloaded ? Icons.download_done : Icons.download, color: Colors.white),
+                label: Text(isDownloaded ? 'DOWNLOADED' : 'DOWNLOAD', style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF262626),
+                  padding: const EdgeInsets.symmetric(vertical: 12),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
+                ),
+              ),
         ),
       ],
     );

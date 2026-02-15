@@ -15,6 +15,7 @@ class Movie {
   final bool isTvShow;
   final List<Season>? seasons;
   final String? videoUrl;
+  final String? localPath;
 
   // Download related fields
   final bool isDownloaded;
@@ -40,12 +41,33 @@ class Movie {
     this.isTvShow = false,
     this.seasons,
     this.videoUrl,
+    this.localPath,
     this.isDownloaded = false,
     this.isDownloading = false,
     this.downloadProgress = 0.0,
     this.fileSize = '0 MB',
     this.downloadedEpisodesCount = 0,
   });
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      '_id': backendId,
+      'title': title,
+      'overview': overview,
+      'posterUrl': posterPath,
+      'backdropUrl': backdropPath,
+      'year': releaseDate,
+      'rating': voteAverage,
+      'runtime': runtime,
+      'genre': genres,
+      'is_tv_show': isTvShow,
+      'videoUrl': videoUrl,
+      'local_path': localPath,
+      'is_downloaded': isDownloaded,
+      'file_size': fileSize,
+    };
+  }
 
   factory Movie.fromJson(Map<String, dynamic> json) {
     return Movie(
@@ -62,6 +84,7 @@ class Movie {
       contentRating: json['contentRating'],
       isTvShow: json['is_tv_show'] ?? false,
       videoUrl: json['videoUrl'],
+      localPath: json['local_path'],
       isDownloaded: json['is_downloaded'] ?? false,
       isDownloading: json['is_downloading'] ?? false,
       downloadProgress: (json['download_progress'] as num?)?.toDouble() ?? 0.0,
@@ -92,9 +115,12 @@ class Movie {
     bool? isDownloading,
     double? downloadProgress,
     int? downloadedEpisodesCount,
+    String? localPath,
+    String? videoUrl,
   }) {
     return Movie(
       id: id,
+      backendId: backendId,
       title: title,
       overview: overview,
       posterPath: posterPath,
@@ -108,6 +134,8 @@ class Movie {
       contentRating: contentRating,
       isTvShow: isTvShow,
       seasons: seasons,
+      videoUrl: videoUrl ?? this.videoUrl,
+      localPath: localPath ?? this.localPath,
       isDownloaded: isDownloaded ?? this.isDownloaded,
       isDownloading: isDownloading ?? this.isDownloading,
       downloadProgress: downloadProgress ?? this.downloadProgress,
