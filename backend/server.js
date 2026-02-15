@@ -21,7 +21,7 @@ const validateEnv = () => {
     console.warn('⚠️ WARNING: Missing recommended environment variables:', missing.join(', '));
     console.warn('Backend features like Auth or R2 Storage might not work properly.');
   } else {
-    console.log('✅ All environment variables are configured.');
+    console.log('All environment variables are configured.');
   }
 };
 
