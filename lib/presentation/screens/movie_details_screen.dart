@@ -74,6 +74,7 @@ class _MovieDetailsScreenState extends State<MovieDetailsScreen> {
                 ),
                 leading: IconButton(
                   icon: const Icon(Icons.arrow_back, color: Colors.white),
+                  tooltip: 'Back',
                   onPressed: () => context.pop(),
                 ),
               ),
