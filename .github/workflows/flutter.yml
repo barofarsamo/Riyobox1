@@ -1,46 +1,41 @@
-name: Flutter Build APK
+name: Flutter Build
 
 on:
   push:
+    branches: [ main, master, feature/** ]
   pull_request:
-  
+    branches: [ main, master ]
+
 jobs:
   build:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
       - name: Setup Java
         uses: actions/setup-java@v4
         with:
-          distribution: 'temurin'
+          distribution: 'zulu'
           java-version: '17'
 
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.16.7'
-          channel: 'stable'
+          channel: stable
+          cache: true
 
-      - name: Disable Flutter Analytics
-        run: flutter config --no-analytics
-
-      - name: Upgrade Flutter (force correct Dart)
-        run: flutter upgrade
+      - name: Verify Flutter Version
+        run: flutter --version
 
       - name: Install dependencies
         run: flutter pub get
 
+      - name: Analyze project
+        run: flutter analyze
+
       - name: Run tests
         run: flutter test
 
-      - name: Build APK
-        run: flutter build apk --release
-
-      - name: Upload APK
-        uses: actions/upload-artifact@v4
-        with:
-          name: app-release
-          path: build/app/outputs/flutter-apk/app-release.apk
+      - name: Build Android APK
+        run: flutter build apk --debug # Faster CI build
