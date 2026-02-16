@@ -37,7 +37,7 @@ dependencies:
   sqflite: ^2.3.0
   media_kit: ^1.1.10
   media_kit_video: ^1.1.10
-  media_kit_libs_video: ^1.2.0
+  media_kit_libs_video: ^1.1.10
 
 dev_dependencies:
   flutter_test:

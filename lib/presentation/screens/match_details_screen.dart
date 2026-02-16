@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:go_router/go_router.dart';
 import 'package:riyobox/providers/sports_provider.dart';
 import 'package:riyobox/services/sports_service.dart';
 import 'package:cached_network_image/cached_network_image.dart';
@@ -79,7 +80,7 @@ class _MatchDetailsScreenState extends State<MatchDetailsScreen> with SingleTick
                      Padding(
                        padding: const EdgeInsets.symmetric(horizontal: 24),
                        child: ElevatedButton.icon(
-                          onPressed: () => Navigator.pushNamed(context, '/sports/play', arguments: {'url': streamUrl, 'title': '${home['name']} vs ${away['name']}'}),
+                          onPressed: () => context.push('/sports/play?url=$streamUrl&title=${home['name']} vs ${away['name']}'),
                           icon: const Icon(Icons.play_arrow),
                           label: const Text('WATCH LIVE NOW'),
                           style: ElevatedButton.styleFrom(backgroundColor: Colors.red, minimumSize: const Size(double.infinity, 40)),
