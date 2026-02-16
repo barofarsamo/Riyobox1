@@ -14,9 +14,7 @@ struct MatchStats {
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
     println!("Sports Analytics Microservice (Rust) starting...");
-
     loop {
-        // Mock stats processing
         let stats = MatchStats {
             fixture_id: 123,
             possession_home: 55,
@@ -24,10 +22,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             shots_on_target_home: 6,
             shots_on_target_away: 2,
         };
-
         let win_prob_home = calculate_win_probability(&stats);
         println!("Match ID: {} | Home Win Prob: {}%", stats.fixture_id, win_prob_home);
-
         sleep(Duration::from_secs(10)).await;
     }
 }

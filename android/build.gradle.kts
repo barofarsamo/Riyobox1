@@ -37,6 +37,16 @@ subprojects {
         if (project.hasProperty("android")) {
             val android = project.extensions.getByName("android")
 
+            // Inject missing namespace for older plugins
+            try {
+                val getNamespace = android.javaClass.getMethod("getNamespace")
+                val namespace = getNamespace.invoke(android)
+                if (namespace == null) {
+                    val setNamespace = android.javaClass.getMethod("setNamespace", String::class.java)
+                    setNamespace.invoke(android, "com.riyobox.generated." + project.name.replace("-", "_"))
+                }
+            } catch (e: Exception) {}
+
             // Fix compileOptions JVM target
             try {
                 val getCompileOptions = android.javaClass.getMethod("getCompileOptions")

@@ -1,0 +1,10 @@
+Resolving dependencies...
+Because cached_network_image_web 1.3.1 depends on web ^1.0.0 and no versions of cached_network_image_web match >1.3.1 <2.0.0, cached_network_image_web ^1.3.1 requires web ^1.0.0.
+And because web_socket_channel >=2.4.4 <3.0.1 depends on web ^0.5.0, web_socket_channel >=2.4.4 <3.0.1 is incompatible with cached_network_image_web ^1.3.1.
+And because cached_network_image 3.4.1 depends on cached_network_image_web ^1.3.1 and no versions of cached_network_image match >3.4.1 <4.0.0, web_socket_channel >=2.4.4 <3.0.1 is incompatible with cached_network_image ^3.4.1.
+So, because riyobox depends on both cached_network_image ^3.4.1 and web_socket_channel ^2.4.5, version solving failed.
+
+
+You can try the following suggestion to make the pubspec resolve:
+* Try upgrading your constraint on web_socket_channel: flutter pub add web_socket_channel:^3.0.3
+Failed to update packages.

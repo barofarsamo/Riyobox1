@@ -90,7 +90,7 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
                       ],
                       colors: [
                         Colors.transparent,
-                        Colors.deepPurpleAccent.withOpacity(0.1),
+                        Colors.deepPurpleAccent.withAlpha(25),
                         Colors.transparent,
                       ],
                     ),
@@ -113,7 +113,7 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
                         color: Colors.transparent,
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.deepPurpleAccent.withOpacity(0.3),
+                            color: Colors.deepPurpleAccent.withAlpha(76),
                             blurRadius: 50,
                             spreadRadius: 10,
                           ),

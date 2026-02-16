@@ -559,7 +559,7 @@ class _AdminPanelScreenState extends State<AdminPanelScreen> with SingleTickerPr
             subtitle: const Text('Toggle live scores and sports category visibility', style: TextStyle(color: Colors.grey)),
             value: _sportsEnabled,
             onChanged: (val) => setState(() => _sportsEnabled = val),
-            activeColor: Colors.deepPurpleAccent,
+            activeThumbColor: Colors.deepPurpleAccent,
           ),
           const SizedBox(height: 40),
           const Text('MANAGE LIVE STREAMS', style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold)),

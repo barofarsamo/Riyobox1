@@ -14,16 +14,8 @@ fun main(args: Array<String>) {
 @RestController
 @RequestMapping("/subscriptions")
 class SubscriptionController {
-
     @PostMapping("/subscribe")
     fun subscribe(@RequestBody request: SubscriptionRequest): SubscriptionResponse {
-        println("Processing subscription for user: ${request.userId}")
-        // Logic for Stripe/PayPal integration
-        return SubscriptionResponse(true, "Active", "2024-12-31")
-    }
-
-    @GetMapping("/status/{userId}")
-    fun getStatus(@PathVariable userId: String): SubscriptionResponse {
         return SubscriptionResponse(true, "Active", "2024-12-31")
     }
 }

@@ -19,19 +19,12 @@ var (
 )
 
 func main() {
-	// Initialize Redis
 	rdb = redis.NewClient(&redis.Options{
 		Addr: "localhost:6379",
 	})
 
-	// Microservices Integration
-	// Rust Analytics -> :8081
-	// Java Payment -> :8082
-	// Node Chat -> :4000
-
 	r := gin.Default()
 
-	// REST API
 	sports := r.Group("/sports")
 	{
 		sports.GET("/fixtures", getFixtures)
@@ -66,6 +59,7 @@ var upgrader = websocket.Upgrader{
 func handleLiveWS(c *gin.Context) {
 	conn, err := upgrader.Upgrade(c.Writer, c.Request, nil)
 	if err != nil {
+		log.Print("upgrade:", err)
 		return
 	}
 	defer conn.Close()
@@ -80,6 +74,7 @@ func handleLiveWS(c *gin.Context) {
 		}
 		msg, _ := json.Marshal(update)
 		if err := conn.WriteMessage(websocket.TextMessage, msg); err != nil {
+			log.Println("write:", err)
 			break
 		}
 		time.Sleep(30 * time.Second)
