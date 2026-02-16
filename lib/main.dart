@@ -13,6 +13,7 @@ import 'package:riyobox/presentation/screens/auth/login_screen.dart';
 import 'package:riyobox/presentation/screens/auth/signup_screen.dart';
 import 'package:riyobox/presentation/screens/home_screen.dart';
 import 'package:riyobox/presentation/screens/movie_details_screen.dart';
+import 'package:media_kit/media_kit.dart';
 import 'package:riyobox/presentation/screens/video_player_screen.dart';
 import 'package:riyobox/presentation/screens/settings_screen.dart';
 import 'package:riyobox/presentation/screens/profile_screen.dart';
@@ -21,11 +22,19 @@ import 'package:riyobox/presentation/screens/categories_screen.dart';
 import 'package:riyobox/presentation/screens/downloads_screen.dart';
 import 'package:riyobox/presentation/screens/my_riyobox_screen.dart';
 import 'package:riyobox/presentation/screens/search_screen.dart';
+import 'package:riyobox/presentation/widgets/sports_video_player.dart';
 import 'package:riyobox/presentation/screens/genre_movies_screen.dart';
 import 'package:riyobox/presentation/screens/admin/admin_panel_screen.dart';
+import 'package:riyobox/presentation/screens/sports_screen.dart';
+import 'package:riyobox/presentation/screens/match_details_screen.dart';
+import 'package:riyobox/presentation/screens/league_standings_screen.dart';
+import 'package:riyobox/presentation/screens/team_profile_screen.dart';
+import 'package:riyobox/presentation/screens/sports_search_screen.dart';
+import 'package:riyobox/providers/sports_provider.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  MediaKit.ensureInitialized();
   runApp(const MyApp());
 }
 
@@ -109,7 +118,50 @@ GoRouter _createRouter(AuthProvider authProvider) {
               return GenreMoviesScreen(genreName: name);
             },
           ),
+          GoRoute(
+            path: '/sports',
+            builder: (context, state) => const SportsScreen(),
+          ),
         ],
+      ),
+      GoRoute(
+        path: '/sports/play',
+        parentNavigatorKey: _rootNavigatorKey,
+        builder: (context, state) {
+          final url = state.uri.queryParameters['url']!;
+          final title = state.uri.queryParameters['title'] ?? 'Live Sports';
+          return SportsVideoPlayer(url: url, title: title);
+        },
+      ),
+      GoRoute(
+        path: '/sports/match/:id',
+        parentNavigatorKey: _rootNavigatorKey,
+        builder: (context, state) {
+          final id = int.parse(state.pathParameters['id']!);
+          return MatchDetailsScreen(fixtureId: id);
+        },
+      ),
+      GoRoute(
+        path: '/sports/league/:id/:season',
+        parentNavigatorKey: _rootNavigatorKey,
+        builder: (context, state) {
+          final id = int.parse(state.pathParameters['id']!);
+          final season = int.parse(state.pathParameters['season']!);
+          return LeagueStandingsScreen(leagueId: id, season: season);
+        },
+      ),
+      GoRoute(
+        path: '/sports/team/:id',
+        parentNavigatorKey: _rootNavigatorKey,
+        builder: (context, state) {
+          final id = int.parse(state.pathParameters['id']!);
+          return TeamProfileScreen(teamId: id);
+        },
+      ),
+      GoRoute(
+        path: '/sports/search',
+        parentNavigatorKey: _rootNavigatorKey,
+        builder: (context, state) => const SportsSearchScreen(),
       ),
       GoRoute(
         path: '/movie/:id',
@@ -163,6 +215,7 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => DownloadProvider()),
         ChangeNotifierProvider(create: (_) => CastService()),
         ChangeNotifierProvider(create: (_) => AuthProvider()),
+        ChangeNotifierProvider(create: (_) => SportsProvider()),
       ],
       child: Consumer2<SettingsProvider, AuthProvider>(
         builder: (context, settings, auth, child) {

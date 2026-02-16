@@ -41,9 +41,10 @@ class _AdminPanelScreenState extends State<AdminPanelScreen> with SingleTickerPr
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 3, vsync: this);
+    _tabController = TabController(length: 4, vsync: this);
     _fetchMovies();
     _fetchR2Files();
+    _fetchLiveStreams();
   }
 
   Future<void> _fetchR2Files() async {
@@ -261,6 +262,7 @@ class _AdminPanelScreenState extends State<AdminPanelScreen> with SingleTickerPr
             Tab(text: 'UPLOAD MOVIE'),
             Tab(text: 'MOVIE LIST'),
             Tab(text: 'MEDIA LIBRARY'),
+            Tab(text: 'SPORTS CONFIG'),
           ],
         ),
       ),
@@ -270,6 +272,7 @@ class _AdminPanelScreenState extends State<AdminPanelScreen> with SingleTickerPr
           _buildUploadTab(),
           _buildManageTab(),
           _buildMediaLibraryTab(),
+          _buildSportsSettingsTab(),
         ],
       ),
     );
@@ -483,6 +486,125 @@ class _AdminPanelScreenState extends State<AdminPanelScreen> with SingleTickerPr
         selectedColor: Colors.deepPurpleAccent,
         backgroundColor: Colors.white10,
         labelStyle: TextStyle(color: isSelected ? Colors.white : Colors.grey, fontWeight: FontWeight.bold),
+      ),
+    );
+  }
+
+  bool _sportsEnabled = true;
+  final _fixtureIdController = TextEditingController();
+  final _matchStreamUrlController = TextEditingController();
+  List<dynamic> _liveStreams = [];
+
+  Future<void> _fetchLiveStreams() async {
+    final token = Provider.of<AuthProvider>(context, listen: false).token;
+    try {
+      final response = await http.get(
+        Uri.parse('$_backendUrl/livestreams'),
+        headers: {'Authorization': 'Bearer $token'},
+      );
+      if (response.statusCode == 200) {
+        setState(() {
+          _liveStreams = jsonDecode(response.body);
+        });
+      }
+    } catch (e) {}
+  }
+
+  void _addLiveStream() async {
+    if (_fixtureIdController.text.isEmpty || _matchStreamUrlController.text.isEmpty) return;
+    final token = Provider.of<AuthProvider>(context, listen: false).token;
+    try {
+      final response = await http.post(
+        Uri.parse('$_backendUrl/livestreams'),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+        body: jsonEncode({
+          'fixtureId': int.parse(_fixtureIdController.text),
+          'streamUrl': _matchStreamUrlController.text,
+          'title': 'Live Match Stream',
+        }),
+      );
+      if (response.statusCode == 201) {
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Stream linked successfully')));
+        _fixtureIdController.clear();
+        _matchStreamUrlController.clear();
+        _fetchLiveStreams();
+      }
+    } catch (e) {}
+  }
+
+  void _deleteLiveStream(String id) async {
+    final token = Provider.of<AuthProvider>(context, listen: false).token;
+    try {
+      await http.delete(
+        Uri.parse('$_backendUrl/livestreams/$id'),
+        headers: {'Authorization': 'Bearer $token'},
+      );
+      _fetchLiveStreams();
+    } catch (e) {}
+  }
+
+  Widget _buildSportsSettingsTab() {
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(24.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text('FOOTBALL LIVE SCORE CONFIG', style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
+          const SizedBox(height: 24),
+          SwitchListTile(
+            title: const Text('Enable Sports Feature', style: TextStyle(color: Colors.white)),
+            subtitle: const Text('Toggle live scores and sports category visibility', style: TextStyle(color: Colors.grey)),
+            value: _sportsEnabled,
+            onChanged: (val) => setState(() => _sportsEnabled = val),
+            activeColor: Colors.deepPurpleAccent,
+          ),
+          const SizedBox(height: 40),
+          const Text('MANAGE LIVE STREAMS', style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold)),
+          const SizedBox(height: 16),
+          _buildTextField(_fixtureIdController, 'Fixture ID (from API)', keyboardType: TextInputType.number),
+          const SizedBox(height: 12),
+          _buildTextField(_matchStreamUrlController, 'Match Stream URL (C++ Engine Output/HLS)'),
+          const SizedBox(height: 12),
+          ElevatedButton(
+            onPressed: _addLiveStream,
+            style: ElevatedButton.styleFrom(backgroundColor: Colors.green, minimumSize: const Size(double.infinity, 45)),
+            child: const Text('LINK LIVE STREAM', style: TextStyle(fontWeight: FontWeight.bold)),
+          ),
+          const SizedBox(height: 24),
+          const Text('ACTIVE STREAMS', style: TextStyle(color: Colors.grey, fontSize: 12, fontWeight: FontWeight.bold)),
+          const SizedBox(height: 8),
+          if (_liveStreams.isEmpty)
+            const Text('No active streams linked.', style: TextStyle(color: Colors.white54, fontSize: 12))
+          else
+            ListView.builder(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              itemCount: _liveStreams.length,
+              itemBuilder: (context, index) {
+                final s = _liveStreams[index];
+                return ListTile(
+                  contentPadding: EdgeInsets.zero,
+                  title: Text('Match ID: ${s['fixtureId']}', style: const TextStyle(color: Colors.white, fontSize: 14)),
+                  subtitle: Text(s['streamUrl'], style: const TextStyle(color: Colors.grey, fontSize: 11), maxLines: 1, overflow: TextOverflow.ellipsis),
+                  trailing: IconButton(icon: const Icon(Icons.delete, color: Colors.red, size: 20), onPressed: () => _deleteLiveStream(s['_id'])),
+                );
+              },
+            ),
+          const SizedBox(height: 40),
+          ElevatedButton(
+            onPressed: () {
+              ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Settings saved successfully')));
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.deepPurpleAccent,
+              minimumSize: const Size(double.infinity, 50),
+            ),
+            child: const Text('SAVE SETTINGS', style: TextStyle(fontWeight: FontWeight.bold)),
+          ),
+        ],
       ),
     );
   }

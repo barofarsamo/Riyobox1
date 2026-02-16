@@ -35,6 +35,9 @@ dependencies:
   intl: ^0.19.0
   web_socket_channel: ^2.4.5
   sqflite: ^2.3.0
+  media_kit: ^1.1.10
+  media_kit_video: ^1.1.10
+  media_kit_libs_video: ^1.1.10
 
 dev_dependencies:
   flutter_test:
