@@ -12,6 +12,7 @@ RIYOBOX is a production-grade movie streaming application prototype built with F
 *   **User Web App:** A complete streaming website for users to watch content on any browser.
 *   **Cloudflare R2 Storage:** Direct integration for high-performance video and image hosting with direct-to-cloud uploads.
 *   **Multi-Language Support:** Global support for English, Arabic (RTL), and Somali.
+*   **Sports Platform:** High-performance multi-language microservices architecture for live scores, fan chat, and adaptive bitrate streaming.
 
 ## 🛠 Tech Stack
 
@@ -45,6 +46,7 @@ riyobox/
 │   ├── providers/            # State management
 │   └── services/             # API and Casting services
 ├── backend/                  # Node.js source code
+├── sports_platform/          # Multi-language Microservices (Go, C++, Rust, Java, Node)
 ├── web_admin/                # React-based Admin Dashboard
 ├── web_user/                 # React-based User Streaming Website
 └── test/                     # Widget and Unit tests
