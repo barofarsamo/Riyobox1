@@ -26,17 +26,22 @@ void main() {
   });
 }
 
+/// HttpOverrides to mock network calls
 class _MockHttpOverrides extends HttpOverrides {
   @override
-  HttpClient createHttpClient(SecurityContext? context) => _MockHttpClient();
+  HttpClient createHttpClient(SecurityContext? context) {
+    return _MockHttpClient();
+  }
 }
 
+/// Mock HttpClient implementation
 class _MockHttpClient implements HttpClient {
   @override
   Future<HttpClientRequest> getUrl(Uri url) async => _MockHttpClientRequest();
 
   @override
-  Future<HttpClientRequest> get(String host, int port, String path) async => _MockHttpClientRequest();
+  Future<HttpClientRequest> get(String host, int port, String path) async =>
+      _MockHttpClientRequest();
 
   @override
   bool autoUncompress = true;
@@ -54,11 +59,13 @@ class _MockHttpClient implements HttpClient {
   String? userAgent;
 
   @override
-  dynamic noSuchMethod(Invocation invocation) {
-    return null;
-  }
+  void close({bool force = false}) {}
+
+  @override
+  dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
 }
 
+/// Mock HttpClientRequest
 class _MockHttpClientRequest implements HttpClientRequest {
   @override
   HttpHeaders get headers => _MockHttpHeaders();
@@ -70,18 +77,18 @@ class _MockHttpClientRequest implements HttpClientRequest {
   Future<HttpClientResponse> close() async => _MockHttpClientResponse();
 
   @override
-  dynamic noSuchMethod(Invocation invocation) {
-    return null;
-  }
+  dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
 }
 
+/// Mock HttpClientResponse
 class _MockHttpClientResponse implements HttpClientResponse {
   final List<int> _data = [
-    0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A, 0x00, 0x00, 0x00, 0x0D, 0x49, 0x48, 0x44, 0x52,
-    0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x01, 0x08, 0x06, 0x00, 0x00, 0x00, 0x1F, 0x15, 0xC4,
-    0x89, 0x00, 0x00, 0x00, 0x0A, 0x49, 0x44, 0x41, 0x54, 0x78, 0x9C, 0x63, 0x00, 0x01, 0x00, 0x00,
-    0x05, 0x00, 0x01, 0x0D, 0x0A, 0x2D, 0xB4, 0x00, 0x00, 0x00, 0x00, 0x49, 0x45, 0x4E, 0x44, 0xAE,
-    0x42, 0x60, 0x82
+    0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A, 0x00, 0x00, 0x00, 0x0D,
+    0x49, 0x48, 0x44, 0x52, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x01,
+    0x08, 0x06, 0x00, 0x00, 0x00, 0x1F, 0x15, 0xC4, 0x89, 0x00, 0x00, 0x00,
+    0x0A, 0x49, 0x44, 0x41, 0x54, 0x78, 0x9C, 0x63, 0x00, 0x01, 0x00, 0x00,
+    0x05, 0x00, 0x01, 0x0D, 0x0A, 0x2D, 0xB4, 0x00, 0x00, 0x00, 0x00, 0x49,
+    0x45, 0x4E, 0x44, 0xAE, 0x42, 0x60, 0x82
   ];
 
   @override
@@ -91,24 +98,26 @@ class _MockHttpClientResponse implements HttpClientResponse {
   int get contentLength => _data.length;
 
   @override
-  HttpClientResponseCompressionState get compressionState => HttpClientResponseCompressionState.notCompressed;
+  HttpClientResponseCompressionState get compressionState =>
+      HttpClientResponseCompressionState.notCompressed;
 
   @override
-  StreamSubscription<List<int>> listen(void onData(List<int> event)?,
-      {Function? onError, void onDone()?, bool? cancelOnError}) {
-    return Stream.fromIterable([_data]).listen(onData,
-        onError: onError, onDone: onDone, cancelOnError: cancelOnError);
+  StreamSubscription<List<int>> listen(void Function(List<int> event)? onData,
+      {Function? onError, void Function()? onDone, bool? cancelOnError}) {
+    return Stream.fromIterable([_data]).listen(
+      onData,
+      onError: onError,
+      onDone: onDone,
+      cancelOnError: cancelOnError,
+    );
   }
 
   @override
-  dynamic noSuchMethod(Invocation invocation) {
-    return null;
-  }
+  dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
 }
 
+/// Mock HttpHeaders
 class _MockHttpHeaders implements HttpHeaders {
   @override
-  dynamic noSuchMethod(Invocation invocation) {
-    return null;
-  }
+  dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
 }
