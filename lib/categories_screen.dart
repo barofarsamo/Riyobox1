@@ -49,17 +49,22 @@ class CategoriesScreen extends StatelessWidget {
             actions: [
               IconButton(
                 icon: const Icon(Icons.cast, color: Colors.white),
+                tooltip: 'Cast to device',
                 onPressed: () {},
               ),
               IconButton(
                 icon: const Icon(Icons.settings, color: Colors.white),
+                tooltip: 'Settings',
                 onPressed: () {},
               ),
-              const Padding(
-                padding: EdgeInsets.only(right: 16.0),
-                child: CircleAvatar(
-                  radius: 16,
-                  backgroundImage: NetworkImage('https://picsum.photos/seed/profile/100/100'),
+              Padding(
+                padding: const EdgeInsets.only(right: 16.0),
+                child: Semantics(
+                  label: 'User profile',
+                  child: const CircleAvatar(
+                    radius: 16,
+                    backgroundImage: NetworkImage('https://picsum.photos/seed/profile/100/100'),
+                  ),
                 ),
               ),
             ],
@@ -143,6 +148,7 @@ class CategoriesScreen extends StatelessWidget {
             height: 200,
             width: double.infinity,
             fit: BoxFit.cover,
+            semanticLabel: 'Featured category: Anime Hub',
           ),
           Container(
             height: 200,
@@ -197,6 +203,7 @@ class CategoriesScreen extends StatelessWidget {
             width: double.infinity,
             height: double.infinity,
             fit: BoxFit.cover,
+            semanticLabel: '$name genre',
           ),
           Container(
             decoration: BoxDecoration(
