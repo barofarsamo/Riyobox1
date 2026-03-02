@@ -49,17 +49,23 @@ class CategoriesScreen extends StatelessWidget {
             actions: [
               IconButton(
                 icon: const Icon(Icons.cast, color: Colors.white),
+                tooltip: 'Cast',
                 onPressed: () {},
               ),
               IconButton(
                 icon: const Icon(Icons.settings, color: Colors.white),
+                tooltip: 'Settings',
                 onPressed: () {},
               ),
               const Padding(
                 padding: EdgeInsets.only(right: 16.0),
-                child: CircleAvatar(
-                  radius: 16,
-                  backgroundImage: NetworkImage('https://picsum.photos/seed/profile/100/100'),
+                child: Tooltip(
+                  message: 'User profile',
+                  child: CircleAvatar(
+                    radius: 16,
+                    backgroundImage: NetworkImage(
+                        'https://picsum.photos/seed/profile/100/100'),
+                  ),
                 ),
               ),
             ],

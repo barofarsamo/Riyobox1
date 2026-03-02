@@ -34,17 +34,23 @@ class MyRiyoboxScreen extends StatelessWidget {
         actions: [
           IconButton(
             icon: const Icon(Icons.cast, color: Colors.white),
+            tooltip: 'Cast',
             onPressed: () {},
           ),
           IconButton(
             icon: const Icon(Icons.settings, color: Colors.white),
+            tooltip: 'Settings',
             onPressed: () {},
           ),
           const Padding(
             padding: EdgeInsets.only(right: 16.0),
-            child: CircleAvatar(
-              radius: 16,
-              backgroundImage: NetworkImage('https://picsum.photos/seed/profile/100/100'),
+            child: Tooltip(
+              message: 'User profile',
+              child: CircleAvatar(
+                radius: 16,
+                backgroundImage: NetworkImage(
+                    'https://picsum.photos/seed/profile/100/100'),
+              ),
             ),
           ),
         ],
@@ -80,21 +86,28 @@ class MyRiyoboxScreen extends StatelessWidget {
           clipBehavior: Clip.none,
           alignment: Alignment.bottomRight,
           children: [
-            const CircleAvatar(
-              radius: 50,
-              backgroundImage: NetworkImage('https://picsum.photos/seed/mainprofile/200/200'),
+            const Tooltip(
+              message: 'User profile',
+              child: CircleAvatar(
+                radius: 50,
+                backgroundImage: NetworkImage(
+                    'https://picsum.photos/seed/mainprofile/200/200'),
+              ),
             ),
             Positioned(
               right: -5,
               bottom: -5,
-              child: Container(
-                decoration: BoxDecoration(
-                  color: Colors.yellow,
-                  shape: BoxShape.circle,
-                  border: Border.all(color: const Color(0xFF1C1C2A), width: 2),
+              child: Tooltip(
+                message: 'Edit Profile',
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: Colors.yellow,
+                    shape: BoxShape.circle,
+                    border: Border.all(color: const Color(0xFF1C1C2A), width: 2),
+                  ),
+                  padding: const EdgeInsets.all(6),
+                  child: const Icon(Icons.edit, color: Colors.black, size: 20),
                 ),
-                padding: const EdgeInsets.all(6),
-                child: const Icon(Icons.edit, color: Colors.black, size: 20),
               ),
             ),
           ],
