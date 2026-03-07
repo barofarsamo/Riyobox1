@@ -35,16 +35,25 @@ class MyRiyoboxScreen extends StatelessWidget {
           IconButton(
             icon: const Icon(Icons.cast, color: Colors.white),
             onPressed: () {},
+            tooltip: 'Cast to device',
           ),
           IconButton(
             icon: const Icon(Icons.settings, color: Colors.white),
             onPressed: () {},
+            tooltip: 'Settings',
           ),
-          const Padding(
-            padding: EdgeInsets.only(right: 16.0),
-            child: CircleAvatar(
-              radius: 16,
-              backgroundImage: NetworkImage('https://picsum.photos/seed/profile/100/100'),
+          Padding(
+            padding: const EdgeInsets.only(right: 16.0),
+            child: Tooltip(
+              message: 'User Profile',
+              child: Semantics(
+                label: 'User Profile',
+                child: const CircleAvatar(
+                  radius: 16,
+                  backgroundImage:
+                      NetworkImage('https://picsum.photos/seed/profile/100/100'),
+                ),
+              ),
             ),
           ),
         ],
@@ -80,21 +89,33 @@ class MyRiyoboxScreen extends StatelessWidget {
           clipBehavior: Clip.none,
           alignment: Alignment.bottomRight,
           children: [
-            const CircleAvatar(
-              radius: 50,
-              backgroundImage: NetworkImage('https://picsum.photos/seed/mainprofile/200/200'),
+            Tooltip(
+              message: 'User Profile',
+              child: Semantics(
+                label: 'User Profile',
+                child: const CircleAvatar(
+                  radius: 50,
+                  backgroundImage:
+                      NetworkImage('https://picsum.photos/seed/mainprofile/200/200'),
+                ),
+              ),
             ),
             Positioned(
               right: -5,
               bottom: -5,
-              child: Container(
-                decoration: BoxDecoration(
-                  color: Colors.yellow,
-                  shape: BoxShape.circle,
-                  border: Border.all(color: const Color(0xFF1C1C2A), width: 2),
+              child: Material(
+                color: Colors.yellow,
+                shape: const CircleBorder(
+                  side: BorderSide(color: Color(0xFF1C1C2A), width: 2),
                 ),
-                padding: const EdgeInsets.all(6),
-                child: const Icon(Icons.edit, color: Colors.black, size: 20),
+                child: InkWell(
+                  customBorder: const CircleBorder(),
+                  onTap: () {},
+                  child: const Padding(
+                    padding: EdgeInsets.all(6),
+                    child: Icon(Icons.edit, color: Colors.black, size: 20),
+                  ),
+                ),
               ),
             ),
           ],
@@ -164,14 +185,26 @@ class MyRiyoboxScreen extends StatelessWidget {
                   child: Card(
                     clipBehavior: Clip.antiAlias,
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                    child: Image.network(
-                      item['image']!,
-                      fit: BoxFit.cover,
-                      width: double.infinity,
-                       loadingBuilder: (context, child, progress) {
-                        if (progress == null) return child;
-                        return const ShimmerLoading.rectangular(height: 180);
-                      },
+                    child: Stack(
+                      children: [
+                        Image.network(
+                          item['image']!,
+                          fit: BoxFit.cover,
+                          width: double.infinity,
+                          loadingBuilder: (context, child, progress) {
+                            if (progress == null) return child;
+                            return const ShimmerLoading.rectangular(height: 180);
+                          },
+                        ),
+                        Positioned.fill(
+                          child: Material(
+                            color: Colors.transparent,
+                            child: InkWell(
+                              onTap: () {},
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                 ),
