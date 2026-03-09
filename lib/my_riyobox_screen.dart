@@ -35,16 +35,21 @@ class MyRiyoboxScreen extends StatelessWidget {
           IconButton(
             icon: const Icon(Icons.cast, color: Colors.white),
             onPressed: () {},
+            tooltip: 'Cast to device',
           ),
           IconButton(
             icon: const Icon(Icons.settings, color: Colors.white),
             onPressed: () {},
+            tooltip: 'Settings',
           ),
           const Padding(
             padding: EdgeInsets.only(right: 16.0),
-            child: CircleAvatar(
-              radius: 16,
-              backgroundImage: NetworkImage('https://picsum.photos/seed/profile/100/100'),
+            child: Tooltip(
+              message: 'User profile',
+              child: CircleAvatar(
+                radius: 16,
+                backgroundImage: NetworkImage('https://picsum.photos/seed/profile/100/100'),
+              ),
             ),
           ),
         ],
@@ -80,9 +85,12 @@ class MyRiyoboxScreen extends StatelessWidget {
           clipBehavior: Clip.none,
           alignment: Alignment.bottomRight,
           children: [
-            const CircleAvatar(
-              radius: 50,
-              backgroundImage: NetworkImage('https://picsum.photos/seed/mainprofile/200/200'),
+            const Tooltip(
+              message: 'User profile photo',
+              child: CircleAvatar(
+                radius: 50,
+                backgroundImage: NetworkImage('https://picsum.photos/seed/mainprofile/200/200'),
+              ),
             ),
             Positioned(
               right: -5,

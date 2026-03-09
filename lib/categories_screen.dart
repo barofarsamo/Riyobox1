@@ -50,16 +50,21 @@ class CategoriesScreen extends StatelessWidget {
               IconButton(
                 icon: const Icon(Icons.cast, color: Colors.white),
                 onPressed: () {},
+                tooltip: 'Cast to device',
               ),
               IconButton(
                 icon: const Icon(Icons.settings, color: Colors.white),
                 onPressed: () {},
+                tooltip: 'Settings',
               ),
               const Padding(
                 padding: EdgeInsets.only(right: 16.0),
-                child: CircleAvatar(
-                  radius: 16,
-                  backgroundImage: NetworkImage('https://picsum.photos/seed/profile/100/100'),
+                child: Tooltip(
+                  message: 'User profile',
+                  child: CircleAvatar(
+                    radius: 16,
+                    backgroundImage: NetworkImage('https://picsum.photos/seed/profile/100/100'),
+                  ),
                 ),
               ),
             ],
@@ -211,22 +216,42 @@ class CategoriesScreen extends StatelessWidget {
               fontWeight: FontWeight.bold,
             ),
           ),
+          Positioned.fill(
+            child: Material(
+              color: Colors.transparent,
+              child: InkWell(
+                onTap: () {},
+              ),
+            ),
+          ),
         ],
       ),
     );
   }
 
-    Widget _buildTrendingMovieCard(String imageUrl) {
+  Widget _buildTrendingMovieCard(String imageUrl) {
     return Padding(
       padding: const EdgeInsets.only(right: 12.0),
       child: Card(
-         clipBehavior: Clip.antiAlias,
-         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-        child: Image.network(
-          imageUrl,
-          width: 120,
-          height: 180,
-          fit: BoxFit.cover,
+        clipBehavior: Clip.antiAlias,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        child: Stack(
+          children: [
+            Image.network(
+              imageUrl,
+              width: 120,
+              height: 180,
+              fit: BoxFit.cover,
+            ),
+            Positioned.fill(
+              child: Material(
+                color: Colors.transparent,
+                child: InkWell(
+                  onTap: () {},
+                ),
+              ),
+            ),
+          ],
         ),
       ),
     );
