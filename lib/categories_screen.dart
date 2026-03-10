@@ -49,17 +49,25 @@ class CategoriesScreen extends StatelessWidget {
             actions: [
               IconButton(
                 icon: const Icon(Icons.cast, color: Colors.white),
+                tooltip: 'Cast',
                 onPressed: () {},
               ),
               IconButton(
                 icon: const Icon(Icons.settings, color: Colors.white),
+                tooltip: 'Settings',
                 onPressed: () {},
               ),
-              const Padding(
-                padding: EdgeInsets.only(right: 16.0),
-                child: CircleAvatar(
-                  radius: 16,
-                  backgroundImage: NetworkImage('https://picsum.photos/seed/profile/100/100'),
+              Padding(
+                padding: const EdgeInsets.only(right: 16.0),
+                child: Tooltip(
+                  message: 'User profile',
+                  child: Semantics(
+                    label: 'User profile',
+                    child: const CircleAvatar(
+                      radius: 16,
+                      backgroundImage: NetworkImage('https://picsum.photos/seed/profile/100/100'),
+                    ),
+                  ),
                 ),
               ),
             ],
@@ -211,22 +219,48 @@ class CategoriesScreen extends StatelessWidget {
               fontWeight: FontWeight.bold,
             ),
           ),
+          Positioned.fill(
+            child: Material(
+              color: Colors.transparent,
+              child: Tooltip(
+                message: 'View $name movies',
+                child: InkWell(
+                  onTap: () {},
+                ),
+              ),
+            ),
+          ),
         ],
       ),
     );
   }
 
-    Widget _buildTrendingMovieCard(String imageUrl) {
+  Widget _buildTrendingMovieCard(String imageUrl) {
     return Padding(
       padding: const EdgeInsets.only(right: 12.0),
       child: Card(
-         clipBehavior: Clip.antiAlias,
-         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-        child: Image.network(
-          imageUrl,
-          width: 120,
-          height: 180,
-          fit: BoxFit.cover,
+        clipBehavior: Clip.antiAlias,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        child: Stack(
+          children: [
+            Image.network(
+              imageUrl,
+              width: 120,
+              height: 180,
+              fit: BoxFit.cover,
+            ),
+            Positioned.fill(
+              child: Material(
+                color: Colors.transparent,
+                child: Tooltip(
+                  message: 'Movie details',
+                  child: InkWell(
+                    onTap: () {},
+                  ),
+                ),
+              ),
+            ),
+          ],
         ),
       ),
     );
