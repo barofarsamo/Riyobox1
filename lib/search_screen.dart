@@ -65,9 +65,9 @@ class _SearchScreenState extends State<SearchScreen> {
                       ),
                     ),
                   ),
-                  const SizedBox(width: 16.0),
-                  GestureDetector(
-                    onTap: () {
+                  const SizedBox(width: 8.0),
+                  TextButton(
+                    onPressed: () {
                       _searchController.clear();
                       FocusScope.of(context).unfocus();
                     },
@@ -143,24 +143,33 @@ class _SearchScreenState extends State<SearchScreen> {
   }
 
   Widget _buildCategoryChip(String label) {
-    return GestureDetector(
-      onTap: () {
-        // Handle category tap
-      },
-      child: Container(
-        decoration: BoxDecoration(
-          color: const Color(0xFF2A2A3A),
-          borderRadius: BorderRadius.circular(8.0),
-          gradient: const LinearGradient(
-            colors: [Color(0xFF2A2A3A), Color(0xFF1C1C2A)],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
+    return Semantics(
+      button: true,
+      label: 'Browse $label category',
+      child: Material(
+        color: Colors.transparent,
+        borderRadius: BorderRadius.circular(8.0),
+        child: Ink(
+          decoration: BoxDecoration(
+            color: const Color(0xFF2A2A3A),
+            borderRadius: BorderRadius.circular(8.0),
+            gradient: const LinearGradient(
+              colors: [Color(0xFF2A2A3A), Color(0xFF1C1C2A)],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ),
           ),
-        ),
-        child: Center(
-          child: Text(
-            label,
-            style: const TextStyle(color: Colors.white, fontSize: 16.0),
+          child: InkWell(
+            onTap: () {
+              // Handle category tap
+            },
+            borderRadius: BorderRadius.circular(8.0),
+            child: Center(
+              child: Text(
+                label,
+                style: const TextStyle(color: Colors.white, fontSize: 16.0),
+              ),
+            ),
           ),
         ),
       ),
