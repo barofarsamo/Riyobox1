@@ -48,9 +48,9 @@ class MyRiyoboxScreen extends StatelessWidget {
               message: 'User profile',
               child: Semantics(
                 label: 'User profile',
-                child: CircleAvatar(
+                child: const CircleAvatar(
                   radius: 16,
-                  backgroundImage: const NetworkImage(
+                  backgroundImage: NetworkImage(
                       'https://picsum.photos/seed/profile/100/100'),
                 ),
               ),
