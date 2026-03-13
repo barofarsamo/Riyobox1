@@ -35,16 +35,25 @@ class MyRiyoboxScreen extends StatelessWidget {
           IconButton(
             icon: const Icon(Icons.cast, color: Colors.white),
             onPressed: () {},
+            tooltip: 'Cast to device',
           ),
           IconButton(
             icon: const Icon(Icons.settings, color: Colors.white),
             onPressed: () {},
+            tooltip: 'Settings',
           ),
-          const Padding(
-            padding: EdgeInsets.only(right: 16.0),
-            child: CircleAvatar(
-              radius: 16,
-              backgroundImage: NetworkImage('https://picsum.photos/seed/profile/100/100'),
+          Padding(
+            padding: const EdgeInsets.only(right: 16.0),
+            child: Tooltip(
+              message: 'User profile',
+              child: Semantics(
+                label: 'User profile',
+                child: const CircleAvatar(
+                  radius: 16,
+                  backgroundImage: NetworkImage(
+                      'https://picsum.photos/seed/profile/100/100'),
+                ),
+              ),
             ),
           ),
         ],
@@ -87,14 +96,27 @@ class MyRiyoboxScreen extends StatelessWidget {
             Positioned(
               right: -5,
               bottom: -5,
-              child: Container(
-                decoration: BoxDecoration(
+              child: Tooltip(
+                message: 'Edit profile',
+                child: Material(
                   color: Colors.yellow,
-                  shape: BoxShape.circle,
-                  border: Border.all(color: const Color(0xFF1C1C2A), width: 2),
+                  shape: const CircleBorder(),
+                  clipBehavior: Clip.antiAlias,
+                  child: InkWell(
+                    onTap: () {},
+                    customBorder: const CircleBorder(),
+                    child: Container(
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        border: Border.all(
+                            color: const Color(0xFF1C1C2A), width: 2),
+                      ),
+                      padding: const EdgeInsets.all(6),
+                      child:
+                          const Icon(Icons.edit, color: Colors.black, size: 20),
+                    ),
+                  ),
                 ),
-                padding: const EdgeInsets.all(6),
-                child: const Icon(Icons.edit, color: Colors.black, size: 20),
               ),
             ),
           ],
@@ -126,12 +148,23 @@ class MyRiyoboxScreen extends StatelessWidget {
   }
 
   Widget _buildStatItem(String value, String label) {
-    return Column(
-      children: [
-        Text(value, style: const TextStyle(color: Colors.white, fontSize: 22, fontWeight: FontWeight.bold)),
-        const SizedBox(height: 4),
-        Text(label, style: TextStyle(color: Colors.grey[400], fontSize: 12)),
-      ],
+    return InkWell(
+      onTap: () {},
+      borderRadius: BorderRadius.circular(8),
+      child: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Column(
+          children: [
+            Text(value,
+                style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 22,
+                    fontWeight: FontWeight.bold)),
+            const SizedBox(height: 4),
+            Text(label, style: TextStyle(color: Colors.grey[400], fontSize: 12)),
+          ],
+        ),
+      ),
     );
   }
 
