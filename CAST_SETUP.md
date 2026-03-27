@@ -25,7 +25,6 @@ This app uses the `flutter_chrome_cast` package for a high-quality integration w
 ## iOS Setup (Requirements)
 
 To support casting on iOS, you must add the following to your `Info.plist`:
-
 ```xml
 <key>NSBluetoothAlwaysUsageDescription</key>
 <string>We use Bluetooth to discover nearby Cast devices.</string>
@@ -40,7 +39,7 @@ To support casting on iOS, you must add the following to your `Info.plist`:
 </array>
 ```
 
-## How Casting Works Internally
+## How Casting Works Internally.
 
 1. **Initialization**: `GoogleCastContext.instance.setSharedInstanceWithOptions` initializes the native SDK.
 2. **Discovery**: `GoogleCastDiscoveryManager` starts searching for devices using mDNS and Bluetooth.
