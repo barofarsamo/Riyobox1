@@ -24,7 +24,35 @@ class MovieCard extends StatelessWidget {
             if (progress == null) return child;
             return ShimmerLoading.rectangular(height: height);
           },
-          errorBuilder: (context, error, stackTrace) => const Center(child: Icon(Icons.error)),
+          errorBuilder: (context, error, stackTrace) {
+            return Container(
+              color: Colors.grey[800],
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Icon(
+                    Icons.broken_image,
+                    color: Colors.white54,
+                    size: 40,
+                  ),
+                  const SizedBox(height: 8),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                    child: Text(
+                      movie.title,
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(
+                        color: Colors.white70,
+                        fontWeight: FontWeight.bold,
+                      ),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                ],
+              ),
+            );
+          },
         ),
       ),
     );
