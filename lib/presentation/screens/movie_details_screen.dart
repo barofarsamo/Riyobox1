@@ -53,6 +53,7 @@ class _MovieDetailsScreenState extends State<MovieDetailsScreen> {
                       Image.network(
                         'https://image.tmdb.org/t/p/w500${movie.posterPath}',
                         fit: BoxFit.cover,
+                        semanticLabel: 'Poster for ${movie.title}',
                         errorBuilder: (context, error, stackTrace) =>
                             const Center(child: Icon(Icons.error)),
                       ),
@@ -75,6 +76,7 @@ class _MovieDetailsScreenState extends State<MovieDetailsScreen> {
                 leading: IconButton(
                   icon: const Icon(Icons.arrow_back, color: Colors.white),
                   onPressed: () => context.pop(),
+                  semanticLabel: 'Back',
                 ),
               ),
               SliverToBoxAdapter(
